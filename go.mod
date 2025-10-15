@@ -1,4 +1,4 @@
-module github.com/evrone/go-clean-template
+module github.com/minhhoccode111/realworld-fiber-clean
 
 go 1.25
 
