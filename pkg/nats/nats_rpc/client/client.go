@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"time"
 
-	natsrpc "github.com/minhhoccode111/realworld-fiber-clean/pkg/nats/nats_rpc"
 	"github.com/goccy/go-json"
+	natsrpc "github.com/minhhoccode111/realworld-fiber-clean/pkg/nats/nats_rpc"
 	"github.com/nats-io/nats.go"
 )
 
@@ -65,7 +65,7 @@ func (c *Client) Shutdown() error {
 }
 
 // RemoteCall -.
-func (c *Client) RemoteCall(handler string, request, response interface{}) error {
+func (c *Client) RemoteCall(handler string, request, response any) error {
 	var (
 		requestBody []byte
 		err         error
@@ -92,7 +92,10 @@ func (c *Client) RemoteCall(handler string, request, response interface{}) error
 	}
 
 	if err != nil {
-		return fmt.Errorf("nats_rpc client - Client - RemoteCall - c.connection.Conn.Request: %w", err)
+		return fmt.Errorf(
+			"nats_rpc client - Client - RemoteCall - c.connection.Conn.Request: %w",
+			err,
+		)
 	}
 
 	switch message.Header.Get("Status") {

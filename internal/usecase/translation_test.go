@@ -16,11 +16,13 @@ var errInternalServErr = errors.New("internal server error")
 type test struct {
 	name string
 	mock func()
-	res  interface{}
+	res  any
 	err  error
 }
 
-func translationUseCase(t *testing.T) (*translation.UseCase, *MockTranslationRepo, *MockTranslationWebAPI) {
+func translationUseCase(
+	t *testing.T,
+) (*translation.UseCase, *MockTranslationRepo, *MockTranslationWebAPI) {
 	t.Helper()
 
 	mockCtl := gomock.NewController(t)
@@ -90,7 +92,9 @@ func TestTranslate(t *testing.T) { //nolint:tparallel // data races here
 		{
 			name: "web API error",
 			mock: func() {
-				webAPI.EXPECT().Translate(entity.Translation{}).Return(entity.Translation{}, errInternalServErr)
+				webAPI.EXPECT().
+					Translate(entity.Translation{}).
+					Return(entity.Translation{}, errInternalServErr)
 			},
 			res: entity.Translation{},
 			err: errInternalServErr,
@@ -99,7 +103,9 @@ func TestTranslate(t *testing.T) { //nolint:tparallel // data races here
 			name: "repo error",
 			mock: func() {
 				webAPI.EXPECT().Translate(entity.Translation{}).Return(entity.Translation{}, nil)
-				repo.EXPECT().Store(context.Background(), entity.Translation{}).Return(errInternalServErr)
+				repo.EXPECT().
+					Store(context.Background(), entity.Translation{}).
+					Return(errInternalServErr)
 			},
 			res: entity.Translation{},
 			err: errInternalServErr,

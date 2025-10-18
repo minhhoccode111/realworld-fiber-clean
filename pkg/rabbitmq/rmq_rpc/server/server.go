@@ -7,9 +7,9 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/goccy/go-json"
 	"github.com/minhhoccode111/realworld-fiber-clean/pkg/logger"
 	rmqrpc "github.com/minhhoccode111/realworld-fiber-clean/pkg/rabbitmq/rmq_rpc"
-	"github.com/goccy/go-json"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"golang.org/x/sync/errgroup"
 )
@@ -21,7 +21,7 @@ const (
 )
 
 // CallHandler -.
-type CallHandler func(*amqp.Delivery) (interface{}, error)
+type CallHandler func(*amqp.Delivery) (any, error)
 
 // Server -.
 type Server struct {
@@ -39,7 +39,12 @@ type Server struct {
 }
 
 // New -.
-func New(url, serverExchange string, router map[string]CallHandler, l logger.Interface, opts ...Option) (*Server, error) {
+func New(
+	url, serverExchange string,
+	router map[string]CallHandler,
+	l logger.Interface,
+	opts ...Option,
+) (*Server, error) {
 	group, ctx := errgroup.WithContext(context.Background())
 	group.SetLimit(1) // Run only one goroutine
 

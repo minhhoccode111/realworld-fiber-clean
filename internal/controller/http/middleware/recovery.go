@@ -5,12 +5,12 @@ import (
 	"runtime/debug"
 	"strings"
 
-	"github.com/minhhoccode111/realworld-fiber-clean/pkg/logger"
 	"github.com/gofiber/fiber/v2"
 	fiberRecover "github.com/gofiber/fiber/v2/middleware/recover"
+	"github.com/minhhoccode111/realworld-fiber-clean/pkg/logger"
 )
 
-func buildPanicMessage(ctx *fiber.Ctx, err interface{}) string {
+func buildPanicMessage(ctx *fiber.Ctx, err any) string {
 	var result strings.Builder
 
 	result.WriteString(ctx.IP())
@@ -24,8 +24,8 @@ func buildPanicMessage(ctx *fiber.Ctx, err interface{}) string {
 	return result.String()
 }
 
-func logPanic(l logger.Interface) func(c *fiber.Ctx, err interface{}) {
-	return func(ctx *fiber.Ctx, err interface{}) {
+func logPanic(l logger.Interface) func(c *fiber.Ctx, err any) {
+	return func(ctx *fiber.Ctx, err any) {
 		l.Error(buildPanicMessage(ctx, err))
 	}
 }

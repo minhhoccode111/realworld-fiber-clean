@@ -7,9 +7,9 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/goccy/go-json"
 	"github.com/minhhoccode111/realworld-fiber-clean/pkg/logger"
 	natsrpc "github.com/minhhoccode111/realworld-fiber-clean/pkg/nats/nats_rpc"
-	"github.com/goccy/go-json"
 	"github.com/nats-io/nats.go"
 	"golang.org/x/sync/errgroup"
 )
@@ -21,7 +21,7 @@ const (
 )
 
 // CallHandler -.
-type CallHandler func(*nats.Msg) (interface{}, error)
+type CallHandler func(*nats.Msg) (any, error)
 
 // Server -.
 type Server struct {
@@ -125,7 +125,10 @@ func (s *Server) Shutdown() error {
 	if s.subscription != nil {
 		err := s.subscription.Unsubscribe()
 		if err != nil {
-			s.logger.Error(err, "nats_rpc server - Server - Shutdown - s.conn.Subscription.Unsubscribe")
+			s.logger.Error(
+				err,
+				"nats_rpc server - Server - Shutdown - s.conn.Subscription.Unsubscribe",
+			)
 
 			shutdownErrors = append(shutdownErrors, err)
 		}
