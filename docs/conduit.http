@@ -1,0 +1,215 @@
+@url = http://localhost:8080
+@api = {{url}}/api/v2
+
+@password = Bruh0!0!
+@bio = trust the process
+@image = https://www.w3schools.com/howto/img_avatar.png
+
+@email0 = minhhoccode111@gmail.com
+@email1 = minhdh.swe@gmail.com
+@username0 = minhhoccode111
+@username1 = minhdh
+@token0 =
+@token1 =
+
+@slug = slug
+@title = title
+@description = description
+@body = body
+
+@commentId = 123
+
+### Register
+POST {{api}}/users
+
+{
+    "user": {
+        "email": "{{email0}}",
+        "password": "{{password}}",
+        "username0": "{{username0}}"
+    }
+}
+
+### Login
+POST {{api}}/users/login
+
+{
+    "user": {
+        "email": "{{email0}}",
+        "password": "{{password}}"
+    }
+}
+
+### Current User
+GET {{api}}/user
+Authorization: Token {{token0}}
+
+### Update User
+PUT {{api}}/user
+Authorization: Token {{token0}}
+
+{
+    "user": {
+        "email": "{{email0}}",
+        "username0": "{{username0}}",
+        "password": "{{password}}",
+        "image": "{{image}}",
+        "bio": "{{bio}}"
+    }
+}
+
+### Articles without auth
+GET {{api}}/articles
+
+### All Articles without auth, with limit and offset
+GET {{api}}/articles
+    ?limit=10
+    &offset=10
+
+### All Articles without auth, with limit and offset, author
+GET {{api}}/articles
+    ?limit=10
+    &offset=0
+    &author=johnjacob
+
+### All Articles without auth, with limit and offset, author, favorited
+GET {{api}}/articles
+    ?limit=10
+    &offset=0
+    &author={{username0}}
+    &favorited={{username0}}
+
+### All Articles without auth, with limit and offset, author, favorited, tag
+GET {{api}}/articles
+    ?limit=10
+    &offset=0
+    &author={{username0}}
+    &favorited={{username0}}
+    &tag=sao
+
+### All Articles with auth
+GET {{api}}/articles
+Authorization: Token {{token0}}
+
+### All Articles with auth, with limit and offset
+GET {{api}}/articles
+    ?limit=10
+    &offset=10
+Authorization: Token {{token0}}
+
+### All Articles with auth, with limit and offset, author
+GET {{api}}/articles
+    ?limit=10
+    &offset=0
+    &author={{username0}}
+Authorization: Token {{token0}}
+
+### All Articles with auth, with limit and offset, author, favorited
+GET {{api}}/articles
+    ?limit=10
+    &offset=0
+    &author={{username0}}
+    &favorited={{username0}}
+Authorization: Token {{token0}}
+
+### All Articles with auth, with limit and offset, author, favorited, tag
+GET {{api}}/articles
+    ?limit=10
+    &offset=0
+    &author={{username0}}
+    &favorited={{username0}}
+    &tag=sao
+Authorization: Token {{token0}}
+
+### Create Article
+POST {{api}}/articles
+Authorization: Token {{token0}}
+
+{
+    "article": {
+        "title": "title",
+        "description": "description",
+        "body": "body",
+        "tagList": ["minh", "hoc", "code"]
+    }
+}
+
+### Get Feed Articles
+GET {{api}}/articles/feed
+Authorization: Token {{token0}}
+
+### Single Article by slug, without auth
+GET {{api}}/articles/{{slug}}
+
+### Single Article by slug, with auth
+GET {{api}}/articles/{{slug}}
+Authorization: Token {{token0}}
+
+### Update Article
+PUT {{api}}/articles/{{slug}}
+Authorization: Token {{token0}}
+
+{
+    "article": {
+        "title": "{{title}}",
+        "body": "{{body}}",
+        "description": "{{description}}"
+    }
+}
+
+### Delete Article
+DELETE {{api}}/articles/{{slug}}
+Authorization: Token {{token0}}
+
+### Favorite Article
+POST {{api}}/articles/{{slug}}/favorite
+Authorization: Token {{token0}}
+
+### Unfavorite Article
+DELETE {{api}}/articles/{{slug}}/favorite
+Authorization: Token {{token0}}
+
+### Create Comment for Article
+POST {{api}}/articles/{{slug}}/comments
+Authorization: Token {{token0}}
+
+{
+    "comment": {
+        "body": "{{body}}"
+    }
+}
+
+### Get Comments for Article, without auth
+GET {{api}}/articles/{{slug}}/comments
+    ?limit=10
+    &offset=0
+
+### Get Comments for Article, with auth
+GET {{api}}/articles/{{slug}}/comments
+    ?limit=10
+    &offset=0
+Authorization: Token {{token0}}
+
+### All Comments for Article without login
+GET {{api}}/articles/{{slug}}/comments
+
+### Delete Comment for Article
+DELETE {{api}}/articles/{{slug}}/comments/{{commentId}}
+Authorization: Token {{token0}}
+
+### Get Profile
+GET {{api}}/profiles/{{username0}}
+Authorization: Token {{token0}}
+
+### Follow Profile
+POST {{api}}/profiles/{{username0}}/follow
+Authorization: Token {{token0}}
+
+### Unfollow Profile
+DELETE {{api}}/profiles/{{username0}}/follow
+Authorization: Token {{token0}}
+
+### Get Tags
+GET {{api}}/tags
+    ?limit=20
+    &offset=0

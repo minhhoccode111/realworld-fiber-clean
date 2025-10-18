@@ -4,8 +4,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/minhhoccode111/realworld-fiber-clean/pkg/logger"
 	"github.com/gofiber/fiber/v2"
+	"github.com/minhhoccode111/realworld-fiber-clean/pkg/logger"
 )
 
 func buildRequestMessage(ctx *fiber.Ctx) string {

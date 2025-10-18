@@ -1,8 +1,8 @@
 package v1
 
 import (
-	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/response"
 	"github.com/gofiber/fiber/v2"
+	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/response"
 )
 
 func errorResponse(ctx *fiber.Ctx, code int, msg string) error {

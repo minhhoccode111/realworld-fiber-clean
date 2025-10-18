@@ -5,14 +5,14 @@ import (
 	"net/http"
 
 	"github.com/ansrivas/fiberprometheus/v2"
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/swagger"
 	"github.com/minhhoccode111/realworld-fiber-clean/config"
 	_ "github.com/minhhoccode111/realworld-fiber-clean/docs" // Swagger docs.
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/middleware"
 	v1 "github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/usecase"
 	"github.com/minhhoccode111/realworld-fiber-clean/pkg/logger"
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/swagger"
 )
 
 // NewRouter -.

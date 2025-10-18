@@ -23,3 +23,7 @@ bin/
 vendor/
 
 coverage.txt
+
+# build output
+tmp/
+main

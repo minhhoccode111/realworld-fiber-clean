@@ -11,10 +11,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/goccy/go-json"
 	protov1 "github.com/minhhoccode111/realworld-fiber-clean/docs/proto/v1"
 	natsClient "github.com/minhhoccode111/realworld-fiber-clean/pkg/nats/nats_rpc/client"
 	rmqClient "github.com/minhhoccode111/realworld-fiber-clean/pkg/rabbitmq/rmq_rpc/client"
-	"github.com/goccy/go-json"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -52,7 +52,11 @@ const (
 
 var errHealthCheck = fmt.Errorf("url %s is not available", healthPath)
 
-func doWebRequestWithTimeout(ctx context.Context, method, url string, body io.Reader) (*http.Response, error) {
+func doWebRequestWithTimeout(
+	ctx context.Context,
+	method, url string,
+	body io.Reader,
+) (*http.Response, error) {
 	req, err := http.NewRequestWithContext(ctx, method, url, body)
 	if err != nil {
 		return nil, err
@@ -89,7 +93,11 @@ func healthCheck(attempts int) error {
 			return nil
 		}
 
-		log.Printf("Integration tests: url %s is not available, attempts left: %d", healthPath, attempts)
+		log.Printf(
+			"Integration tests: url %s is not available, attempts left: %d",
+			healthPath,
+			attempts,
+		)
 
 		time.Sleep(time.Second)
 
@@ -153,7 +161,12 @@ func TestHTTPDoTranslateV1(t *testing.T) {
 
 			defer cancel()
 
-			resp, err := doWebRequestWithTimeout(ctx, http.MethodPost, url, bytes.NewBuffer([]byte(tt.body)))
+			resp, err := doWebRequestWithTimeout(
+				ctx,
+				http.MethodPost,
+				url,
+				bytes.NewBuffer([]byte(tt.body)),
+			)
 			if err != nil {
 				t.Fatalf("Failed to send request: %v", err)
 			}
@@ -205,7 +218,10 @@ func TestHTTPHistoryV1(t *testing.T) {
 
 // gRPC Client V1: GetHistory.
 func TestClientGRPCV1(t *testing.T) {
-	grpcConn, err := grpc.NewClient(grpcURL, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	grpcConn, err := grpc.NewClient(
+		grpcURL,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
 	if err != nil {
 		t.Fatal("gRPC Client - init error - grpc.NewClient", err)
 	}
@@ -230,7 +246,11 @@ func TestClientGRPCV1(t *testing.T) {
 		}
 
 		if history.History[0].Original != expectedOriginal {
-			t.Fatalf("Original mismatch: expected %q, got %q", expectedOriginal, history.History[0].Original)
+			t.Fatalf(
+				"Original mismatch: expected %q, got %q",
+				expectedOriginal,
+				history.History[0].Original,
+			)
 		}
 	}
 }
@@ -273,7 +293,11 @@ func TestClientRMQRPCV1(t *testing.T) { //nolint: dupl,gocritic,nolintlint
 		}
 
 		if history.History[0].Original != expectedOriginal {
-			t.Fatalf("Original mismatch: expected %q, got %q", expectedOriginal, history.History[0].Original)
+			t.Fatalf(
+				"Original mismatch: expected %q, got %q",
+				expectedOriginal,
+				history.History[0].Original,
+			)
 		}
 	}
 }
@@ -316,7 +340,11 @@ func TestClientNATSRPCV1(t *testing.T) { //nolint: dupl,gocritic,nolintlint
 		}
 
 		if history.History[0].Original != expectedOriginal {
-			t.Fatalf("Original mismatch: expected %q, got %q", expectedOriginal, history.History[0].Original)
+			t.Fatalf(
+				"Original mismatch: expected %q, got %q",
+				expectedOriginal,
+				history.History[0].Original,
+			)
 		}
 	}
 }

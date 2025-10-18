@@ -3,9 +3,9 @@ package v1
 import (
 	"net/http"
 
+	"github.com/gofiber/fiber/v2"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/request"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/entity"
-	"github.com/gofiber/fiber/v2"
 )
 
 // @Summary     Show history
