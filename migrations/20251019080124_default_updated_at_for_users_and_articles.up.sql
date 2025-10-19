@@ -1,0 +1,4 @@
+ALTER TABLE users
+ALTER COLUMN updated_at SET DEFAULT NOW();
+ALTER TABLE articles
+ALTER COLUMN updated_at SET DEFAULT NOW();

@@ -100,12 +100,25 @@ mock: ### run mockgen
 .PHONY: mock
 
 migrate-create:  ### create new migration
-	migrate create -ext sql -dir migrations '$(word 2,$(MAKECMDGOALS))'
+	migrate create -ext sql -dir migrations "$(name)"
 .PHONY: migrate-create
 
 migrate-up: ### migration up
 	migrate -path migrations -database '$(PG_URL)?sslmode=disable' up
 .PHONY: migrate-up
+
+migrate-down: ### rollback last migration
+	migrate -path migrations -database '$(PG_URL)?sslmode=disable' down 1
+.PHONY: migrate-down
+
+migrate-redo: ### rollback and reapply last migration
+	migrate -path migrations -database '$(PG_URL)?sslmode=disable' down 1
+	migrate -path migrations -database '$(PG_URL)?sslmode=disable' up 1
+.PHONY: migrate-redo
+
+migrate-status: ### show migration version
+	migrate -path migrations -database '$(PG_URL)?sslmode=disable' version
+.PHONY: migrate-status
 
 bin-deps: ### install tools
 	go install tool
