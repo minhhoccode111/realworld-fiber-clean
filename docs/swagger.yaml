@@ -47,8 +47,8 @@ definitions:
 host: localhost:8080
 info:
   contact: {}
-  description: Using a translation service as an example
-  title: Go Clean Template API
+  description: Realworld API using Golang + Fiber + Clean Architecture
+  title: Realworld Fiber Clean API
   version: "1.0"
 paths:
   /translation/do-translate:

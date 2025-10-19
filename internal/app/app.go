@@ -61,7 +61,11 @@ func Run(cfg *config.Config) { //nolint: gocyclo,cyclop,funlen,gocritic,nolintli
 	grpc.NewRouter(grpcServer.App, translationUseCase, l)
 
 	// HTTP Server
-	httpServer := httpserver.New(l, httpserver.Port(cfg.HTTP.Port), httpserver.Prefork(cfg.HTTP.UsePreforkMode))
+	httpServer := httpserver.New(
+		l,
+		httpserver.Port(cfg.HTTP.Port),
+		httpserver.Prefork(cfg.HTTP.UsePreforkMode),
+	)
 	http.NewRouter(httpServer.App, cfg, translationUseCase, l)
 
 	// Start servers
