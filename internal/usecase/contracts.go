@@ -15,4 +15,11 @@ type (
 		Translate(context.Context, entity.Translation) (entity.Translation, error)
 		History(context.Context) (entity.TranslationHistory, error)
 	}
+
+	// TranslationClone -.
+	// Try to extend the Translation example with pagination
+	TranslationClone interface {
+		DoTranslate(context.Context, entity.Translation) (entity.Translation, error)
+		GetHistory(ctx context.Context, limit, offset int) (entity.TranslationHistoryPaging, error)
+	}
 )

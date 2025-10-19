@@ -29,7 +29,7 @@ func NewRouter(app *fiber.App, cfg *config.Config, t usecase.Translation, l logg
 
 	// Prometheus metrics
 	if cfg.Metrics.Enabled {
-		prometheus := fiberprometheus.New("my-service-name")
+		prometheus := fiberprometheus.New(cfg.App.Name)
 		prometheus.RegisterAt(app, "/metrics")
 		app.Use(prometheus.Middleware)
 	}
