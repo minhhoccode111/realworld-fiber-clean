@@ -19,7 +19,10 @@ type (
 	// TranslationClone -.
 	// Try to extend the Translation example with pagination
 	TranslationClone interface {
-		DoTranslate(context.Context, entity.Translation) (entity.Translation, error)
-		GetHistory(ctx context.Context, limit, offset int) (entity.TranslationHistoryPaging, error)
+		PostTranslate(context.Context, entity.TranslationClone) (entity.TranslationClone, error)
+		GetHistory(
+			ctx context.Context,
+			limit, offset uint64,
+		) (entity.TranslationCloneHistory, error)
 	}
 )

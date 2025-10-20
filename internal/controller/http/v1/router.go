@@ -8,13 +8,24 @@ import (
 )
 
 // NewTranslationRoutes -.
-func NewTranslationRoutes(apiV1Group fiber.Router, t usecase.Translation, l logger.Interface) {
-	r := &V1{t: t, l: l, v: validator.New(validator.WithRequiredStructEnabled())}
+func NewTranslationRoutes(
+	apiV1Group fiber.Router,
+	l logger.Interface,
+	t usecase.Translation,
+	tc usecase.TranslationClone,
+) {
+	r := &V1{t: t, tc: tc, l: l, v: validator.New(validator.WithRequiredStructEnabled())}
 
 	translationGroup := apiV1Group.Group("/translation")
 
 	{
 		translationGroup.Get("/history", r.history)
 		translationGroup.Post("/do-translate", r.doTranslate)
+	}
+
+	translationGroupClone := apiV1Group.Group("/translation-clone")
+	{
+		translationGroupClone.Get("/history", r.getHistory)
+		translationGroupClone.Post("/translate", r.postTranslate)
 	}
 }

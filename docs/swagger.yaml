@@ -15,6 +15,37 @@ definitions:
         example: text for translation
         type: string
     type: object
+  entity.TranslationClone:
+    properties:
+      destination:
+        example: en
+        type: string
+      original:
+        example: текст для перевода
+        type: string
+      source:
+        example: auto
+        type: string
+      translation:
+        example: text for translation
+        type: string
+    type: object
+  entity.TranslationCloneHistory:
+    properties:
+      history:
+        items:
+          $ref: '#/definitions/entity.TranslationClone'
+        type: array
+      limit:
+        example: 10
+        type: integer
+      offset:
+        example: 0
+        type: integer
+      total:
+        example: 20
+        type: integer
+    type: object
   entity.TranslationHistory:
     properties:
       history:
@@ -38,6 +69,22 @@ definitions:
     - original
     - source
     type: object
+  request.TranslateClone:
+    properties:
+      destination:
+        example: en
+        type: string
+      original:
+        example: Tại vì sao
+        type: string
+      source:
+        example: auto
+        type: string
+    required:
+    - destination
+    - original
+    - source
+    type: object
   response.Error:
     properties:
       error:
@@ -51,6 +98,70 @@ info:
   title: Realworld Fiber Clean API
   version: "1.0"
 paths:
+  /translation-clone/history:
+    get:
+      consumes:
+      - application/json
+      description: Show all translation history
+      operationId: history-clone
+      parameters:
+      - default: 10
+        description: Number of items to return
+        in: query
+        minimum: 1
+        name: limit
+        type: integer
+      - default: 0
+        description: Number of items to skip
+        in: query
+        minimum: 0
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.TranslationCloneHistory'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      summary: Show history
+      tags:
+      - translation-clone
+  /translation-clone/translate:
+    post:
+      consumes:
+      - application/json
+      description: Translate a text
+      operationId: translate-clone
+      parameters:
+      - description: Set up translation
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.TranslateClone'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.TranslationClone'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      summary: Do Translate
+      tags:
+      - translation-clone
   /translation/do-translate:
     post:
       consumes:
