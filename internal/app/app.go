@@ -14,6 +14,7 @@ import (
 	natsrpc "github.com/minhhoccode111/realworld-fiber-clean/internal/controller/nats_rpc"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/repo/persistent"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/repo/webapi"
+	"github.com/minhhoccode111/realworld-fiber-clean/internal/usecase/tag"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/usecase/translation"
 	translationClone "github.com/minhhoccode111/realworld-fiber-clean/internal/usecase/translation_clone"
 	"github.com/minhhoccode111/realworld-fiber-clean/pkg/grpcserver"
@@ -46,6 +47,8 @@ func Run(cfg *config.Config) { //nolint: gocyclo,cyclop,funlen,gocritic,nolintli
 		webapi.NewClone(),
 	)
 
+	tagUseCase := tag.New(persistent.NewTagRepo(pg))
+
 	// RabbitMQ RPC Server
 	rmqRouter := amqprpc.NewRouter(translationUseCase, l)
 
@@ -72,7 +75,7 @@ func Run(cfg *config.Config) { //nolint: gocyclo,cyclop,funlen,gocritic,nolintli
 		httpserver.Port(cfg.HTTP.Port),
 		httpserver.Prefork(cfg.HTTP.UsePreforkMode),
 	)
-	http.NewRouter(httpServer.App, cfg, l, translationUseCase, translationCloneUseCase)
+	http.NewRouter(httpServer.App, cfg, l, translationUseCase, translationCloneUseCase, tagUseCase)
 
 	// Start servers
 	rmqServer.Start()

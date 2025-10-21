@@ -30,22 +30,6 @@ definitions:
         example: text for translation
         type: string
     type: object
-  entity.TranslationCloneHistory:
-    properties:
-      history:
-        items:
-          $ref: '#/definitions/entity.TranslationClone'
-        type: array
-      limit:
-        example: 10
-        type: integer
-      offset:
-        example: 0
-        type: integer
-      total:
-        example: 20
-        type: integer
-    type: object
   entity.TranslationHistory:
     properties:
       history:
@@ -91,6 +75,38 @@ definitions:
         example: message
         type: string
     type: object
+  response.Tags:
+    properties:
+      limit:
+        example: 10
+        type: integer
+      offset:
+        example: 0
+        type: integer
+      tags:
+        items:
+          type: string
+        type: array
+      total:
+        example: 18
+        type: integer
+    type: object
+  response.TranslationHistory:
+    properties:
+      history:
+        items:
+          $ref: '#/definitions/entity.TranslationClone'
+        type: array
+      limit:
+        example: 10
+        type: integer
+      offset:
+        example: 0
+        type: integer
+      total:
+        example: 18
+        type: integer
+    type: object
 host: localhost:8080
 info:
   contact: {}
@@ -98,6 +114,37 @@ info:
   title: Realworld Fiber Clean API
   version: "1.0"
 paths:
+  /tags:
+    get:
+      description: Get all tags of all articles with pagination
+      operationId: tags
+      parameters:
+      - default: 10
+        description: Number of items to return
+        in: query
+        minimum: 1
+        name: limit
+        type: integer
+      - default: 0
+        description: Number of items to skip
+        in: query
+        minimum: 0
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Tags'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      summary: Get tags
+      tags:
+      - tags
   /translation-clone/history:
     get:
       consumes:
@@ -123,7 +170,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/entity.TranslationCloneHistory'
+            $ref: '#/definitions/response.TranslationHistory'
         "500":
           description: Internal Server Error
           schema:

@@ -13,8 +13,9 @@ func NewTranslationRoutes(
 	l logger.Interface,
 	t usecase.Translation,
 	tc usecase.TranslationClone,
+	tag usecase.Tag,
 ) {
-	r := &V1{t: t, tc: tc, l: l, v: validator.New(validator.WithRequiredStructEnabled())}
+	r := &V1{t: t, tc: tc, tag: tag, l: l, v: validator.New(validator.WithRequiredStructEnabled())}
 
 	translationGroup := apiV1Group.Group("/translation")
 
@@ -28,4 +29,6 @@ func NewTranslationRoutes(
 		translationGroupClone.Get("/history", r.getHistory)
 		translationGroupClone.Post("/translate", r.postTranslate)
 	}
+
+	apiV1Group.Get("/tags", r.getTags)
 }

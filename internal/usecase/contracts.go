@@ -20,9 +20,13 @@ type (
 	// Try to extend the Translation example with pagination
 	TranslationClone interface {
 		PostTranslate(context.Context, entity.TranslationClone) (entity.TranslationClone, error)
-		GetHistory(
-			ctx context.Context,
-			limit, offset uint64,
-		) (entity.TranslationCloneHistory, error)
+		GetHistory(ctx context.Context, limit, offset uint64,
+		) (translations []entity.TranslationClone, total uint64, err error)
+	}
+
+	// Tag -.
+	Tag interface {
+		GetTags(ctx context.Context, limit, offset uint64,
+		) (tags []entity.Tag, total uint64, err error)
 	}
 )

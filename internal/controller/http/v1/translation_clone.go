@@ -6,6 +6,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/request"
+	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/response"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/entity"
 )
 
@@ -17,7 +18,7 @@ import (
 // @Produce     json
 // @Param       limit  query int false "Number of items to return"  minimum(1)  default(10)
 // @Param       offset query int false "Number of items to skip"    minimum(0)  default(0)
-// @Success     200 {object} entity.TranslationCloneHistory
+// @Success     200 {object} response.TranslationHistory
 // @Failure     500 {object} response.Error
 // @Router      /translation-clone/history [get]
 func (r *V1) getHistory(ctx *fiber.Ctx) error {
@@ -31,14 +32,21 @@ func (r *V1) getHistory(ctx *fiber.Ctx) error {
 		offset = 0
 	}
 
-	translationCloneHistory, err := r.tc.GetHistory(ctx.UserContext(), limit, offset)
+	translations, total, err := r.tc.GetHistory(ctx.UserContext(), limit, offset)
 	if err != nil {
 		r.l.Error(err, "http - v1 - getHistory")
 
 		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
 	}
 
-	return ctx.Status(http.StatusOK).JSON(translationCloneHistory)
+	return ctx.Status(http.StatusOK).JSON(response.TranslationHistory{
+		History: translations,
+		Pagination: entity.Pagination{
+			Limit:  limit,
+			Offset: offset,
+			Total:  total,
+		},
+	})
 }
 
 // @Summary     Do Translate

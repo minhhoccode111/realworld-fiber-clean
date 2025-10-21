@@ -28,6 +28,7 @@ func NewRouter(
 	l logger.Interface,
 	t usecase.Translation,
 	tc usecase.TranslationClone,
+	tag usecase.Tag,
 ) {
 	// Options
 	app.Use(middleware.Logger(l))
@@ -51,6 +52,6 @@ func NewRouter(
 	// Routers
 	apiV1Group := app.Group("/v1")
 	{
-		v1.NewTranslationRoutes(apiV1Group, l, t, tc)
+		v1.NewTranslationRoutes(apiV1Group, l, t, tc, tag)
 	}
 }

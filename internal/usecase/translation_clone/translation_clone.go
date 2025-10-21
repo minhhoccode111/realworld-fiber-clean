@@ -26,21 +26,16 @@ func New(r repo.TranslationCloneRepo, w repo.TranslationCloneWebAPI) *UseCase {
 func (uc *UseCase) GetHistory(
 	ctx context.Context,
 	limit, offset uint64,
-) (entity.TranslationCloneHistory, error) {
-	translations, translationCount, err := uc.repo.GetHistoryClone(ctx, limit, offset)
+) ([]entity.TranslationClone, uint64, error) {
+	translations, total, err := uc.repo.GetHistoryClone(ctx, limit, offset)
 	if err != nil {
-		return entity.TranslationCloneHistory{}, fmt.Errorf(
+		return nil, 0, fmt.Errorf(
 			"TranslationCloneUseCase - GetHistory - uc.repo.GetHistoryClone: %w",
 			err,
 		)
 	}
 
-	return entity.TranslationCloneHistory{
-		History: translations,
-		Limit:   limit,
-		Offset:  offset,
-		Total:   translationCount,
-	}, nil
+	return translations, total, nil
 }
 
 func (uc *UseCase) PostTranslate(

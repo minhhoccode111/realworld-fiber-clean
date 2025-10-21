@@ -24,13 +24,18 @@ type (
 	// TranslationCloneRepo -.
 	TranslationCloneRepo interface {
 		StoreTranslation(context.Context, entity.TranslationClone) error
-		GetHistoryClone(
-			ctx context.Context, limit, offset uint64,
-		) (translations []entity.TranslationClone, translationsCount uint64, err error)
+		GetHistoryClone(ctx context.Context, limit, offset uint64,
+		) (translations []entity.TranslationClone, total uint64, err error)
 	}
 
 	// TranslationCloneWebAPI -.
 	TranslationCloneWebAPI interface {
 		DoTranslate(entity.TranslationClone) (entity.TranslationClone, error)
+	}
+
+	// TagRepo -.
+	TagRepo interface {
+		GetTags(ctx context.Context, limit, offset uint64,
+		) (tags []entity.Tag, total uint64, err error)
 	}
 )

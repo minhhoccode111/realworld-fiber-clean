@@ -22,7 +22,7 @@ func NewClone(pg *postgres.Postgres) *TranslationCloneRepo {
 func (r *TranslationCloneRepo) GetHistoryClone(
 	ctx context.Context,
 	limit, offset uint64,
-) (translations []entity.TranslationClone, translationsCount uint64, err error) {
+) (translations []entity.TranslationClone, total uint64, err error) {
 	sql, _, err := r.Builder.
 		Select("source, destination, original, translation, count(*) over()").
 		From("history").
@@ -42,7 +42,7 @@ func (r *TranslationCloneRepo) GetHistoryClone(
 	entities := make([]entity.TranslationClone, 0)
 	for rows.Next() {
 		e := entity.TranslationClone{}
-		err := rows.Scan(&e.Source, &e.Destination, &e.Original, &e.Translation, &translationsCount)
+		err := rows.Scan(&e.Source, &e.Destination, &e.Original, &e.Translation, &total)
 		if err != nil {
 			return nil, 0, fmt.Errorf("TranslationCloneRepo - GetHistoryClone - rows.Scan: %w", err)
 		}
@@ -50,7 +50,7 @@ func (r *TranslationCloneRepo) GetHistoryClone(
 		entities = append(entities, e)
 	}
 
-	return entities, translationsCount, nil
+	return entities, total, nil
 }
 
 // StoreTranslation -.

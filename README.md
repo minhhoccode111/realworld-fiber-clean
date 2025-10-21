@@ -6,6 +6,9 @@ My first time working on this project [here](github.com/minhhoccode111/realworld
 
 ## Learned Concepts
 
+- Fiber and Clean Architecture
+- Embedded struct like `Pagination` in other struct
+
 ## How to start
 
 ## Resources
