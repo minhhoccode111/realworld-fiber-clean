@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/caarlos0/env/v11"
 )
@@ -18,6 +19,7 @@ type (
 		NATS    NATS
 		Metrics Metrics
 		Swagger Swagger
+		JWT     JWT
 	}
 
 	// App -.
@@ -69,6 +71,13 @@ type (
 	// Swagger -.
 	Swagger struct {
 		Enabled bool `env:"SWAGGER_ENABLED" envDefault:"false"`
+	}
+
+	// JWT -.
+	JWT struct {
+		Issuer     string        `env:"JWT_ISSUER,required"`
+		Secret     string        `env:"JWT_SECRET,required"`
+		Expiration time.Duration `env:"JWT_EXPIRATION,required"`
 	}
 )
 

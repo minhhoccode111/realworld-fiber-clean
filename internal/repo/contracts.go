@@ -33,9 +33,13 @@ type (
 		DoTranslate(entity.TranslationClone) (entity.TranslationClone, error)
 	}
 
+	UserRepo interface {
+		StoreRegisterUser(context.Context, entity.User) (entity.User, error)
+	}
+
 	// TagRepo -.
 	TagRepo interface {
-		GetTags(ctx context.Context, limit, offset uint64,
+		RetrieveTags(ctx context.Context, limit, offset uint64,
 		) (tags []entity.Tag, total uint64, err error)
 	}
 )

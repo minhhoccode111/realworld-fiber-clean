@@ -8,6 +8,7 @@ My first time working on this project [here](github.com/minhhoccode111/realworld
 
 - Fiber and Clean Architecture
 - Embedded struct like `Pagination` in other struct
+- Struct Tags + Validator
 
 ## How to start
 

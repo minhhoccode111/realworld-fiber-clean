@@ -19,7 +19,8 @@ func NewTagRepo(pg *postgres.Postgres) *TagRepo {
 }
 
 // GetTags -.
-func (r *TagRepo) GetTags(ctx context.Context, limit, offset uint64) ([]entity.Tag, uint64, error) {
+func (r *TagRepo) RetrieveTags(ctx context.Context, limit, offset uint64,
+) ([]entity.Tag, uint64, error) {
 	sql, _, err := r.Builder.
 		Select("distinct name", "count(*) over()").
 		From("tags").

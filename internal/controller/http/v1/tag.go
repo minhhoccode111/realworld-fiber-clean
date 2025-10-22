@@ -16,7 +16,7 @@ import (
 // @Produce     json
 // @Param       limit  query int false "Number of items to return"  minimum(1)  default(10)
 // @Param       offset query int false "Number of items to skip"    minimum(0)  default(0)
-// @Success     200 {object} response.Tags
+// @Success     200 {object} response.TagsResponse
 // @Failure     500 {object} response.Error
 // @Router      /tags [get]
 func (r *V1) getTags(ctx *fiber.Ctx) error {
@@ -37,7 +37,7 @@ func (r *V1) getTags(ctx *fiber.Ctx) error {
 		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
 	}
 
-	return ctx.Status(http.StatusOK).JSON(response.Tags{
+	return ctx.Status(http.StatusOK).JSON(response.TagsResponse{
 		Tags: tags,
 		Pagination: entity.Pagination{
 			Limit:  limit,

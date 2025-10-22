@@ -24,6 +24,11 @@ type (
 		) (translations []entity.TranslationClone, total uint64, err error)
 	}
 
+	// User -.
+	User interface {
+		RegisterUser(context.Context, entity.User) (entity.User, error)
+	}
+
 	// Tag -.
 	Tag interface {
 		GetTags(ctx context.Context, limit, offset uint64,

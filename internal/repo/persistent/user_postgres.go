@@ -1,0 +1,37 @@
+package persistent
+
+import (
+	"context"
+	"fmt"
+
+	"github.com/minhhoccode111/realworld-fiber-clean/internal/entity"
+	"github.com/minhhoccode111/realworld-fiber-clean/pkg/postgres"
+)
+
+type UserRepo struct {
+	*postgres.Postgres
+}
+
+func NewUserRepo(pg *postgres.Postgres) *UserRepo {
+	return &UserRepo{pg}
+}
+
+func (r *UserRepo) StoreRegisterUser(ctx context.Context, user entity.User) (entity.User, error) {
+	sql, args, err := r.Builder.
+		Insert("users").
+		Columns("email, username, password, bio, image").
+		Values(user.Email, user.Username, user.Password, user.Bio, user.Image).
+		Suffix("returning id").
+		ToSql()
+	if err != nil {
+		return entity.User{}, fmt.Errorf("UserRepo - StoreRegisterUser - r.Builder: %w", err)
+	}
+
+	row := r.Pool.QueryRow(ctx, sql, args...)
+	err = row.Scan(&user.Id)
+	if err != nil {
+		return entity.User{}, fmt.Errorf("UserRepo - StoreRegisterUser - row.Scan: %w", err)
+	}
+
+	return user, nil
+}

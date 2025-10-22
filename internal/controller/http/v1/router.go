@@ -1,21 +1,34 @@
 package v1
 
 import (
-	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
+	"github.com/minhhoccode111/realworld-fiber-clean/config"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/usecase"
 	"github.com/minhhoccode111/realworld-fiber-clean/pkg/logger"
+	"github.com/minhhoccode111/realworld-fiber-clean/pkg/validatorx"
 )
 
-// NewTranslationRoutes -.
-func NewTranslationRoutes(
+// NewV1Routes -.
+func NewV1Routes(
 	apiV1Group fiber.Router,
+	cfg *config.Config,
 	l logger.Interface,
+
 	t usecase.Translation,
 	tc usecase.TranslationClone,
+	u usecase.User,
 	tag usecase.Tag,
 ) {
-	r := &V1{t: t, tc: tc, tag: tag, l: l, v: validator.New(validator.WithRequiredStructEnabled())}
+	r := &V1{
+		cfg: cfg,
+		l:   l,
+		v:   validatorx.New(),
+
+		t:   t,
+		tc:  tc,
+		u:   u,
+		tag: tag,
+	}
 
 	translationGroup := apiV1Group.Group("/translation")
 
@@ -30,5 +43,13 @@ func NewTranslationRoutes(
 		translationGroupClone.Post("/translate", r.postTranslate)
 	}
 
-	apiV1Group.Get("/tags", r.getTags)
+	usersGroup := apiV1Group.Group("/users")
+	{
+		usersGroup.Post("/", r.postRegisterUser)
+	}
+
+	tagsGroup := apiV1Group.Group("/tags")
+	{
+		tagsGroup.Get("/", r.getTags)
+	}
 }

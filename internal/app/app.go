@@ -17,6 +17,7 @@ import (
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/usecase/tag"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/usecase/translation"
 	translationClone "github.com/minhhoccode111/realworld-fiber-clean/internal/usecase/translation_clone"
+	"github.com/minhhoccode111/realworld-fiber-clean/internal/usecase/user"
 	"github.com/minhhoccode111/realworld-fiber-clean/pkg/grpcserver"
 	"github.com/minhhoccode111/realworld-fiber-clean/pkg/httpserver"
 	"github.com/minhhoccode111/realworld-fiber-clean/pkg/logger"
@@ -47,6 +48,8 @@ func Run(cfg *config.Config) { //nolint: gocyclo,cyclop,funlen,gocritic,nolintli
 		webapi.NewClone(),
 	)
 
+	userUseCase := user.New(persistent.NewUserRepo(pg))
+
 	tagUseCase := tag.New(persistent.NewTagRepo(pg))
 
 	// RabbitMQ RPC Server
@@ -75,7 +78,15 @@ func Run(cfg *config.Config) { //nolint: gocyclo,cyclop,funlen,gocritic,nolintli
 		httpserver.Port(cfg.HTTP.Port),
 		httpserver.Prefork(cfg.HTTP.UsePreforkMode),
 	)
-	http.NewRouter(httpServer.App, cfg, l, translationUseCase, translationCloneUseCase, tagUseCase)
+	http.NewRouter(
+		httpServer.App,
+		cfg,
+		l,
+		translationUseCase,
+		translationCloneUseCase,
+		userUseCase,
+		tagUseCase,
+	)
 
 	// Start servers
 	rmqServer.Start()
