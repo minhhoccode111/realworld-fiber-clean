@@ -60,7 +60,12 @@ format: ### Run code formatter
 	gci write . --skip-generated -s standard -s default
 .PHONY: format
 
-run: deps swag-v1 proto-v1 ### swag run for API v1
+run-swag: deps swag-v1 proto-v1 ### swag run for API v1
+	go mod download && \
+	CGO_ENABLED=0 go run -tags migrate ./cmd/app
+.PHONY: run
+
+run: ### run API v1
 	go mod download && \
 	CGO_ENABLED=0 go run -tags migrate ./cmd/app
 .PHONY: run

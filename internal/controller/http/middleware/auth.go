@@ -28,7 +28,7 @@ func AuthMiddleware(l logger.Interface, jwtSecret string, isOptional bool) func(
 		c.Locals(CtxIsAuthKey, false)
 
 		authHeader := c.Get("Authorization")
-		if authHeader != "" {
+		if authHeader == "" {
 			if isOptional {
 				return c.Next()
 			}

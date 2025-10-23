@@ -1,7 +1,7 @@
 @url = http://localhost:8080
-@api = {{url}}/api/v2
+@api = {{url}}/api/v1
 
-@password = Bruh0!0!
+@password = P@ssw0rd
 @bio = trust the process
 @image = https://www.w3schools.com/howto/img_avatar.png
 
@@ -9,7 +9,7 @@
 @email1 = minhdh.swe@gmail.com
 @username0 = minhhoccode111
 @username1 = minhdh
-@token0 =
+@token0 = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NjIwOTI4NzMsImlhdCI6MTc2MTIyODg3MywiaXNzIjoicmVhbHdvcmxkZmliZXJjbGVhbiIsInN1YiI6IjM2Mzc5NzljLWYwNDUtNDhmZS04NTliLTE1YzQyMTM3ZTZiMiJ9.U1FiI1VeU4uj7aQrgt3ge4nMFB1XdHvEhS7sov11C88
 @token1 =
 
 @slug = slug
@@ -26,7 +26,7 @@ POST {{api}}/users
     "user": {
         "email": "{{email0}}",
         "password": "{{password}}",
-        "username0": "{{username0}}"
+        "username": "{{username0}}"
     }
 }
 

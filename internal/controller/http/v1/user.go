@@ -8,6 +8,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/jackc/pgx/v5"
+	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/middleware"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/request"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/response"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/entity"
@@ -161,5 +162,33 @@ func (r *V1) postLoginUser(ctx *fiber.Ctx) error {
 // @Failure     500 {object} response.Error
 // @Router      /user [get]
 func (r *V1) getCurrentUser(ctx *fiber.Ctx) error {
-	return nil
+	userId := ctx.Locals(middleware.CtxUserIdKey).(string)
+	if userId == "" {
+		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
+	}
+
+	user, err := r.u.Current(ctx.UserContext(), userId)
+	if err != nil {
+		r.l.Error(err, "http - v1 - getCurrentUser - r.u.Current")
+		if errors.Is(err, pgx.ErrNoRows) {
+			return errorResponse(ctx, http.StatusNotFound, "userId in token not found")
+		}
+		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
+	}
+
+	token, err := util.GenerateJWT(
+		userId,
+		r.cfg.JWT.Secret,
+		r.cfg.JWT.Issuer,
+		r.cfg.JWT.Expiration,
+	)
+	if err != nil {
+		r.l.Error(err, "http - v1 - getCurrentUser - util.GenerateJWT")
+
+		return errorResponse(ctx, http.StatusInternalServerError, "jwt problems")
+	}
+
+	return ctx.Status(http.StatusOK).JSON(response.UserAuthResponse{
+		User: response.NewUserAuth(user, token),
+	})
 }

@@ -28,6 +28,7 @@ type (
 	User interface {
 		Register(context.Context, entity.User) (entity.User, error)
 		Login(context.Context, entity.User) (entity.User, error)
+		Current(context.Context, string) (entity.User, error)
 	}
 
 	// Tag -.

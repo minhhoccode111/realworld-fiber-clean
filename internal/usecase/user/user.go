@@ -19,7 +19,7 @@ func New(r repo.UserRepo) *UseCase {
 	return &UseCase{repo: r}
 }
 
-// RegisterUser -.
+// Register -.
 func (uc *UseCase) Register(ctx context.Context, user entity.User) (entity.User, error) {
 	hashedPassword, err := util.HashPassword(user.Password)
 	if err != nil {
@@ -54,6 +54,19 @@ func (uc *UseCase) Login(ctx context.Context, loginCred entity.User) (entity.Use
 	if !util.IsValidPassword(user.Password, loginCred.Password) {
 		return entity.User{}, fmt.Errorf(
 			"UserUseCase - Login - util.IsValidPassword: incorrect password",
+		)
+	}
+
+	return user, nil
+}
+
+// Current -.
+func (uc *UseCase) Current(ctx context.Context, userId string) (entity.User, error) {
+	user, err := uc.repo.GetUserById(ctx, userId)
+	if err != nil {
+		return entity.User{}, fmt.Errorf(
+			"UserUseCase - Current - uc.repo.GetUserById: %w",
+			err,
 		)
 	}
 

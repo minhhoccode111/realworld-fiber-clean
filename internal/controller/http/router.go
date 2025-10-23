@@ -52,7 +52,7 @@ func NewRouter(
 	app.Get("/healthz", func(ctx *fiber.Ctx) error { return ctx.SendStatus(http.StatusOK) })
 
 	// Routers
-	apiV1Group := app.Group("/v1")
+	apiV1Group := app.Group("/api/v1")
 	{
 		v1.NewV1Routes(apiV1Group, cfg, l, t, tc, u, tag)
 	}

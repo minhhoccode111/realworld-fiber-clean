@@ -63,3 +63,30 @@ func (r *UserRepo) GetUserByEmail(ctx context.Context, email string) (entity.Use
 
 	return user, nil
 }
+
+func (r *UserRepo) GetUserById(ctx context.Context, userId string) (entity.User, error) {
+	sql, args, err := r.Builder.
+		Select("id, email, username, password, bio, image").
+		From("users").
+		Where(squirrel.Eq{"id": userId}).
+		ToSql()
+	if err != nil {
+		return entity.User{}, fmt.Errorf("UserRepo - GetUserById - r.Builder: %w", err)
+	}
+
+	var user entity.User
+	row := r.Pool.QueryRow(ctx, sql, args...)
+	err = row.Scan(
+		&user.Id,
+		&user.Email,
+		&user.Username,
+		&user.Password,
+		&user.Bio,
+		&user.Image,
+	)
+	if err != nil {
+		return entity.User{}, fmt.Errorf("UserRepo - GetUserById - row.Scan: %w", err)
+	}
+
+	return user, nil
+}
