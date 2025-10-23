@@ -261,7 +261,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.UserAuth"
+                            "$ref": "#/definitions/response.UserAuthResponse"
                         }
                     },
                     "400": {
@@ -293,15 +293,32 @@ const docTemplate = `{
                 ],
                 "summary": "Login User",
                 "operationId": "users-login",
+                "parameters": [
+                    {
+                        "description": "Login User",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UserLoginRequest"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.UserAuth"
+                            "$ref": "#/definitions/response.UserAuthResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/response.Error"
                         }
@@ -414,6 +431,31 @@ const docTemplate = `{
                 }
             }
         },
+        "request.UserLogin": {
+            "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "minhhoccode111@gmail.com"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "P@ssw0rd"
+                }
+            }
+        },
+        "request.UserLoginRequest": {
+            "type": "object",
+            "properties": {
+                "user": {
+                    "$ref": "#/definitions/request.UserLogin"
+                }
+            }
+        },
         "request.UserRegister": {
             "type": "object",
             "required": [
@@ -520,6 +562,14 @@ const docTemplate = `{
                 },
                 "username": {
                     "type": "string"
+                }
+            }
+        },
+        "response.UserAuthResponse": {
+            "type": "object",
+            "properties": {
+                "user": {
+                    "$ref": "#/definitions/response.UserAuth"
                 }
             }
         }

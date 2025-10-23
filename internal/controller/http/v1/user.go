@@ -1,11 +1,13 @@
 package v1
 
 import (
+	"errors"
 	"net/http"
 	"strings"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
+	"github.com/jackc/pgx/v5"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/request"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/response"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/entity"
@@ -19,7 +21,7 @@ import (
 // @Accept      json
 // @Produce     json
 // @Param       request body request.UserRegisterRequest true "Register User"
-// @Success     200 {object} response.UserAuth
+// @Success     200 {object} response.UserAuthResponse
 // @Failure     400 {object} response.Error
 // @Failure     500 {object} response.Error
 // @Router      /users [post]
@@ -61,14 +63,12 @@ func (r *V1) postRegisterUser(ctx *fiber.Ctx) error {
 		return errorResponse(ctx, http.StatusInternalServerError, "validation error")
 	}
 
-	e := entity.User{
+	// user.Id generated, user.Password hashed
+	user, err := r.u.Register(ctx.UserContext(), entity.User{
 		Username: body.User.Username,
 		Email:    body.User.Email,
 		Password: body.User.Password,
-	}
-
-	// user.Id generated, user.Password hashed
-	user, err := r.u.RegisterUser(ctx.UserContext(), e)
+	})
 	if err != nil {
 		r.l.Error(err, "http - v1 - postRegisterUser - r.u.RegisterUser")
 
@@ -87,11 +87,9 @@ func (r *V1) postRegisterUser(ctx *fiber.Ctx) error {
 		return errorResponse(ctx, http.StatusInternalServerError, "generate jwt error")
 	}
 
-	userAuthResponse := response.UserAuthResponse{
+	return ctx.Status(http.StatusOK).JSON(response.UserAuthResponse{
 		User: response.NewUserAuth(user, token),
-	}
-
-	return ctx.Status(http.StatusOK).JSON(userAuthResponse)
+	})
 }
 
 // @Summary     Login User
@@ -99,11 +97,56 @@ func (r *V1) postRegisterUser(ctx *fiber.Ctx) error {
 // @ID          users-login
 // @Tags  	    users
 // @Accept      json
+// @Param       request body request.UserLoginRequest true "Login User"
 // @Produce     json
-// @Success     200 {object} response.UserAuth
+// @Success     200 {object} response.UserAuthResponse
 // @Failure     400 {object} response.Error
+// @Failure     401 {object} response.Error
 // @Failure     500 {object} response.Error
 // @Router      /users/login [post]
 func (r *V1) postLoginUser(ctx *fiber.Ctx) error {
-	return nil
+	var body request.UserLoginRequest
+
+	if err := ctx.BodyParser(&body); err != nil {
+		r.l.Error(err, "http - v1 - postLoginUser - ctx.BodyParser")
+
+		return errorResponse(ctx, http.StatusBadRequest, "invalid request body")
+	}
+
+	if err := r.v.Struct(body.User); err != nil {
+		r.l.Error(err, "http - v1 - postLoginUser - r.v.Struct")
+
+		return errorResponse(ctx, http.StatusBadRequest, "invalid request body")
+	}
+
+	user, err := r.u.Login(ctx.UserContext(), entity.User{
+		Email:    body.User.Email,
+		Password: body.User.Password,
+	})
+	if err != nil {
+		r.l.Error(err, "http - v1 - postLoginUser - r.u.Login")
+		if errors.Is(err, pgx.ErrNoRows) {
+			return errorResponse(ctx, http.StatusUnauthorized, "incorrect email")
+		}
+		if strings.Contains(err.Error(), "incorrect password") {
+			return errorResponse(ctx, http.StatusUnauthorized, "incorrect password")
+		}
+		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
+	}
+
+	token, err := util.GenerateJWT(
+		user.Id,
+		r.cfg.JWT.Secret,
+		r.cfg.JWT.Issuer,
+		r.cfg.JWT.Expiration,
+	)
+	if err != nil {
+		r.l.Error(err, "http - v1 - postLoginUser - util.GenerateJWT")
+
+		return errorResponse(ctx, http.StatusInternalServerError, "jwt problems")
+	}
+
+	return ctx.Status(http.StatusOK).JSON(response.UserAuthResponse{
+		User: response.NewUserAuth(user, token),
+	})
 }

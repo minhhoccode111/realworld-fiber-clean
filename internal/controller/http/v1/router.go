@@ -30,26 +30,33 @@ func NewV1Routes(
 		tag: tag,
 	}
 
-	translationGroup := apiV1Group.Group("/translation")
+	translation := apiV1Group.Group("/translation")
 
 	{
-		translationGroup.Get("/history", r.history)
-		translationGroup.Post("/do-translate", r.doTranslate)
+		translation.Get("/history", r.history)
+		translation.Post("/do-translate", r.doTranslate)
 	}
 
-	translationGroupClone := apiV1Group.Group("/translation-clone")
+	translationClone := apiV1Group.Group("/translation-clone")
 	{
-		translationGroupClone.Get("/history", r.getHistory)
-		translationGroupClone.Post("/translate", r.postTranslate)
+		translationClone.Get("/history", r.getHistory)
+		translationClone.Post("/translate", r.postTranslate)
 	}
 
-	usersGroup := apiV1Group.Group("/users")
+	users := apiV1Group.Group("/users")
 	{
-		usersGroup.Post("/", r.postRegisterUser)
+		users.Post("/", r.postRegisterUser)
+		users.Post("/login", r.postLoginUser)
 	}
 
-	tagsGroup := apiV1Group.Group("/tags")
+	// user := apiV1Group.Group("/user")
+	// {
+	// 	user.Put("/", r.putUpdateUser)
+	// 	user.Get("/", r.getUser)
+	// }
+
+	tags := apiV1Group.Group("/tags")
 	{
-		tagsGroup.Get("/", r.getTags)
+		tags.Get("/", r.getTags)
 	}
 }

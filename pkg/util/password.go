@@ -2,7 +2,7 @@ package util
 
 import "golang.org/x/crypto/bcrypt"
 
-func ValidatePassword(hashedPassword string, password string) bool {
+func IsValidPassword(hashedPassword string, password string) bool {
 	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password)) == nil
 }
 

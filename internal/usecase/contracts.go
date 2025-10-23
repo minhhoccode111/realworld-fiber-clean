@@ -26,7 +26,8 @@ type (
 
 	// User -.
 	User interface {
-		RegisterUser(context.Context, entity.User) (entity.User, error)
+		Register(context.Context, entity.User) (entity.User, error)
+		Login(context.Context, entity.User) (entity.User, error)
 	}
 
 	// Tag -.

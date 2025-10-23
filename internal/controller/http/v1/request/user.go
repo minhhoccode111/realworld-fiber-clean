@@ -12,10 +12,23 @@ type UserRegister struct {
 func (ur *UserRegister) Trim() {
 	ur.Email = strings.TrimSpace(ur.Email)
 	ur.Username = strings.TrimSpace(ur.Username)
-	// WARN: don't trim password
-	// ur.Password = strings.TrimSpace(ur.Password)
+	// ur.Password = strings.TrimSpace(ur.Password) // WARN: don't trim password
 }
 
 type UserRegisterRequest struct {
 	User UserRegister `json:"user"`
+}
+
+// UserLogin -.
+type UserLogin struct {
+	Email    string `json:"email"    validate:"required" example:"minhhoccode111@gmail.com"`
+	Password string `json:"password" validate:"required" example:"P@ssw0rd"`
+}
+
+func (ur *UserLogin) Trim() {
+	ur.Email = strings.TrimSpace(ur.Email)
+}
+
+type UserLoginRequest struct {
+	User UserLogin `json:"user"`
 }

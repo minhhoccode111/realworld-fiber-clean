@@ -69,6 +69,23 @@ definitions:
     - original
     - source
     type: object
+  request.UserLogin:
+    properties:
+      email:
+        example: minhhoccode111@gmail.com
+        type: string
+      password:
+        example: P@ssw0rd
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  request.UserLoginRequest:
+    properties:
+      user:
+        $ref: '#/definitions/request.UserLogin'
+    type: object
   request.UserRegister:
     properties:
       email:
@@ -144,6 +161,11 @@ definitions:
         type: string
       username:
         type: string
+    type: object
+  response.UserAuthResponse:
+    properties:
+      user:
+        $ref: '#/definitions/response.UserAuth'
     type: object
 host: localhost:8080
 info:
@@ -317,7 +339,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.UserAuth'
+            $ref: '#/definitions/response.UserAuthResponse'
         "400":
           description: Bad Request
           schema:
@@ -335,15 +357,26 @@ paths:
       - application/json
       description: Login User
       operationId: users-login
+      parameters:
+      - description: Login User
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.UserLoginRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.UserAuth'
+            $ref: '#/definitions/response.UserAuthResponse'
         "400":
           description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Error'
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/response.Error'
         "500":

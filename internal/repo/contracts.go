@@ -34,7 +34,8 @@ type (
 	}
 
 	UserRepo interface {
-		StoreRegisterUser(context.Context, entity.User) (entity.User, error)
+		StoreRegister(context.Context, entity.User) (entity.User, error)
+		GetUserByEmail(context.Context, string) (entity.User, error)
 	}
 
 	// TagRepo -.

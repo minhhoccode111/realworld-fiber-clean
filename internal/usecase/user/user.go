@@ -20,21 +20,40 @@ func New(r repo.UserRepo) *UseCase {
 }
 
 // RegisterUser -.
-func (uc *UseCase) RegisterUser(ctx context.Context, user entity.User) (entity.User, error) {
+func (uc *UseCase) Register(ctx context.Context, user entity.User) (entity.User, error) {
 	hashedPassword, err := util.HashPassword(user.Password)
 	if err != nil {
 		return entity.User{}, fmt.Errorf(
-			"UserUseCase - RegisterUser - util.HashPassword: %w",
+			"UserUseCase - Register - util.HashPassword: %w",
 			err,
 		)
 	}
 
 	user.Password = hashedPassword
-	user, err = uc.repo.StoreRegisterUser(ctx, user)
+	user, err = uc.repo.StoreRegister(ctx, user)
 	if err != nil {
 		return entity.User{}, fmt.Errorf(
-			"UserUseCase - RegisterUser - uc.repo.StoreRegisterUser: %w",
+			"UserUseCase - Register - uc.repo.StoreRegister: %w",
 			err,
+		)
+	}
+
+	return user, nil
+}
+
+// Login -.
+func (uc *UseCase) Login(ctx context.Context, loginCred entity.User) (entity.User, error) {
+	user, err := uc.repo.GetUserByEmail(ctx, loginCred.Email)
+	if err != nil {
+		return entity.User{}, fmt.Errorf(
+			"UserUseCase - Login - uc.repo.GetUserByEmail: %w",
+			err,
+		)
+	}
+
+	if !util.IsValidPassword(user.Password, loginCred.Password) {
+		return entity.User{}, fmt.Errorf(
+			"UserUseCase - Login - util.IsValidPassword: incorrect password",
 		)
 	}
 
