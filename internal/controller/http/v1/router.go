@@ -3,6 +3,7 @@ package v1
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/minhhoccode111/realworld-fiber-clean/config"
+	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/middleware"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/usecase"
 	"github.com/minhhoccode111/realworld-fiber-clean/pkg/logger"
 	"github.com/minhhoccode111/realworld-fiber-clean/pkg/validatorx"
@@ -30,8 +31,11 @@ func NewV1Routes(
 		tag: tag,
 	}
 
-	translation := apiV1Group.Group("/translation")
+	jwtSecret := r.cfg.JWT.Secret
+	auth := middleware.AuthMiddleware(l, jwtSecret, false)
+	// optionalAuth := middleware.AuthMiddleware(l, jwtSecret, true)
 
+	translation := apiV1Group.Group("/translation")
 	{
 		translation.Get("/history", r.history)
 		translation.Post("/do-translate", r.doTranslate)
@@ -49,11 +53,11 @@ func NewV1Routes(
 		users.Post("/login", r.postLoginUser)
 	}
 
-	// user := apiV1Group.Group("/user")
-	// {
-	// 	user.Put("/", r.putUpdateUser)
-	// 	user.Get("/", r.getUser)
-	// }
+	user := apiV1Group.Group("/user")
+	{
+		user.Get("/", auth, r.getCurrentUser)
+		// user.Put("/", r.putUpdateUser)
+	}
 
 	tags := apiV1Group.Group("/tags")
 	{

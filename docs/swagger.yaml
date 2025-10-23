@@ -320,6 +320,28 @@ paths:
       summary: Show history
       tags:
       - translation
+  /user:
+    get:
+      description: Get current User
+      operationId: users-current
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.UserAuthResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      summary: Get current User
+      tags:
+      - users
   /users:
     post:
       consumes:

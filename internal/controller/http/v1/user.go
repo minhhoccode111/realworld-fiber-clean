@@ -150,3 +150,16 @@ func (r *V1) postLoginUser(ctx *fiber.Ctx) error {
 		User: response.NewUserAuth(user, token),
 	})
 }
+
+// @Summary     Get current User
+// @Description Get current User
+// @ID          users-current
+// @Tags  	    users
+// @Produce     json
+// @Success     200 {object} response.UserAuthResponse
+// @Failure     401 {object} response.Error
+// @Failure     500 {object} response.Error
+// @Router      /user [get]
+func (r *V1) getCurrentUser(ctx *fiber.Ctx) error {
+	return nil
+}
