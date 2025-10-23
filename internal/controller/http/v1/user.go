@@ -8,6 +8,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/middleware"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/request"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/response"
@@ -72,6 +73,13 @@ func (r *V1) postRegisterUser(ctx *fiber.Ctx) error {
 	})
 	if err != nil {
 		r.l.Error(err, "http - v1 - postRegisterUser - r.u.RegisterUser")
+
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) {
+			if pgErr.Code == "23505" {
+				return errorResponse(ctx, http.StatusBadRequest, "email/username alread existed")
+			}
+		}
 
 		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
 	}
