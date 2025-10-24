@@ -200,3 +200,111 @@ func (r *V1) getCurrentUser(ctx *fiber.Ctx) error {
 		User: response.NewUserAuth(user, token),
 	})
 }
+
+// @Summary     Update User
+// @Description Update User
+// @ID          users-update
+// @Tags  	    users
+// @Accept      json
+// @Produce     json
+// @Param       request body request.UserUpdateRequest true "Update User"
+// @Success     200 {object} response.UserAuthResponse
+// @Failure     400 {object} response.Error
+// @Failure     401 {object} response.Error
+// @Failure     500 {object} response.Error
+// @Router      /users [post]
+func (r *V1) putUpdateUser(ctx *fiber.Ctx) error {
+	// 1/ extract body
+	var body request.UserUpdateRequest
+
+	if err := ctx.BodyParser(&body); err != nil {
+		r.l.Error(err, "http - v1 - putUpdateUser - ctx.BodyParser")
+
+		return errorResponse(ctx, http.StatusBadRequest, "invalid request body")
+	}
+
+	// 2/ validator but skip if field empty
+	if err := r.v.Struct(body.User); err != nil {
+		r.l.Error(err, "http - v1 - putUpdateUser - r.v.Struct")
+		if verrs, ok := err.(validator.ValidationErrors); ok {
+			errors := make([]string, 0, len(verrs))
+			for _, e := range verrs {
+				switch e.Tag() {
+				case "email":
+					errors = append(errors, "invalid email format")
+				case "passwd":
+					errors = append(
+						errors,
+						"password must include upper, lower, digit, and special char",
+					)
+				case "username":
+					errors = append(
+						errors,
+						"username can only contain letters, numbers, and underscore",
+					)
+				default:
+					errors = append(errors, e.Field()+" is invalid")
+				}
+			}
+			return errorResponse(ctx, http.StatusBadRequest, strings.Join(errors, "; "))
+		}
+		return errorResponse(ctx, http.StatusInternalServerError, "validation error")
+	}
+
+	// 3/ get auth user by id
+	userId := ctx.Locals(middleware.CtxUserIdKey).(string)
+	if userId == "" {
+		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
+	}
+
+	user, err := r.u.Current(ctx.UserContext(), userId)
+	if err != nil {
+		r.l.Error(err, "http - v1 - putUpdateUser - r.u.Current")
+		if errors.Is(err, pgx.ErrNoRows) {
+			return errorResponse(ctx, http.StatusNotFound, "userId in token not found")
+		}
+		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
+	}
+
+	// 4/ assign user request body to auth user
+	body.User.Trim()
+	user.Password = body.User.Password // NOTE: just assign, in usecase don't hash if password is empty
+	if body.User.Email != "" {
+		user.Email = body.User.Email
+	}
+	if body.User.Username != "" {
+		user.Username = body.User.Username
+	}
+	if body.User.Bio != "" {
+		user.Bio = body.User.Bio
+	}
+	if body.User.Image != "" {
+		user.Image = body.User.Image
+	}
+
+	// 5/ call update and return updated user
+	updatedUser, err := r.u.Update(ctx.UserContext(), user)
+	if err != nil {
+		r.l.Error(err, "http - v1 - putUpdateUser - r.u.Update")
+		// TODO: check for unique constraint
+
+		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
+	}
+
+	// 6/ generate token and convert to UserAuthResponse
+	token, err := util.GenerateJWT(
+		user.Id,
+		r.cfg.JWT.Secret,
+		r.cfg.JWT.Issuer,
+		r.cfg.JWT.Expiration,
+	)
+	if err != nil {
+		r.l.Error(err, "http - v1 - putUpdateUser - util.GenerateJWT")
+
+		return errorResponse(ctx, http.StatusInternalServerError, "generate jwt error")
+	}
+
+	return ctx.Status(http.StatusOK).JSON(response.UserAuthResponse{
+		User: response.NewUserAuth(updatedUser, token),
+	})
+}

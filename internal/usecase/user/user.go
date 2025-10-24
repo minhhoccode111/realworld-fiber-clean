@@ -72,3 +72,27 @@ func (uc *UseCase) Current(ctx context.Context, userId string) (entity.User, err
 
 	return user, nil
 }
+
+// Update -.
+func (uc *UseCase) Update(ctx context.Context, user entity.User) (entity.User, error) {
+	if user.Password != "" {
+		hashedPassword, err := util.HashPassword(user.Password)
+		if err != nil {
+			return entity.User{}, fmt.Errorf(
+				"UserUseCase - Register - util.HashPassword: %w",
+				err,
+			)
+		}
+		user.Password = hashedPassword
+	}
+
+	user, err := uc.repo.StoreRegister(ctx, user)
+	if err != nil {
+		return entity.User{}, fmt.Errorf(
+			"UserUseCase - Register - uc.repo.StoreRegister: %w",
+			err,
+		)
+	}
+
+	return user, nil
+}

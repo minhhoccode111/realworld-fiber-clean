@@ -56,7 +56,7 @@ func NewV1Routes(
 	user := apiV1Group.Group("/user")
 	{
 		user.Get("/", auth, r.getCurrentUser)
-		// user.Put("/", r.putUpdateUser)
+		user.Put("/", auth, r.putUpdateUser)
 	}
 
 	tags := apiV1Group.Group("/tags")

@@ -53,6 +53,20 @@ Authorization: Token {{token0}}
 
 {
     "user": {
+        "email": "",
+        "username": "",
+        "password": "",
+        "image": "",
+        "bio": ""
+    }
+}
+
+### Update User
+PUT {{api}}/user
+Authorization: Token {{token0}}
+
+{
+    "user": {
         "email": "{{email0}}",
         "username0": "{{username0}}",
         "password": "{{password}}",

@@ -29,6 +29,7 @@ type (
 		Register(context.Context, entity.User) (entity.User, error)
 		Login(context.Context, entity.User) (entity.User, error)
 		Current(context.Context, string) (entity.User, error)
+		Update(context.Context, entity.User) (entity.User, error)
 	}
 
 	// Tag -.

@@ -90,3 +90,23 @@ func (r *UserRepo) GetUserById(ctx context.Context, userId string) (entity.User,
 
 	return user, nil
 }
+
+func (r *UserRepo) StoreUpdate(ctx context.Context, user entity.User) (entity.User, error) {
+	sql, args, err := r.Builder.
+		Insert("users").
+		Columns("email, username, password, bio, image").
+		Values(user.Email, user.Username, user.Password, user.Bio, user.Image).
+		Suffix("returning id").
+		ToSql()
+	if err != nil {
+		return entity.User{}, fmt.Errorf("UserRepo - StoreRegisterUser - r.Builder: %w", err)
+	}
+
+	row := r.Pool.QueryRow(ctx, sql, args...)
+	err = row.Scan(&user.Id)
+	if err != nil {
+		return entity.User{}, fmt.Errorf("UserRepo - StoreRegisterUser - row.Scan: %w", err)
+	}
+
+	return user, nil
+}
