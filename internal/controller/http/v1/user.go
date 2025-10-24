@@ -36,6 +36,8 @@ func (r *V1) postRegisterUser(ctx *fiber.Ctx) error {
 		return errorResponse(ctx, http.StatusBadRequest, "invalid request body")
 	}
 
+	body.User.Trim()
+
 	if err := r.v.Struct(body.User); err != nil {
 		r.l.Error(err, "http - v1 - postRegisterUser - r.v.Struct")
 		if verrs, ok := err.(validator.ValidationErrors); ok {
@@ -46,7 +48,7 @@ func (r *V1) postRegisterUser(ctx *fiber.Ctx) error {
 					errors = append(errors, e.Field()+" is required")
 				case "email":
 					errors = append(errors, "invalid email format")
-				case "passwd":
+				case "password":
 					errors = append(
 						errors,
 						"password must include upper, lower, digit, and special char",
@@ -122,6 +124,8 @@ func (r *V1) postLoginUser(ctx *fiber.Ctx) error {
 		return errorResponse(ctx, http.StatusBadRequest, "invalid request body")
 	}
 
+	body.User.Trim()
+
 	if err := r.v.Struct(body.User); err != nil {
 		r.l.Error(err, "http - v1 - postLoginUser - r.v.Struct")
 
@@ -169,6 +173,7 @@ func (r *V1) postLoginUser(ctx *fiber.Ctx) error {
 // @Failure     401 {object} response.Error
 // @Failure     500 {object} response.Error
 // @Router      /user [get]
+// @Security ApiKeyAuth
 func (r *V1) getCurrentUser(ctx *fiber.Ctx) error {
 	userId := ctx.Locals(middleware.CtxUserIdKey).(string)
 	if userId == "" {
@@ -201,6 +206,7 @@ func (r *V1) getCurrentUser(ctx *fiber.Ctx) error {
 	})
 }
 
+// @Security    BearerAuth
 // @Summary     Update User
 // @Description Update User
 // @ID          users-update
@@ -212,9 +218,9 @@ func (r *V1) getCurrentUser(ctx *fiber.Ctx) error {
 // @Failure     400 {object} response.Error
 // @Failure     401 {object} response.Error
 // @Failure     500 {object} response.Error
-// @Router      /users [post]
+// @Router      /user [put]
+// @Security ApiKeyAuth
 func (r *V1) putUpdateUser(ctx *fiber.Ctx) error {
-	// 1/ extract body
 	var body request.UserUpdateRequest
 
 	if err := ctx.BodyParser(&body); err != nil {
@@ -223,7 +229,12 @@ func (r *V1) putUpdateUser(ctx *fiber.Ctx) error {
 		return errorResponse(ctx, http.StatusBadRequest, "invalid request body")
 	}
 
-	// 2/ validator but skip if field empty
+	body.User.Trim()
+
+	if body.User.IsAllEmpty() {
+		return errorResponse(ctx, http.StatusBadRequest, "no field provided")
+	}
+
 	if err := r.v.Struct(body.User); err != nil {
 		r.l.Error(err, "http - v1 - putUpdateUser - r.v.Struct")
 		if verrs, ok := err.(validator.ValidationErrors); ok {
@@ -232,7 +243,7 @@ func (r *V1) putUpdateUser(ctx *fiber.Ctx) error {
 				switch e.Tag() {
 				case "email":
 					errors = append(errors, "invalid email format")
-				case "passwd":
+				case "password":
 					errors = append(
 						errors,
 						"password must include upper, lower, digit, and special char",
@@ -251,49 +262,26 @@ func (r *V1) putUpdateUser(ctx *fiber.Ctx) error {
 		return errorResponse(ctx, http.StatusInternalServerError, "validation error")
 	}
 
-	// 3/ get auth user by id
 	userId := ctx.Locals(middleware.CtxUserIdKey).(string)
 	if userId == "" {
 		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
 	}
 
-	user, err := r.u.Current(ctx.UserContext(), userId)
-	if err != nil {
-		r.l.Error(err, "http - v1 - putUpdateUser - r.u.Current")
-		if errors.Is(err, pgx.ErrNoRows) {
-			return errorResponse(ctx, http.StatusNotFound, "userId in token not found")
-		}
-		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
-	}
-
-	// 4/ assign user request body to auth user
-	body.User.Trim()
-	user.Password = body.User.Password // NOTE: just assign, in usecase don't hash if password is empty
-	if body.User.Email != "" {
-		user.Email = body.User.Email
-	}
-	if body.User.Username != "" {
-		user.Username = body.User.Username
-	}
-	if body.User.Bio != "" {
-		user.Bio = body.User.Bio
-	}
-	if body.User.Image != "" {
-		user.Image = body.User.Image
-	}
-
-	// 5/ call update and return updated user
-	updatedUser, err := r.u.Update(ctx.UserContext(), user)
+	user, err := r.u.Update(ctx.UserContext(), body.User.NewUser(userId))
 	if err != nil {
 		r.l.Error(err, "http - v1 - putUpdateUser - r.u.Update")
-		// TODO: check for unique constraint
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) {
+			if pgErr.Code == "23505" {
+				return errorResponse(ctx, http.StatusBadRequest, "email/username alread existed")
+			}
+		}
 
 		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
 	}
 
-	// 6/ generate token and convert to UserAuthResponse
 	token, err := util.GenerateJWT(
-		user.Id,
+		userId,
 		r.cfg.JWT.Secret,
 		r.cfg.JWT.Issuer,
 		r.cfg.JWT.Expiration,
@@ -305,6 +293,6 @@ func (r *V1) putUpdateUser(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.Status(http.StatusOK).JSON(response.UserAuthResponse{
-		User: response.NewUserAuth(updatedUser, token),
+		User: response.NewUserAuth(user, token),
 	})
 }

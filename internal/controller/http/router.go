@@ -21,7 +21,11 @@ import (
 // @description Realworld API using Golang + Fiber + Clean Architecture
 // @version     1.0
 // @host        localhost:8080
-// @BasePath    /v1
+// @BasePath    /api/v1
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Type "Token" followed by a space and JWT token.
 func NewRouter(
 	app *fiber.App,
 	cfg *config.Config,

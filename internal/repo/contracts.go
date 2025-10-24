@@ -38,7 +38,7 @@ type (
 		StoreRegister(context.Context, entity.User) (entity.User, error)
 		GetUserByEmail(context.Context, string) (entity.User, error)
 		GetUserById(context.Context, string) (entity.User, error)
-		StoreUpdate(context.Context, entity.User) (entity.User, error)
+		StoreUpdate(context.Context, entity.User) error
 	}
 
 	// TagRepo -.

@@ -20,8 +20,8 @@ func New(r repo.UserRepo) *UseCase {
 }
 
 // Register -.
-func (uc *UseCase) Register(ctx context.Context, user entity.User) (entity.User, error) {
-	hashedPassword, err := util.HashPassword(user.Password)
+func (uc *UseCase) Register(ctx context.Context, userDTO entity.User) (entity.User, error) {
+	hashedPassword, err := util.HashPassword(userDTO.Password)
 	if err != nil {
 		return entity.User{}, fmt.Errorf(
 			"UserUseCase - Register - util.HashPassword: %w",
@@ -29,8 +29,8 @@ func (uc *UseCase) Register(ctx context.Context, user entity.User) (entity.User,
 		)
 	}
 
-	user.Password = hashedPassword
-	user, err = uc.repo.StoreRegister(ctx, user)
+	userDTO.Password = hashedPassword
+	user, err := uc.repo.StoreRegister(ctx, userDTO)
 	if err != nil {
 		return entity.User{}, fmt.Errorf(
 			"UserUseCase - Register - uc.repo.StoreRegister: %w",
@@ -42,8 +42,8 @@ func (uc *UseCase) Register(ctx context.Context, user entity.User) (entity.User,
 }
 
 // Login -.
-func (uc *UseCase) Login(ctx context.Context, loginCred entity.User) (entity.User, error) {
-	user, err := uc.repo.GetUserByEmail(ctx, loginCred.Email)
+func (uc *UseCase) Login(ctx context.Context, userDTO entity.User) (entity.User, error) {
+	user, err := uc.repo.GetUserByEmail(ctx, userDTO.Email)
 	if err != nil {
 		return entity.User{}, fmt.Errorf(
 			"UserUseCase - Login - uc.repo.GetUserByEmail: %w",
@@ -51,7 +51,7 @@ func (uc *UseCase) Login(ctx context.Context, loginCred entity.User) (entity.Use
 		)
 	}
 
-	if !util.IsValidPassword(user.Password, loginCred.Password) {
+	if !util.IsValidPassword(user.Password, userDTO.Password) {
 		return entity.User{}, fmt.Errorf(
 			"UserUseCase - Login - util.IsValidPassword: incorrect password",
 		)
@@ -64,34 +64,46 @@ func (uc *UseCase) Login(ctx context.Context, loginCred entity.User) (entity.Use
 func (uc *UseCase) Current(ctx context.Context, userId string) (entity.User, error) {
 	user, err := uc.repo.GetUserById(ctx, userId)
 	if err != nil {
-		return entity.User{}, fmt.Errorf(
-			"UserUseCase - Current - uc.repo.GetUserById: %w",
-			err,
-		)
+		return entity.User{}, fmt.Errorf("UserUseCase - Current - uc.repo.GetUserById: %w", err)
 	}
 
 	return user, nil
 }
 
 // Update -.
-func (uc *UseCase) Update(ctx context.Context, user entity.User) (entity.User, error) {
-	if user.Password != "" {
-		hashedPassword, err := util.HashPassword(user.Password)
+func (uc *UseCase) Update(ctx context.Context, userDTO entity.User) (entity.User, error) {
+	user, err := uc.repo.GetUserById(ctx, userDTO.Id)
+	if err != nil {
+		return entity.User{}, fmt.Errorf("UserUseCase - Update - uc.repo.GetUserById: %w", err)
+	}
+
+	if userDTO.Password != "" {
+		hashedPassword, err := util.HashPassword(userDTO.Password)
 		if err != nil {
-			return entity.User{}, fmt.Errorf(
-				"UserUseCase - Register - util.HashPassword: %w",
-				err,
-			)
+			return entity.User{}, fmt.Errorf("UserUseCase - Update - util.HashPassword: %w", err)
 		}
 		user.Password = hashedPassword
 	}
 
-	user, err := uc.repo.StoreRegister(ctx, user)
+	if userDTO.Email != "" {
+		user.Email = userDTO.Email
+	}
+
+	if userDTO.Username != "" {
+		user.Username = userDTO.Username
+	}
+
+	if userDTO.Bio != "" {
+		user.Bio = userDTO.Bio
+	}
+
+	if userDTO.Image != "" {
+		user.Image = userDTO.Image
+	}
+
+	err = uc.repo.StoreUpdate(ctx, user)
 	if err != nil {
-		return entity.User{}, fmt.Errorf(
-			"UserUseCase - Register - uc.repo.StoreRegister: %w",
-			err,
-		)
+		return entity.User{}, fmt.Errorf("UserUseCase - Update - uc.repo.StoreUpdate: %w", err)
 	}
 
 	return user, nil

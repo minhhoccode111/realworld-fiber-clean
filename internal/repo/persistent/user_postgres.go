@@ -25,13 +25,13 @@ func (r *UserRepo) StoreRegister(ctx context.Context, user entity.User) (entity.
 		Suffix("returning id").
 		ToSql()
 	if err != nil {
-		return entity.User{}, fmt.Errorf("UserRepo - StoreRegisterUser - r.Builder: %w", err)
+		return entity.User{}, fmt.Errorf("UserRepo - StoreRegister - r.Builder: %w", err)
 	}
 
 	row := r.Pool.QueryRow(ctx, sql, args...)
 	err = row.Scan(&user.Id)
 	if err != nil {
-		return entity.User{}, fmt.Errorf("UserRepo - StoreRegisterUser - row.Scan: %w", err)
+		return entity.User{}, fmt.Errorf("UserRepo - StoreRegister - row.Scan: %w", err)
 	}
 
 	return user, nil
@@ -91,22 +91,24 @@ func (r *UserRepo) GetUserById(ctx context.Context, userId string) (entity.User,
 	return user, nil
 }
 
-func (r *UserRepo) StoreUpdate(ctx context.Context, user entity.User) (entity.User, error) {
+func (r *UserRepo) StoreUpdate(ctx context.Context, user entity.User) error {
 	sql, args, err := r.Builder.
-		Insert("users").
-		Columns("email, username, password, bio, image").
-		Values(user.Email, user.Username, user.Password, user.Bio, user.Image).
-		Suffix("returning id").
+		Update("users").
+		Set("email", user.Email).
+		Set("username", user.Username).
+		Set("password", user.Password).
+		Set("bio", user.Bio).
+		Set("image", user.Image).
+		Where(squirrel.Eq{"id": user.Id}).
 		ToSql()
 	if err != nil {
-		return entity.User{}, fmt.Errorf("UserRepo - StoreRegisterUser - r.Builder: %w", err)
+		return fmt.Errorf("UserRepo - StoreUpdate - r.Builder: %w", err)
 	}
 
-	row := r.Pool.QueryRow(ctx, sql, args...)
-	err = row.Scan(&user.Id)
+	_, err = r.Pool.Exec(ctx, sql, args...)
 	if err != nil {
-		return entity.User{}, fmt.Errorf("UserRepo - StoreRegisterUser - row.Scan: %w", err)
+		return fmt.Errorf("UserRepo - StoreUpdate - r.Pool.Exec: %w", err)
 	}
 
-	return user, nil
+	return nil
 }

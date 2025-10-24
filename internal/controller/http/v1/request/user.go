@@ -1,6 +1,10 @@
 package request
 
-import "strings"
+import (
+	"strings"
+
+	"github.com/minhhoccode111/realworld-fiber-clean/internal/entity"
+)
 
 // UserRegister -.
 type UserRegister struct {
@@ -25,8 +29,8 @@ type UserLogin struct {
 	Password string `json:"password" validate:"required" example:"P@ssw0rd"`
 }
 
-func (ur *UserLogin) Trim() {
-	ur.Email = strings.TrimSpace(ur.Email)
+func (u *UserLogin) Trim() {
+	u.Email = strings.TrimSpace(u.Email)
 }
 
 type UserLoginRequest struct {
@@ -42,11 +46,32 @@ type UserUpdate struct {
 	Image    string `json:"image"    validate:"max=2048"                        example:"https://www.w3schools.com/howto/img_avatar.png"`
 }
 
-func (u *UserUpdate) Trim() {
-	u.Email = strings.TrimSpace(u.Email)
-	u.Username = strings.TrimSpace(u.Username)
-	u.Bio = strings.TrimSpace(u.Bio)
-	u.Image = strings.TrimSpace(u.Image)
+// NewUser -.
+func (uu *UserUpdate) NewUser(userId string) entity.User {
+	return entity.User{
+		Id:       userId,
+		Email:    uu.Email,
+		Username: uu.Username,
+		Image:    uu.Image,
+		Bio:      uu.Bio,
+		Password: uu.Password,
+	}
+}
+
+func (uu *UserUpdate) Trim() {
+	uu.Email = strings.TrimSpace(uu.Email)
+	uu.Username = strings.TrimSpace(uu.Username)
+	uu.Bio = strings.TrimSpace(uu.Bio)
+	uu.Image = strings.TrimSpace(uu.Image)
+}
+
+func (uu *UserUpdate) IsAllEmpty() bool {
+	b := uu.Bio == ""
+	e := uu.Email == ""
+	i := uu.Image == ""
+	u := uu.Username == ""
+	p := uu.Password == ""
+	return e && u && b && i && p
 }
 
 type UserUpdateRequest struct {
