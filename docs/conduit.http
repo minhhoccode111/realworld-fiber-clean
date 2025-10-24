@@ -144,10 +144,10 @@ Authorization: Token {{token0}}
 
 {
     "article": {
-        "title": "title",
-        "description": "description",
-        "body": "body",
-        "tagList": ["minh", "hoc", "code"]
+        "title": "",
+        "description": "",
+        "body": "",
+        "tagList": ["fiber", "go", "clean-arch"]
     }
 }
 

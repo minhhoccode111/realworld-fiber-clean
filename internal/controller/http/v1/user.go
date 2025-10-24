@@ -62,7 +62,7 @@ func (r *V1) postRegisterUser(ctx *fiber.Ctx) error {
 					errors = append(errors, e.Field()+" is invalid")
 				}
 			}
-			return errorResponse(ctx, http.StatusBadRequest, strings.Join(errors, ", "))
+			return errorResponse(ctx, http.StatusBadRequest, strings.Join(errors, "; "))
 		}
 		return errorResponse(ctx, http.StatusInternalServerError, "validation error")
 	}
