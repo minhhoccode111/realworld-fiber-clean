@@ -41,6 +41,12 @@ type (
 		StoreUpdate(context.Context, entity.User) error
 	}
 
+	// ArticleRepo -.
+	ArticleRepo interface {
+		StoreCreate(context.Context, entity.Article, []string) (entity.Article, error)
+		CanSlugBeUsed(ctx context.Context, articleId string, slug string) (bool, error)
+	}
+
 	// TagRepo -.
 	TagRepo interface {
 		RetrieveTags(ctx context.Context, limit, offset uint64,

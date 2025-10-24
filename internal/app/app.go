@@ -14,6 +14,7 @@ import (
 	natsrpc "github.com/minhhoccode111/realworld-fiber-clean/internal/controller/nats_rpc"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/repo/persistent"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/repo/webapi"
+	"github.com/minhhoccode111/realworld-fiber-clean/internal/usecase/article"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/usecase/tag"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/usecase/translation"
 	translationClone "github.com/minhhoccode111/realworld-fiber-clean/internal/usecase/translation_clone"
@@ -38,18 +39,10 @@ func Run(cfg *config.Config) { //nolint: gocyclo,cyclop,funlen,gocritic,nolintli
 	defer pg.Close()
 
 	// Use-Case
-	translationUseCase := translation.New(
-		persistent.New(pg),
-		webapi.New(),
-	)
-
-	translationCloneUseCase := translationClone.New(
-		persistent.NewClone(pg),
-		webapi.NewClone(),
-	)
-
+	translationUseCase := translation.New(persistent.New(pg), webapi.New())
+	translationCloneUseCase := translationClone.New(persistent.NewClone(pg), webapi.NewClone())
 	userUseCase := user.New(persistent.NewUserRepo(pg))
-
+	articleUseCase := article.New(persistent.NewArticleRepo(pg))
 	tagUseCase := tag.New(persistent.NewTagRepo(pg))
 
 	// RabbitMQ RPC Server
@@ -85,6 +78,7 @@ func Run(cfg *config.Config) { //nolint: gocyclo,cyclop,funlen,gocritic,nolintli
 		translationUseCase,
 		translationCloneUseCase,
 		userUseCase,
+		articleUseCase,
 		tagUseCase,
 	)
 

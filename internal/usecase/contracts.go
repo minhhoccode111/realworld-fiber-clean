@@ -32,6 +32,11 @@ type (
 		Update(context.Context, entity.User) (entity.User, error)
 	}
 
+	// Article -.
+	Article interface {
+		Create(context.Context, entity.Article, []string) (entity.Article, error)
+	}
+
 	// Tag -.
 	Tag interface {
 		GetTags(ctx context.Context, limit, offset uint64,

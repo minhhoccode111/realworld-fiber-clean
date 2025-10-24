@@ -18,6 +18,7 @@ func NewV1Routes(
 	t usecase.Translation,
 	tc usecase.TranslationClone,
 	u usecase.User,
+	a usecase.Article,
 	tag usecase.Tag,
 ) {
 	r := &V1{
@@ -57,6 +58,11 @@ func NewV1Routes(
 	{
 		user.Get("/", auth, r.getCurrentUser)
 		user.Put("/", auth, r.putUpdateUser)
+	}
+
+	articles := apiV1Group.Group("/articles")
+	{
+		articles.Post("/", auth, r.postCreateArticle)
 	}
 
 	tags := apiV1Group.Group("/tags")
