@@ -79,7 +79,7 @@ func (r *V1) postRegisterUser(ctx *fiber.Ctx) error {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
 			if pgErr.Code == "23505" {
-				return errorResponse(ctx, http.StatusBadRequest, "email/username alread existed")
+				return errorResponse(ctx, http.StatusConflict, "email/username alread existed")
 			}
 		}
 
@@ -98,7 +98,7 @@ func (r *V1) postRegisterUser(ctx *fiber.Ctx) error {
 		return errorResponse(ctx, http.StatusInternalServerError, "generate jwt error")
 	}
 
-	return ctx.Status(http.StatusOK).JSON(response.UserAuthResponse{
+	return ctx.Status(http.StatusCreated).JSON(response.UserAuthResponse{
 		User: response.NewUserAuth(user, token),
 	})
 }
@@ -272,7 +272,7 @@ func (r *V1) putUpdateUser(ctx *fiber.Ctx) error {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
 			if pgErr.Code == "23505" {
-				return errorResponse(ctx, http.StatusBadRequest, "email/username alread existed")
+				return errorResponse(ctx, http.StatusConflict, "email/username alread existed")
 			}
 		}
 

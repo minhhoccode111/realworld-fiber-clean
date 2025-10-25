@@ -24,3 +24,16 @@ type ArticleDetail struct {
 
 	Timestamps
 }
+
+type ArticlePreview struct {
+	Slug           string         `json:"slug"`
+	Title          string         `json:"title"`
+	Description    string         `json:"description"`
+	TagList        []string       `json:"tagList"`
+	Favorited      bool           `json:"favorited"`
+	FavoritesCount int            `json:"favoritesCount"`
+	Author         ProfilePreview `json:"author"`
+	// Body           string         `json:"body"`
+
+	Timestamps
+}

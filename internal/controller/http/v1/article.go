@@ -10,6 +10,7 @@ import (
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/request"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/response"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/entity"
+	"github.com/minhhoccode111/realworld-fiber-clean/pkg/util"
 )
 
 // @Summary     Create Article
@@ -70,7 +71,55 @@ func (r *V1) postCreateArticle(ctx *fiber.Ctx) error {
 		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
 	}
 
-	return ctx.Status(http.StatusOK).JSON(response.ArticleDetailResponse{
+	return ctx.Status(http.StatusCreated).JSON(response.ArticleDetailResponse{
 		Article: article,
+	})
+}
+
+// @Summary     Get all articles
+// @Description Get all articles (filter by author, favorited, tag)
+// @ID          articles-get-all
+// @Tags        articles
+// @Produce     json
+// @Param       limit      query int    false "Limit number of results"
+// @Param       offset     query int    false "Offset for pagination"
+// @Param       author     query string false "Filter by author username"
+// @Param       favorited  query string false "Filter by favorited username"
+// @Param       tag        query string false "Filter by tag"
+// @Success     200 {object} response.ArticlesListResponse
+// @Failure     500 {object} response.Error
+// @Router      /articles [get]
+// @Security    BearerAuth
+func (r *V1) getAllArticles(ctx *fiber.Ctx) error {
+	isAuth := ctx.Locals(middleware.CtxIsAuthKey).(bool)
+	userId := ctx.Locals(middleware.CtxUserIdKey).(string)
+	if userId == "" && isAuth {
+		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
+	}
+
+	tag, author, favorited, limit, offset := util.SearchQueries(ctx)
+
+	articles, total, err := r.a.List(
+		ctx.UserContext(),
+		userId,
+		tag,
+		author,
+		favorited,
+		limit,
+		offset,
+	)
+	if err != nil {
+		r.l.Error(err, "http - v1 - getAllArticles - r.a.List")
+
+		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
+	}
+
+	return ctx.Status(http.StatusOK).JSON(response.ArticlePreviewsResponse{
+		Articles: articles,
+		Pagination: entity.Pagination{
+			Total:  total,
+			Limit:  limit,
+			Offset: offset,
+		},
 	})
 }

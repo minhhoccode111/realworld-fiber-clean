@@ -35,7 +35,7 @@ func NewV1Routes(
 
 	jwtSecret := r.cfg.JWT.Secret
 	auth := middleware.AuthMiddleware(l, jwtSecret, false)
-	// optionalAuth := middleware.AuthMiddleware(l, jwtSecret, true)
+	optionalAuth := middleware.AuthMiddleware(l, jwtSecret, true)
 
 	translation := apiV1Group.Group("/translation")
 	{
@@ -64,6 +64,8 @@ func NewV1Routes(
 	articles := apiV1Group.Group("/articles")
 	{
 		articles.Post("/", auth, r.postCreateArticle)
+		articles.Get("/", optionalAuth, r.getAllArticles)
+		// articles.Get("/feed", optionalAuth, r.postCreateArticle)
 	}
 
 	tags := apiV1Group.Group("/tags")
