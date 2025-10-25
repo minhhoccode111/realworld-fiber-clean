@@ -65,7 +65,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.Error"
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
             }
         },
         "/tags": {
@@ -318,7 +323,7 @@ const docTemplate = `{
                 },
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ]
             },
@@ -375,9 +380,6 @@ const docTemplate = `{
                 "security": [
                     {
                         "BearerAuth": []
-                    },
-                    {
-                        "ApiKeyAuth": []
                     }
                 ]
             }

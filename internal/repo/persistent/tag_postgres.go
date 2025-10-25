@@ -51,7 +51,3 @@ func (r *TagRepo) GetList(ctx context.Context, limit, offset uint64,
 
 	return tags, total, nil
 }
-
-func (r *TagRepo) StoreList(ctx context.Context, tags []string) ([]string, error) {
-	return nil, nil
-}

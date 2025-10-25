@@ -59,7 +59,12 @@
                             "$ref": "#/definitions/response.Error"
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
             }
         },
         "/tags": {
@@ -312,7 +317,7 @@
                 },
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ]
             },
@@ -369,9 +374,6 @@
                 "security": [
                     {
                         "BearerAuth": []
-                    },
-                    {
-                        "ApiKeyAuth": []
                     }
                 ]
             }

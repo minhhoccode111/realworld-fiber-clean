@@ -311,6 +311,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Error'
+      security:
+      - BearerAuth: []
       summary: Create Article
       tags:
       - articles
@@ -480,7 +482,7 @@ paths:
           schema:
             $ref: '#/definitions/response.Error'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Get current User
       tags:
       - users
@@ -517,7 +519,6 @@ paths:
             $ref: '#/definitions/response.Error'
       security:
       - BearerAuth: []
-      - ApiKeyAuth: []
       summary: Update User
       tags:
       - users

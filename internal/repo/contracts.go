@@ -43,15 +43,16 @@ type (
 
 	// ArticleRepo -.
 	ArticleRepo interface {
-		StoreCreate(ctx context.Context, dto entity.Article, tags []string) (slug string, err error)
+		StoreCreate(ctx context.Context, dto entity.Article, tags []string) (err error)
 		CanSlugBeUsed(ctx context.Context, articleId string, slug string) (bool, error)
-		// GetBySlug(context.Context, string) (entity.ArticleDetail, error)
+		GetDetailBySlug(ctx context.Context, userId, slug string) (entity.ArticleDetail, error)
+		StoreTagsList(ctx context.Context, tags []string) (ids []string, err error)
+		StoreArticleTagsList(ctx context.Context, articleId string, tagIds []string) error
 	}
 
 	// TagRepo -.
 	TagRepo interface {
 		GetList(ctx context.Context, limit, offset uint64,
 		) (tags []entity.TagName, total uint64, err error)
-		StoreList(context.Context, []string) ([]string, error)
 	}
 )

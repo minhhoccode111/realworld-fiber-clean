@@ -173,7 +173,7 @@ func (r *V1) postLoginUser(ctx *fiber.Ctx) error {
 // @Failure     401 {object} response.Error
 // @Failure     500 {object} response.Error
 // @Router      /user [get]
-// @Security ApiKeyAuth
+// @Security    BearerAuth
 func (r *V1) getCurrentUser(ctx *fiber.Ctx) error {
 	userId := ctx.Locals(middleware.CtxUserIdKey).(string)
 	if userId == "" {
@@ -206,7 +206,6 @@ func (r *V1) getCurrentUser(ctx *fiber.Ctx) error {
 	})
 }
 
-// @Security    BearerAuth
 // @Summary     Update User
 // @Description Update User
 // @ID          users-update
@@ -219,7 +218,7 @@ func (r *V1) getCurrentUser(ctx *fiber.Ctx) error {
 // @Failure     401 {object} response.Error
 // @Failure     500 {object} response.Error
 // @Router      /user [put]
-// @Security ApiKeyAuth
+// @Security    BearerAuth
 func (r *V1) putUpdateUser(ctx *fiber.Ctx) error {
 	var body request.UserUpdateRequest
 

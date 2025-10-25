@@ -144,9 +144,9 @@ Authorization: Token {{token0}}
 
 {
     "article": {
-        "title": "",
-        "description": "",
-        "body": "",
+        "title": "this is a title",
+        "description": "this is a description",
+        "body": "this is a body",
         "tagList": ["fiber", "go", "clean-arch"]
     }
 }
