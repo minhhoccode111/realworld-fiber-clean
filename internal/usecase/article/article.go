@@ -23,7 +23,6 @@ func New(r repo.ArticleRepo) *UseCase {
 // Create -.
 func (uc *UseCase) Create(ctx context.Context, dto entity.Article, tags []string,
 ) (entity.ArticleDetail, error) {
-	// 0/ find usable slug
 	baseSlug := slug.Make(dto.Title)
 	dto.Slug = baseSlug
 	for i := 0; ; i++ {
@@ -42,7 +41,6 @@ func (uc *UseCase) Create(ctx context.Context, dto entity.Article, tags []string
 		dto.Slug = baseSlug + "-" + strconv.Itoa(i)
 	}
 
-	// 1/ call article store create with new slug, and slice tags
 	err := uc.repo.StoreCreate(ctx, dto, tags)
 	if err != nil {
 		return entity.ArticleDetail{}, fmt.Errorf(
@@ -51,7 +49,6 @@ func (uc *UseCase) Create(ctx context.Context, dto entity.Article, tags []string
 		)
 	}
 
-	// 2/ use new slug to retrieve article detail
 	article, err := uc.repo.GetDetailBySlug(ctx, dto.AuthorId, dto.Slug)
 	if err != nil {
 		return entity.ArticleDetail{}, fmt.Errorf(
@@ -61,4 +58,17 @@ func (uc *UseCase) Create(ctx context.Context, dto entity.Article, tags []string
 	}
 
 	return article, nil
+}
+
+func (uc *UseCase) List(ctx context.Context, userId, tag, author, favorited string,
+	limit, offset uint64) ([]entity.ArticlePreview, uint64, error) {
+	articles, total, err := uc.repo.GetList(ctx, userId, tag, author, favorited, limit, offset)
+	if err != nil {
+		return nil, 0, fmt.Errorf(
+			"ArticleUseCase - List - uc.repo.GetList: %w",
+			err,
+		)
+	}
+
+	return articles, total, nil
 }

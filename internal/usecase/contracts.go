@@ -35,6 +35,8 @@ type (
 	// Article -.
 	Article interface {
 		Create(context.Context, entity.Article, []string) (entity.ArticleDetail, error)
+		List(ctx context.Context, userId, tag, author, favorited string, limit, offset uint64,
+		) ([]entity.ArticlePreview, uint64, error)
 	}
 
 	// Tag -.
