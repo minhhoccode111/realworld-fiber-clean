@@ -10,6 +10,70 @@
     "basePath": "/api/v1",
     "paths": {
         "/articles": {
+            "get": {
+                "description": "Get all articles (filter by author, favorited, tag)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "articles"
+                ],
+                "summary": "Get all articles",
+                "operationId": "articles-get-all",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "format": "int64",
+                        "description": "Limit number of results",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "format": "int64",
+                        "description": "Offset for pagination",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by author username",
+                        "name": "author",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by favorited username",
+                        "name": "favorited",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by tag",
+                        "name": "tag",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ArticlePreviewsResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Error"
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            },
             "post": {
                 "description": "Create Article",
                 "consumes": [
@@ -518,6 +582,41 @@
                 }
             }
         },
+        "entity.ArticlePreview": {
+            "type": "object",
+            "properties": {
+                "author": {
+                    "$ref": "#/definitions/entity.ProfilePreview"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "favorited": {
+                    "type": "boolean"
+                },
+                "favoritesCount": {
+                    "type": "integer"
+                },
+                "slug": {
+                    "type": "string"
+                },
+                "tagList": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
         "entity.ProfilePreview": {
             "type": "object",
             "properties": {
@@ -612,10 +711,10 @@
                         "type": "string"
                     },
                     "example": [
-                        "['go'",
-                        "'fiber'",
-                        "'api'",
-                        "'clean-arch']"
+                        "go",
+                        "fiber",
+                        "api",
+                        "clean-arch"
                     ]
                 },
                 "title": {
@@ -782,6 +881,29 @@
             "properties": {
                 "article": {
                     "$ref": "#/definitions/entity.ArticleDetail"
+                }
+            }
+        },
+        "response.ArticlePreviewsResponse": {
+            "type": "object",
+            "properties": {
+                "articles": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.ArticlePreview"
+                    }
+                },
+                "limit": {
+                    "type": "integer",
+                    "example": 10
+                },
+                "offset": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "total": {
+                    "type": "integer",
+                    "example": 18
                 }
             }
         },

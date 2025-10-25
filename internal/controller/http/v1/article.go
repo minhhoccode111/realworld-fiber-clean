@@ -81,12 +81,12 @@ func (r *V1) postCreateArticle(ctx *fiber.Ctx) error {
 // @ID          articles-get-all
 // @Tags        articles
 // @Produce     json
-// @Param       limit      query int    false "Limit number of results"
-// @Param       offset     query int    false "Offset for pagination"
+// @Param       limit      query uint64 false "Limit number of results"
+// @Param       offset     query uint64 false "Offset for pagination"
 // @Param       author     query string false "Filter by author username"
 // @Param       favorited  query string false "Filter by favorited username"
 // @Param       tag        query string false "Filter by tag"
-// @Success     200 {object} response.ArticlesListResponse
+// @Success     200 {object} response.ArticlePreviewsResponse
 // @Failure     500 {object} response.Error
 // @Router      /articles [get]
 // @Security    BearerAuth

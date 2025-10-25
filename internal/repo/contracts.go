@@ -48,6 +48,8 @@ type (
 		GetDetailBySlug(ctx context.Context, userId, slug string) (entity.ArticleDetail, error)
 		StoreTagsList(ctx context.Context, tags []string) (ids []string, err error)
 		StoreArticleTagsList(ctx context.Context, articleId string, tagIds []string) error
+		GetList(ctx context.Context, userId, tag, author, favorited string, limit, offset uint64,
+		) ([]entity.ArticlePreview, uint64, error)
 	}
 
 	// TagRepo -.

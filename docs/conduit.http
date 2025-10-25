@@ -87,7 +87,7 @@ GET {{api}}/articles
 GET {{api}}/articles
     ?limit=10
     &offset=0
-    &author=johnjacob
+    &author={{username0}}
 
 ### All Articles without auth, with limit and offset, author, favorited
 GET {{api}}/articles
@@ -100,8 +100,6 @@ GET {{api}}/articles
 GET {{api}}/articles
     ?limit=10
     &offset=0
-    &author={{username0}}
-    &favorited={{username0}}
     &tag=sao
 
 ### All Articles with auth
@@ -144,10 +142,10 @@ Authorization: Token {{token0}}
 
 {
     "article": {
-        "title": "this is a title",
-        "description": "this is a description",
-        "body": "this is a body",
-        "tagList": ["fiber", "go", "clean-arch"]
+        "title": "a47c2987-1966-4dc6-bc77-637113505d54",
+        "description": "5782afef-4983-449a-a244-13b0ed22eb76",
+        "body": "187ba420-67d8-407e-b18c-b42c4275a3ef",
+        "tagList": ["fiber", "go", "clean-arch", "sao"]
     }
 }
 

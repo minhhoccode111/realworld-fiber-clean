@@ -26,6 +26,7 @@ func errorResponse(ctx *fiber.Ctx, code int, msg string) error {
 func AuthMiddleware(l logger.Interface, jwtSecret string, isOptional bool) func(*fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		c.Locals(CtxIsAuthKey, false)
+		c.Locals(CtxUserIdKey, "")
 
 		authHeader := c.Get("Authorization")
 		if authHeader == "" {

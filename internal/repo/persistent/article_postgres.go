@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/Masterminds/squirrel"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/entity"
 	"github.com/minhhoccode111/realworld-fiber-clean/pkg/postgres"
 )
@@ -69,43 +68,37 @@ func (r *ArticleRepo) StoreCreate(ctx context.Context, dto entity.Article, tags 
 
 func (r *ArticleRepo) GetDetailBySlug(ctx context.Context, userId, slug string,
 ) (entity.ArticleDetail, error) {
-	sql, args, err := r.Builder.
-		Select(
-			"a.slug",
-			"a.title",
-			"a.description",
-			"a.body",
-			"a.created_at",
-			"a.updated_at",
-			"coalesce(array_agg(distinct t.name) filter (where t.name is not null), '{}') as tags",
-		).
-		Column(squirrel.Expr("(select exists (select 1 from favorites where article_id = a.id and user_id::text = ?)) as favorited", userId)).
-		Column(squirrel.Expr("(count(distinct f.user_id)) as favorites_count")).
-		Columns(
-			"u.username",
-			"u.bio",
-			"u.image",
-		).
-		Column(squirrel.Expr("(select exists (select 1 from follows where a.author_id = following_id and follower_id::text = ?)) as following", userId)).
-		From("articles a").
-		LeftJoin("users u on a.author_id = u.id").
-		LeftJoin("article_tags at on at.article_id = a.id").
-		LeftJoin("tags t on at.tag_id = t.id").
-		LeftJoin("favorites f on f.article_id = a.id").
-		Where("a.deleted_at is null").
-		Where(squirrel.Eq{"a.slug": slug}).
-		GroupBy("a.id", "u.id").
-		ToSql()
-	if err != nil {
-		return entity.ArticleDetail{}, fmt.Errorf(
-			"ArticleRepo - GetDetailBySlug - r.Builder: %w",
-			err,
-		)
-	}
+	// NOTE: can't use squirrel because compldex queries should look complex :)
+	query := `
+		select a.slug, a.title, a.description, a.body, a.created_at, a.updated_at,
+		  coalesce(array_agg(distinct t.name) filter (where t.name is not null), '{}') as tags,
+		  (select exists
+			(select 1 from favorites where article_id = a.id and user_id::text = $1)
+		  ) as favorited,
+		  (count(distinct f.user_id)) as favorites_count,
+		  u.username, u.bio, u.image,
+		  (select exists
+			(select 1 from follows where a.author_id = following_id and follower_id::text = $1)
+		  ) as following
+		from articles a
+		left join users u on a.author_id = u.id
+		left join article_tags at on at.article_id = a.id
+		left join tags t on at.tag_id = t.id
+		left join favorites f on f.article_id = a.id
+		where a.deleted_at is null and slug = $2
+		group by a.id, u.id;
+	`
+
+	/*
+		example output:
+		 slug | title |         description         |         body         |          created_at          |          updated_at          |     tags     | favorited | favorites_count |    username    |      bio      |                     image                      | following
+		------+-------+-----------------------------+----------------------+------------------------------+------------------------------+--------------+-----------+-----------------+----------------+---------------+------------------------------------------------+-----------
+		 slug | slug  | description cannot be empty | body cannot be empty | 2025-10-05 05:23:47.80455+00 | 2025-10-05 05:23:47.80455+00 | {sao,tai,vi} | t         |               3 | minhhoccode111 | i like golang | https://www.w3schools.com/howto/img_avatar.png | t
+	*/
 
 	a := entity.ArticleDetail{}
-	row := r.Pool.QueryRow(ctx, sql, args...)
-	err = row.Scan(
+	row := r.Pool.QueryRow(ctx, query, userId, slug)
+	err := row.Scan(
 		&a.Slug,
 		&a.Title,
 		&a.Description,
@@ -213,4 +206,93 @@ func (r *ArticleRepo) CanSlugBeUsed(ctx context.Context, articleId, slug string)
 	}
 
 	return !existed, nil
+}
+
+func (r *ArticleRepo) GetList(ctx context.Context,
+	userId, tag, author, favorited string,
+	limit, offset uint64,
+) (articles []entity.ArticlePreview, total uint64, err error) {
+	// NOTE: can't use squirrel because compldex queries should look complex :)
+	query := `
+		select a.slug, a.title, a.description, a.created_at, a.updated_at,
+		  (select exists
+			(select 1 from favorites where user_id::text = $1 and article_id = a.id)
+		  ) as favorited,
+		  u.username, u.bio, u.image,
+		  (select exists
+			(select 1 from follows where follower_id::text = $1 and following_id = u.id)
+		  ) as following,
+		  coalesce(array_agg(distinct t.name) filter (where t.name is not null), '{}') as tags,
+		  count(distinct f.user_id) as favorites_count,
+		  count(*) over() as articles_count -- count all articles match before applying limit
+		from articles a
+		left join users u on a.author_id = u.id
+		left join article_tags at on at.article_id = a.id
+		left join tags t on t.id = at.tag_id
+		left join favorites f on f.article_id = a.id
+		left join users uf on f.user_id = uf.id
+		where a.deleted_at is null
+		  and ('' = $2 or u.username = $2) -- author, skip if empty
+		  and ('' = $3 or uf.username = $3) -- favorited, skip if empty
+		  and ('' = $4 or exists (select 1 from article_tags at2
+			  left join tags t2 on at2.tag_id = t2.id
+			  where at2.article_id = a.id and t2.name = $4)) -- tag, skip if empty
+		group by a.id, u.id
+		order by a.created_at desc
+		limit $5
+		offset $6;
+	`
+
+	/*
+		example output:
+		          slug           |         title         |         description         |          created_at           |          updated_at           | favorited | username | bio | image | following |     tags     | favorites_count | articles_count
+		-------------------------+-----------------------+-----------------------------+-------------------------------+-------------------------------+-----------+----------+-----+-------+-----------+--------------+-----------------+----------------
+		 title-cannot-be-empty-6 | title cannot be empty | description cannot be empty | 2025-10-02 13:38:00.168028+00 | 2025-10-02 13:38:00.168028+00 | t         | asd0     |     |       | t         | {tai,vi,sao} |               1 |              1
+	*/
+
+	rows, err := r.Pool.Query(
+		ctx,
+		query,
+		userId,
+		author,
+		favorited,
+		tag,
+		limit,
+		offset,
+	)
+	if err != nil {
+		return nil, 0, fmt.Errorf("ArticleRepo - GetList - r.Pool.Query: %w", err)
+	}
+	defer rows.Close()
+
+	articles = []entity.ArticlePreview{}
+	for rows.Next() {
+		var a entity.ArticlePreview
+		err = rows.Scan(
+			&a.Slug,
+			&a.Title,
+			&a.Description,
+			&a.CreatedAt,
+			&a.UpdatedAt,
+			&a.Favorited,
+			&a.Author.Username,
+			&a.Author.Bio,
+			&a.Author.Image,
+			&a.Author.Following,
+			&a.TagList,
+			&a.FavoritesCount,
+			&total,
+		)
+		if err != nil {
+			return nil, 0, fmt.Errorf("ArticleRepo - GetList - rows.Scan: %w", err)
+		}
+		articles = append(articles, a)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return nil, 0, fmt.Errorf("ArticleRepo - GetList - rows.Err: %w", err)
+	}
+
+	return articles, total, nil
 }

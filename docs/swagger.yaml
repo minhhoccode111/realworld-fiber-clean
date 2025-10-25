@@ -25,6 +25,29 @@ definitions:
       updated_at:
         type: string
     type: object
+  entity.ArticlePreview:
+    properties:
+      author:
+        $ref: '#/definitions/entity.ProfilePreview'
+      created_at:
+        type: string
+      description:
+        type: string
+      favorited:
+        type: boolean
+      favoritesCount:
+        type: integer
+      slug:
+        type: string
+      tagList:
+        items:
+          type: string
+        type: array
+      title:
+        type: string
+      updated_at:
+        type: string
+    type: object
   entity.ProfilePreview:
     properties:
       bio:
@@ -84,10 +107,10 @@ definitions:
         type: string
       tagList:
         example:
-        - '[''go'''
-        - '''fiber'''
-        - '''api'''
-        - '''clean-arch'']'
+        - go
+        - fiber
+        - api
+        - clean-arch
         items:
           type: string
         type: array
@@ -216,6 +239,22 @@ definitions:
       article:
         $ref: '#/definitions/entity.ArticleDetail'
     type: object
+  response.ArticlePreviewsResponse:
+    properties:
+      articles:
+        items:
+          $ref: '#/definitions/entity.ArticlePreview'
+        type: array
+      limit:
+        example: 10
+        type: integer
+      offset:
+        example: 0
+        type: integer
+      total:
+        example: 18
+        type: integer
+    type: object
   response.Error:
     properties:
       error:
@@ -280,6 +319,48 @@ info:
   version: "1.0"
 paths:
   /articles:
+    get:
+      description: Get all articles (filter by author, favorited, tag)
+      operationId: articles-get-all
+      parameters:
+      - description: Limit number of results
+        format: int64
+        in: query
+        name: limit
+        type: integer
+      - description: Offset for pagination
+        format: int64
+        in: query
+        name: offset
+        type: integer
+      - description: Filter by author username
+        in: query
+        name: author
+        type: string
+      - description: Filter by favorited username
+        in: query
+        name: favorited
+        type: string
+      - description: Filter by tag
+        in: query
+        name: tag
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ArticlePreviewsResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      security:
+      - BearerAuth: []
+      summary: Get all articles
+      tags:
+      - articles
     post:
       consumes:
       - application/json
