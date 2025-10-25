@@ -18,9 +18,8 @@ func NewTagRepo(pg *postgres.Postgres) *TagRepo {
 	return &TagRepo{pg}
 }
 
-// GetTags -.
-func (r *TagRepo) RetrieveTags(ctx context.Context, limit, offset uint64,
-) ([]entity.Tag, uint64, error) {
+func (r *TagRepo) GetList(ctx context.Context, limit, offset uint64,
+) ([]entity.TagName, uint64, error) {
 	sql, _, err := r.Builder.
 		Select("distinct name", "count(*) over()").
 		From("tags").
@@ -37,11 +36,11 @@ func (r *TagRepo) RetrieveTags(ctx context.Context, limit, offset uint64,
 	}
 	defer rows.Close()
 
-	tags := make([]entity.Tag, 0)
+	tags := make([]entity.TagName, 0)
 	var total uint64
 
 	for rows.Next() {
-		var name entity.Tag
+		var name entity.TagName
 		err = rows.Scan(&name, &total)
 		if err != nil {
 			return nil, 0, fmt.Errorf("TagRepo - GetTags - rows.Scan: %w", err)
@@ -51,4 +50,8 @@ func (r *TagRepo) RetrieveTags(ctx context.Context, limit, offset uint64,
 	}
 
 	return tags, total, nil
+}
+
+func (r *TagRepo) StoreList(ctx context.Context, tags []string) ([]string, error) {
+	return nil, nil
 }

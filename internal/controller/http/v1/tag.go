@@ -30,7 +30,7 @@ func (r *V1) getTags(ctx *fiber.Ctx) error {
 		offset = 0
 	}
 
-	tags, total, err := r.tag.GetTags(ctx.UserContext(), limit, offset)
+	tags, total, err := r.tag.List(ctx.UserContext(), limit, offset)
 	if err != nil {
 		r.l.Error(err, "http - v1 - getTags")
 

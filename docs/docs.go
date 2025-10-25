@@ -15,6 +15,59 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/articles": {
+            "post": {
+                "description": "Create Article",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "articles"
+                ],
+                "summary": "Create Article",
+                "operationId": "articles-create",
+                "parameters": [
+                    {
+                        "description": "Create Article",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.ArticleCreateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ArticleDetailResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Error"
+                        }
+                    }
+                }
+            }
+        },
         "/tags": {
             "get": {
                 "description": "Get all tags of all articles with pagination",
@@ -431,6 +484,61 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "entity.ArticleDetail": {
+            "type": "object",
+            "properties": {
+                "author": {
+                    "$ref": "#/definitions/entity.ProfilePreview"
+                },
+                "body": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "favorited": {
+                    "type": "boolean"
+                },
+                "favoritesCount": {
+                    "type": "integer"
+                },
+                "slug": {
+                    "type": "string"
+                },
+                "tagList": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.ProfilePreview": {
+            "type": "object",
+            "properties": {
+                "bio": {
+                    "type": "string"
+                },
+                "following": {
+                    "type": "boolean"
+                },
+                "image": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
         "entity.Translation": {
             "type": "object",
             "properties": {
@@ -481,6 +589,51 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/entity.Translation"
                     }
+                }
+            }
+        },
+        "request.ArticleCreate": {
+            "type": "object",
+            "required": [
+                "body",
+                "description",
+                "tagList",
+                "title"
+            ],
+            "properties": {
+                "body": {
+                    "type": "string",
+                    "example": "this is article content"
+                },
+                "description": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "example": "This is description"
+                },
+                "tagList": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "['go'",
+                        "'fiber'",
+                        "'api'",
+                        "'clean-arch']"
+                    ]
+                },
+                "title": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "example": "This is title - to generate slug"
+                }
+            }
+        },
+        "request.ArticleCreateRequest": {
+            "type": "object",
+            "properties": {
+                "article": {
+                    "$ref": "#/definitions/request.ArticleCreate"
                 }
             }
         },
@@ -625,6 +778,14 @@ const docTemplate = `{
             "properties": {
                 "user": {
                     "$ref": "#/definitions/request.UserUpdate"
+                }
+            }
+        },
+        "response.ArticleDetailResponse": {
+            "type": "object",
+            "properties": {
+                "article": {
+                    "$ref": "#/definitions/entity.ArticleDetail"
                 }
             }
         },

@@ -74,7 +74,7 @@ func (r *V1) postRegisterUser(ctx *fiber.Ctx) error {
 		Password: body.User.Password,
 	})
 	if err != nil {
-		r.l.Error(err, "http - v1 - postRegisterUser - r.u.RegisterUser")
+		r.l.Error(err, "http - v1 - postRegisterUser - r.u.Register")
 
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {

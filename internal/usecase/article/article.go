@@ -22,6 +22,6 @@ func (uc *UseCase) Create(
 	ctx context.Context,
 	articleDTO entity.Article,
 	slugs []string,
-) (entity.Article, error) {
-	return entity.Article{}, nil
+) (entity.ArticleDetail, error) {
+	return entity.ArticleDetail{}, nil
 }

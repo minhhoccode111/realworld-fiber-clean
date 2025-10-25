@@ -34,12 +34,12 @@ type (
 
 	// Article -.
 	Article interface {
-		Create(context.Context, entity.Article, []string) (entity.Article, error)
+		Create(context.Context, entity.Article, []string) (entity.ArticleDetail, error)
 	}
 
 	// Tag -.
 	Tag interface {
-		GetTags(ctx context.Context, limit, offset uint64,
-		) (tags []entity.Tag, total uint64, err error)
+		List(ctx context.Context, limit, offset uint64,
+		) (tags []entity.TagName, total uint64, err error)
 	}
 )

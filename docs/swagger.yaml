@@ -1,5 +1,41 @@
 basePath: /api/v1
 definitions:
+  entity.ArticleDetail:
+    properties:
+      author:
+        $ref: '#/definitions/entity.ProfilePreview'
+      body:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      favorited:
+        type: boolean
+      favoritesCount:
+        type: integer
+      slug:
+        type: string
+      tagList:
+        items:
+          type: string
+        type: array
+      title:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  entity.ProfilePreview:
+    properties:
+      bio:
+        type: string
+      following:
+        type: boolean
+      image:
+        type: string
+      username:
+        type: string
+    type: object
   entity.Translation:
     properties:
       destination:
@@ -36,6 +72,39 @@ definitions:
         items:
           $ref: '#/definitions/entity.Translation'
         type: array
+    type: object
+  request.ArticleCreate:
+    properties:
+      body:
+        example: this is article content
+        type: string
+      description:
+        example: This is description
+        maxLength: 255
+        type: string
+      tagList:
+        example:
+        - '[''go'''
+        - '''fiber'''
+        - '''api'''
+        - '''clean-arch'']'
+        items:
+          type: string
+        type: array
+      title:
+        example: This is title - to generate slug
+        maxLength: 255
+        type: string
+    required:
+    - body
+    - description
+    - tagList
+    - title
+    type: object
+  request.ArticleCreateRequest:
+    properties:
+      article:
+        $ref: '#/definitions/request.ArticleCreate'
     type: object
   request.Translate:
     properties:
@@ -142,6 +211,11 @@ definitions:
       user:
         $ref: '#/definitions/request.UserUpdate'
     type: object
+  response.ArticleDetailResponse:
+    properties:
+      article:
+        $ref: '#/definitions/entity.ArticleDetail'
+    type: object
   response.Error:
     properties:
       error:
@@ -205,6 +279,41 @@ info:
   title: Realworld Fiber Clean API
   version: "1.0"
 paths:
+  /articles:
+    post:
+      consumes:
+      - application/json
+      description: Create Article
+      operationId: articles-create
+      parameters:
+      - description: Create Article
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.ArticleCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ArticleDetailResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      summary: Create Article
+      tags:
+      - articles
   /tags:
     get:
       description: Get all tags of all articles with pagination

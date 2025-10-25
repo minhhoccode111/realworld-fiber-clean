@@ -6,7 +6,10 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
+	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/middleware"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/request"
+	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/response"
+	"github.com/minhhoccode111/realworld-fiber-clean/internal/entity"
 )
 
 // @Summary     Create Article
@@ -49,5 +52,24 @@ func (r *V1) postCreateArticle(ctx *fiber.Ctx) error {
 		return errorResponse(ctx, http.StatusInternalServerError, "validation error")
 	}
 
-	return nil
+	userId := ctx.Locals(middleware.CtxUserIdKey).(string)
+	if userId == "" {
+		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
+	}
+
+	article, err := r.a.Create(ctx.UserContext(), entity.Article{
+		AuthorId:    userId,
+		Title:       body.Article.Title,
+		Body:        body.Article.Body,
+		Description: body.Article.Description,
+	}, body.Article.TagList)
+	if err != nil {
+		r.l.Error(err, "http - v1 - postCreateArticle - r.a.Create")
+
+		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
+	}
+
+	return ctx.Status(http.StatusOK).JSON(response.ArticleDetailResponse{
+		Article: article,
+	})
 }

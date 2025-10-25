@@ -29,6 +29,7 @@ func NewV1Routes(
 		t:   t,
 		tc:  tc,
 		u:   u,
+		a:   a,
 		tag: tag,
 	}
 
