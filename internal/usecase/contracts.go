@@ -44,6 +44,12 @@ type (
 			limit, offset uint64,
 		) ([]entity.ArticlePreview, uint64, error)
 		Detail(ctx context.Context, userId string, slug string) (entity.ArticleDetail, error)
+		Update(
+			ctx context.Context,
+			userId string,
+			oldSlug string,
+			dto entity.Article,
+		) (entity.ArticleDetail, error)
 	}
 
 	// Tag -.

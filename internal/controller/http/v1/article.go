@@ -137,8 +137,8 @@ func (r *V1) getAllArticles(ctx *fiber.Ctx) error {
 // @Router      /articles/feed [get]
 // @Security    BearerAuth
 func (r *V1) getFeedArticles(ctx *fiber.Ctx) error {
-	userId, ok := ctx.Locals(middleware.CtxUserIdKey).(string)
-	if !ok {
+	userId := ctx.Locals(middleware.CtxUserIdKey).(string)
+	if userId == "" {
 		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
 	}
 
@@ -200,6 +200,77 @@ func (r *V1) getArticle(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.Status(http.StatusCreated).JSON(response.ArticleDetailResponse{
+		Article: article,
+	})
+}
+
+// @Summary     Put article
+// @Description Put article by slug
+// @ID          articles-put-by-slug
+// @Tags        articles
+// @Produce     json
+// @Param       slug path string true "Article slug"
+// @Param       request body request.ArticleUpdateRequest true "Update Article"
+// @Success     200 {object} response.ArticleDetailResponse
+// @Failure     400 {object} response.Error
+// @Failure     401 {object} response.Error
+// @Failure     500 {object} response.Error
+// @Router      /articles/{slug} [put]
+// @Security    BearerAuth
+func (r *V1) putArticle(ctx *fiber.Ctx) error {
+	var body request.ArticleUpdateRequest
+
+	if err := ctx.BodyParser(&body); err != nil {
+		r.l.Error(err, "http - v1 - putArticle - ctx.BodyParser")
+
+		return errorResponse(ctx, http.StatusBadRequest, "invalid request body")
+	}
+
+	body.Article.Trim()
+
+	if err := r.v.Struct(body.Article); err != nil {
+		r.l.Error(err, "http - v1 - putArticle - r.v.Struct")
+		if verrs, ok := err.(validator.ValidationErrors); ok {
+			errors := make([]string, 0, len(verrs))
+			for _, e := range verrs {
+				switch e.Tag() {
+				case "required":
+					errors = append(errors, e.Field()+" is required")
+				default:
+					errors = append(errors, e.Field()+" is invalid")
+				}
+			}
+			return errorResponse(ctx, http.StatusBadRequest, strings.Join(errors, "; "))
+		}
+		return errorResponse(ctx, http.StatusInternalServerError, "validation error")
+	}
+
+	userId := ctx.Locals(middleware.CtxUserIdKey).(string)
+	if userId == "" {
+		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
+	}
+
+	slug := ctx.Params("slug")
+	if slug == "" {
+		return errorResponse(ctx, http.StatusBadRequest, "slug is required")
+	}
+
+	article, err := r.a.Update(ctx.UserContext(), userId, slug, entity.Article{
+		Title:       body.Article.Title,
+		Description: body.Article.Description,
+		Body:        body.Article.Body,
+	})
+	if err != nil {
+		r.l.Error(err, "http - v1 - putArticle - r.a.Update")
+
+		if strings.Contains(err.Error(), "Forbidden") {
+			return errorResponse(ctx, http.StatusForbidden, "Only article author can update it")
+		}
+
+		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
+	}
+
+	return ctx.Status(http.StatusOK).JSON(response.ArticleDetailResponse{
 		Article: article,
 	})
 }

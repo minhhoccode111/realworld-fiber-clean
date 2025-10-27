@@ -28,3 +28,19 @@ func (a *ArticleCreate) Trim() {
 type ArticleCreateRequest struct {
 	Article ArticleCreate `json:"article"`
 }
+
+type ArticleUpdate struct {
+	Title       string `json:"title"       validate:"omitempty,max=255" example:"This is title - to generate slug"`
+	Description string `json:"description" validate:"omitempty,max=255" example:"This is description"`
+	Body        string `json:"body"        validate:"omitempty"         example:"this is article content"`
+}
+
+func (a *ArticleUpdate) Trim() {
+	a.Title = strings.TrimSpace(a.Title)
+	a.Description = strings.TrimSpace(a.Description)
+	a.Body = strings.TrimSpace(a.Body)
+}
+
+type ArticleUpdateRequest struct {
+	Article ArticleUpdate `json:"article"`
+}

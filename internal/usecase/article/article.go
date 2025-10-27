@@ -2,6 +2,7 @@ package article
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strconv"
 
@@ -87,6 +88,72 @@ func (uc *UseCase) Detail(ctx context.Context, userId, slug string) (entity.Arti
 	if err != nil {
 		return entity.ArticleDetail{}, fmt.Errorf(
 			"ArticleUseCase - Detail - uc.repo.GetDetailBySlug: %w",
+			err,
+		)
+	}
+
+	return article, nil
+}
+
+func (uc *UseCase) Update(
+	ctx context.Context,
+	userId, oldSlug string,
+	dto entity.Article,
+) (entity.ArticleDetail, error) {
+	a, err := uc.repo.GetBasicBySlug(ctx, oldSlug)
+	if err != nil {
+		return entity.ArticleDetail{}, fmt.Errorf(
+			"ArticleUseCase - Update - uc.repo.GetBasicBySlug: %w",
+			err,
+		)
+	}
+
+	if a.AuthorId != userId {
+		return entity.ArticleDetail{}, errors.New("ArticleUseCase - Update - Forbidden")
+	}
+
+	baseSlug := slug.Make(dto.Title)
+	a.Slug = baseSlug
+	for i := 0; ; i++ {
+		yes, err := uc.repo.CanSlugBeUsed(ctx, a.Id, a.Slug)
+		if err != nil {
+			return entity.ArticleDetail{}, fmt.Errorf(
+				"ArticleUseCase - Update - uc.repo.CanSlugBeUsed: %w",
+				err,
+			)
+		}
+
+		if yes {
+			break
+		}
+
+		a.Slug = baseSlug + "-" + strconv.Itoa(i)
+	}
+
+	if dto.Title != "" {
+		a.Title = dto.Title
+	}
+
+	if dto.Body != "" {
+		a.Body = dto.Body
+	}
+
+	if dto.Description != "" {
+		a.Description = dto.Description
+	}
+
+	err = uc.repo.StoreUpdate(ctx, a)
+	if err != nil {
+		return entity.ArticleDetail{}, fmt.Errorf(
+			"ArticleUseCase - Update - uc.repo.StoreUpdate: %w",
+			err,
+		)
+	}
+
+	article, err := uc.repo.GetDetailBySlug(ctx, userId, a.Slug)
+	if err != nil {
+		return entity.ArticleDetail{}, fmt.Errorf(
+			"ArticleUseCase - Update - uc.repo.GetDetailBySlug: %w",
 			err,
 		)
 	}

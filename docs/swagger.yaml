@@ -129,6 +129,25 @@ definitions:
       article:
         $ref: '#/definitions/request.ArticleCreate'
     type: object
+  request.ArticleUpdate:
+    properties:
+      body:
+        example: this is article content
+        type: string
+      description:
+        example: This is description
+        maxLength: 255
+        type: string
+      title:
+        example: This is title - to generate slug
+        maxLength: 255
+        type: string
+    type: object
+  request.ArticleUpdateRequest:
+    properties:
+      article:
+        $ref: '#/definitions/request.ArticleUpdate'
+    type: object
   request.Translate:
     properties:
       destination:
@@ -421,6 +440,45 @@ paths:
       security:
       - BearerAuth: []
       summary: Get article
+      tags:
+      - articles
+    put:
+      description: Put article by slug
+      operationId: articles-put-by-slug
+      parameters:
+      - description: Article slug
+        in: path
+        name: slug
+        required: true
+        type: string
+      - description: Update Article
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.ArticleUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ArticleDetailResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      security:
+      - BearerAuth: []
+      summary: Put article
       tags:
       - articles
   /articles/feed:

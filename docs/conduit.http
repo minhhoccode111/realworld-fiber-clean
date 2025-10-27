@@ -166,7 +166,7 @@ Authorization: Token {{token0}}
 
 {
     "article": {
-        "title": "{{title}}",
+        "title": "{{slug}}",
         "body": "{{body}}",
         "description": "{{description}}"
     }

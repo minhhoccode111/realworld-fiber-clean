@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/Masterminds/squirrel"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/entity"
 	"github.com/minhhoccode111/realworld-fiber-clean/pkg/postgres"
 )
@@ -323,4 +324,57 @@ func (r *ArticleRepo) GetList(
 	}
 
 	return articles, total, nil
+}
+
+func (r *ArticleRepo) GetBasicBySlug(ctx context.Context, slug string) (entity.Article, error) {
+	sql, args, err := r.Builder.
+		Select("id, author_id, slug, title, body, description, created_at, updated_at").
+		From("articles").
+		Where(squirrel.Eq{"slug": slug}).
+		Where("deleted_at is null").
+		ToSql()
+	if err != nil {
+		return entity.Article{}, fmt.Errorf("ArticleRepo - GetBasicBySlug - r.Builder: %w", err)
+	}
+
+	var a entity.Article
+	row := r.Pool.QueryRow(ctx, sql, args...)
+	err = row.Scan(
+		&a.Id,
+		&a.AuthorId,
+		&a.Slug,
+		&a.Title,
+		&a.Body,
+		&a.Description,
+		&a.Timestamps.CreatedAt,
+		&a.Timestamps.UpdatedAt,
+	)
+	if err != nil {
+		return entity.Article{}, fmt.Errorf("ArticleRepo - GetBasicBySlug - row.Scan: %w", err)
+	}
+
+	return a, nil
+}
+
+func (r *ArticleRepo) StoreUpdate(ctx context.Context, dto entity.Article) error {
+	sql, args, err := r.Builder.
+		Update("articles").
+		Set("slug", dto.Slug).
+		Set("title", dto.Title).
+		Set("body", dto.Body).
+		Set("description", dto.Description).
+		// updated_at automatically trigger
+		Where(squirrel.Eq{"id": dto.Id}).
+		Where("deleted_at is null").
+		ToSql()
+	if err != nil {
+		return fmt.Errorf("ArticleRepo - StoreUpdate - r.Builder: %w", err)
+	}
+
+	_, err = r.Pool.Exec(ctx, sql, args...)
+	if err != nil {
+		return fmt.Errorf("ArticleRepo - StoreUpdate - r.Pool.Exec: %w", err)
+	}
+
+	return nil
 }

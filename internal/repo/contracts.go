@@ -56,6 +56,8 @@ type (
 			userId, tag, author, favorited string,
 			limit, offset uint64,
 		) ([]entity.ArticlePreview, uint64, error)
+		GetBasicBySlug(ctx context.Context, slug string) (entity.Article, error)
+		StoreUpdate(ctx context.Context, dto entity.Article) (err error)
 	}
 
 	// TagRepo -.

@@ -218,6 +218,66 @@
                         "BearerAuth": []
                     }
                 ]
+            },
+            "put": {
+                "description": "Put article by slug",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "articles"
+                ],
+                "summary": "Put article",
+                "operationId": "articles-put-by-slug",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Article slug",
+                        "name": "slug",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update Article",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.ArticleUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ArticleDetailResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Error"
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
             }
         },
         "/tags": {
@@ -818,6 +878,33 @@
             "properties": {
                 "article": {
                     "$ref": "#/definitions/request.ArticleCreate"
+                }
+            }
+        },
+        "request.ArticleUpdate": {
+            "type": "object",
+            "properties": {
+                "body": {
+                    "type": "string",
+                    "example": "this is article content"
+                },
+                "description": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "example": "This is description"
+                },
+                "title": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "example": "This is title - to generate slug"
+                }
+            }
+        },
+        "request.ArticleUpdateRequest": {
+            "type": "object",
+            "properties": {
+                "article": {
+                    "$ref": "#/definitions/request.ArticleUpdate"
                 }
             }
         },
