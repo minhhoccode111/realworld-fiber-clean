@@ -65,7 +65,8 @@ func NewV1Routes(
 	{
 		articles.Post("/", auth, r.postCreateArticle)
 		articles.Get("/", optionalAuth, r.getAllArticles)
-		articles.Get("/feed", optionalAuth, r.getFeedArticles)
+		articles.Get("/feed", auth, r.getFeedArticles)
+		articles.Get("/:slug", optionalAuth, r.getArticle)
 	}
 
 	tags := apiV1Group.Group("/tags")

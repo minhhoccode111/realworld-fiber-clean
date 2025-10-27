@@ -397,6 +397,32 @@ paths:
       summary: Create Article
       tags:
       - articles
+  /articles/{slug}:
+    get:
+      description: Get article by slug
+      operationId: articles-get-by-slug
+      parameters:
+      - description: Article slug
+        in: path
+        name: slug
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ArticleDetailResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      security:
+      - BearerAuth: []
+      summary: Get article
+      tags:
+      - articles
   /articles/feed:
     get:
       description: Get feed articles (from followed authors)

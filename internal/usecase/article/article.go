@@ -81,3 +81,15 @@ func (uc *UseCase) List(ctx context.Context, isFeed bool, userId, tag, author, f
 
 	return articles, total, nil
 }
+
+func (uc *UseCase) Detail(ctx context.Context, userId, slug string) (entity.ArticleDetail, error) {
+	article, err := uc.repo.GetDetailBySlug(ctx, userId, slug)
+	if err != nil {
+		return entity.ArticleDetail{}, fmt.Errorf(
+			"ArticleUseCase - Detail - uc.repo.GetDetailBySlug: %w",
+			err,
+		)
+	}
+
+	return article, nil
+}

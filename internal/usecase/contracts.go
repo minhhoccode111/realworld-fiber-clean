@@ -43,6 +43,7 @@ type (
 			userId, tag, author, favorited string,
 			limit, offset uint64,
 		) ([]entity.ArticlePreview, uint64, error)
+		Detail(ctx context.Context, userId string, slug string) (entity.ArticleDetail, error)
 	}
 
 	// Tag -.

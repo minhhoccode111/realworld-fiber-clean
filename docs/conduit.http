@@ -138,14 +138,14 @@ Authorization: Token {{token0}}
 
 ### Create Article
 POST {{api}}/articles
-Authorization: Token {{token0}}
+Authorization: Token {{token2}}
 
 {
     "article": {
-        "title": "a47c2987-1966-4dc6-bc77-637113505d54",
-        "description": "5782afef-4983-449a-a244-13b0ed22eb76",
-        "body": "187ba420-67d8-407e-b18c-b42c4275a3ef",
-        "tagList": ["fiber", "go", "clean-arch", "sao"]
+        "title": "{{slug}}",
+        "description": "{{description}}",
+        "body": "{{body}}",
+        "tagList": ["fiber", "go", "clean-arch"]
     }
 }
 

@@ -169,3 +169,37 @@ func (r *V1) getFeedArticles(ctx *fiber.Ctx) error {
 		},
 	})
 }
+
+// @Summary     Get article
+// @Description Get article by slug
+// @ID          articles-get-by-slug
+// @Tags        articles
+// @Produce     json
+// @Param       slug path string true "Article slug"
+// @Success     200 {object} response.ArticleDetailResponse
+// @Failure     500 {object} response.Error
+// @Router      /articles/{slug} [get]
+// @Security    BearerAuth
+func (r *V1) getArticle(ctx *fiber.Ctx) error {
+	isAuth := ctx.Locals(middleware.CtxIsAuthKey).(bool)
+	userId := ctx.Locals(middleware.CtxUserIdKey).(string)
+	if userId == "" && isAuth {
+		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
+	}
+
+	slug := ctx.Params("slug")
+	if slug == "" {
+		return errorResponse(ctx, http.StatusBadRequest, "slug is required")
+	}
+
+	article, err := r.a.Detail(ctx.UserContext(), userId, slug)
+	if err != nil {
+		r.l.Error(err, "http - v1 - getArticle - r.a.Detail")
+
+		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
+	}
+
+	return ctx.Status(http.StatusCreated).JSON(response.ArticleDetailResponse{
+		Article: article,
+	})
+}
