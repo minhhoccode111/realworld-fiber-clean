@@ -60,9 +60,18 @@ func (uc *UseCase) Create(ctx context.Context, dto entity.Article, tags []string
 	return article, nil
 }
 
-func (uc *UseCase) List(ctx context.Context, userId, tag, author, favorited string,
+func (uc *UseCase) List(ctx context.Context, isFeed bool, userId, tag, author, favorited string,
 	limit, offset uint64) ([]entity.ArticlePreview, uint64, error) {
-	articles, total, err := uc.repo.GetList(ctx, userId, tag, author, favorited, limit, offset)
+	articles, total, err := uc.repo.GetList(
+		ctx,
+		isFeed,
+		userId,
+		tag,
+		author,
+		favorited,
+		limit,
+		offset,
+	)
 	if err != nil {
 		return nil, 0, fmt.Errorf(
 			"ArticleUseCase - List - uc.repo.GetList: %w",

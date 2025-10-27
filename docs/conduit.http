@@ -151,7 +151,7 @@ Authorization: Token {{token0}}
 
 ### Get Feed Articles
 GET {{api}}/articles/feed
-Authorization: Token {{token0}}
+Authorization: Token {{token2}}
 
 ### Single Article by slug, without auth
 GET {{api}}/articles/{{slug}}

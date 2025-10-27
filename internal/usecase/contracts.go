@@ -20,7 +20,9 @@ type (
 	// Try to extend the Translation example with pagination
 	TranslationClone interface {
 		PostTranslate(context.Context, entity.TranslationClone) (entity.TranslationClone, error)
-		GetHistory(ctx context.Context, limit, offset uint64,
+		GetHistory(
+			ctx context.Context,
+			limit, offset uint64,
 		) (translations []entity.TranslationClone, total uint64, err error)
 	}
 
@@ -35,13 +37,19 @@ type (
 	// Article -.
 	Article interface {
 		Create(context.Context, entity.Article, []string) (entity.ArticleDetail, error)
-		List(ctx context.Context, userId, tag, author, favorited string, limit, offset uint64,
+		List(
+			ctx context.Context,
+			isFeed bool,
+			userId, tag, author, favorited string,
+			limit, offset uint64,
 		) ([]entity.ArticlePreview, uint64, error)
 	}
 
 	// Tag -.
 	Tag interface {
-		List(ctx context.Context, limit, offset uint64,
+		List(
+			ctx context.Context,
+			limit, offset uint64,
 		) (tags []entity.TagName, total uint64, err error)
 	}
 )

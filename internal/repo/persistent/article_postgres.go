@@ -208,12 +208,47 @@ func (r *ArticleRepo) CanSlugBeUsed(ctx context.Context, articleId, slug string)
 	return !existed, nil
 }
 
-func (r *ArticleRepo) GetList(ctx context.Context,
+func (r *ArticleRepo) GetList(
+	ctx context.Context,
+	isFeed bool,
 	userId, tag, author, favorited string,
 	limit, offset uint64,
 ) (articles []entity.ArticlePreview, total uint64, err error) {
+	var query string
+	var args []any
 	// NOTE: can't use squirrel because compldex queries should look complex :)
-	query := `
+	if isFeed {
+		query = `
+		select a.slug, a.title, a.description, a.created_at, a.updated_at,
+		  (select exists
+			(select 1 from favorites where user_id::text = $1 and article_id = a.id)
+		  ) as favorited,
+		  u.username, u.bio, u.image,
+		  (select exists
+			(select 1 from follows where follower_id::text = $1 and following_id = u.id)
+		  ) as following,
+		  coalesce(array_agg(distinct t.name) filter (where t.name is not null), '{}') as tags,
+		  count(distinct f.user_id) as favorites_count,
+		  count(*) over() as articles_count
+		from articles a
+		left join users u on a.author_id = u.id
+		left join article_tags at on at.article_id = a.id
+		left join tags t on t.id = at.tag_id
+		left join favorites f on f.article_id = a.id
+		left join users u2 on f.user_id = u2.id
+		where a.deleted_at is null
+		  and (select exists
+			(select 1 from follows where follower_id::text = $1
+			  and following_id = u.id)
+		  )
+		group by a.id, u.id
+		order by a.created_at desc
+		limit $2
+		offset $3;
+	`
+		args = []any{userId, limit, offset}
+	} else {
+		query = `
 		select a.slug, a.title, a.description, a.created_at, a.updated_at,
 		  (select exists
 			(select 1 from favorites where user_id::text = $1 and article_id = a.id)
@@ -242,6 +277,8 @@ func (r *ArticleRepo) GetList(ctx context.Context,
 		limit $5
 		offset $6;
 	`
+		args = []any{userId, author, favorited, tag, limit, offset}
+	}
 
 	/*
 		example output:
@@ -250,16 +287,7 @@ func (r *ArticleRepo) GetList(ctx context.Context,
 		 title-cannot-be-empty-6 | title cannot be empty | description cannot be empty | 2025-10-02 13:38:00.168028+00 | 2025-10-02 13:38:00.168028+00 | t         | asd0     |     |       | t         | {tai,vi,sao} |               1 |              1
 	*/
 
-	rows, err := r.Pool.Query(
-		ctx,
-		query,
-		userId,
-		author,
-		favorited,
-		tag,
-		limit,
-		offset,
-	)
+	rows, err := r.Pool.Query(ctx, query, args...)
 	if err != nil {
 		return nil, 0, fmt.Errorf("ArticleRepo - GetList - r.Pool.Query: %w", err)
 	}

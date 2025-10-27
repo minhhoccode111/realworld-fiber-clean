@@ -24,7 +24,9 @@ type (
 	// TranslationCloneRepo -.
 	TranslationCloneRepo interface {
 		StoreTranslation(context.Context, entity.TranslationClone) error
-		GetHistoryClone(ctx context.Context, limit, offset uint64,
+		GetHistoryClone(
+			ctx context.Context,
+			limit, offset uint64,
 		) (translations []entity.TranslationClone, total uint64, err error)
 	}
 
@@ -48,13 +50,19 @@ type (
 		GetDetailBySlug(ctx context.Context, userId, slug string) (entity.ArticleDetail, error)
 		StoreTagsList(ctx context.Context, tags []string) (ids []string, err error)
 		StoreArticleTagsList(ctx context.Context, articleId string, tagIds []string) error
-		GetList(ctx context.Context, userId, tag, author, favorited string, limit, offset uint64,
+		GetList(
+			ctx context.Context,
+			isFeed bool,
+			userId, tag, author, favorited string,
+			limit, offset uint64,
 		) ([]entity.ArticlePreview, uint64, error)
 	}
 
 	// TagRepo -.
 	TagRepo interface {
-		GetList(ctx context.Context, limit, offset uint64,
+		GetList(
+			ctx context.Context,
+			limit, offset uint64,
 		) (tags []entity.TagName, total uint64, err error)
 	}
 )

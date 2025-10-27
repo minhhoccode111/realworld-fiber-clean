@@ -397,6 +397,37 @@ paths:
       summary: Create Article
       tags:
       - articles
+  /articles/feed:
+    get:
+      description: Get feed articles (from followed authors)
+      operationId: articles-get-feed
+      parameters:
+      - description: Limit number of results
+        format: int64
+        in: query
+        name: limit
+        type: integer
+      - description: Offset for pagination
+        format: int64
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ArticlePreviewsResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      security:
+      - BearerAuth: []
+      summary: Get feed articles
+      tags:
+      - articles
   /tags:
     get:
       description: Get all tags of all articles with pagination

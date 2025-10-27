@@ -101,10 +101,56 @@ func (r *V1) getAllArticles(ctx *fiber.Ctx) error {
 
 	articles, total, err := r.a.List(
 		ctx.UserContext(),
+		false,
 		userId,
 		tag,
 		author,
 		favorited,
+		limit,
+		offset,
+	)
+	if err != nil {
+		r.l.Error(err, "http - v1 - getAllArticles - r.a.List")
+
+		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
+	}
+
+	return ctx.Status(http.StatusOK).JSON(response.ArticlePreviewsResponse{
+		Articles: articles,
+		Pagination: entity.Pagination{
+			Total:  total,
+			Limit:  limit,
+			Offset: offset,
+		},
+	})
+}
+
+// @Summary     Get feed articles
+// @Description Get feed articles (from followed authors)
+// @ID          articles-get-feed
+// @Tags        articles
+// @Produce     json
+// @Param       limit      query uint64 false "Limit number of results"
+// @Param       offset     query uint64 false "Offset for pagination"
+// @Success     200 {object} response.ArticlePreviewsResponse
+// @Failure     500 {object} response.Error
+// @Router      /articles/feed [get]
+// @Security    BearerAuth
+func (r *V1) getFeedArticles(ctx *fiber.Ctx) error {
+	userId, ok := ctx.Locals(middleware.CtxUserIdKey).(string)
+	if !ok {
+		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
+	}
+
+	_, _, _, limit, offset := util.SearchQueries(ctx)
+
+	articles, total, err := r.a.List(
+		ctx.UserContext(),
+		true,
+		userId,
+		"",
+		"",
+		"",
 		limit,
 		offset,
 	)
