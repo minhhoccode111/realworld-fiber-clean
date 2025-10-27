@@ -2,9 +2,11 @@ package persistent
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/Masterminds/squirrel"
+	"github.com/jackc/pgx/v5"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/entity"
 	"github.com/minhhoccode111/realworld-fiber-clean/pkg/postgres"
 )
@@ -115,6 +117,9 @@ func (r *ArticleRepo) GetDetailBySlug(ctx context.Context, userId, slug string,
 		&a.Author.Following,
 	)
 	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return entity.ArticleDetail{}, errors.New("notfound")
+		}
 		return entity.ArticleDetail{}, fmt.Errorf(
 			"ArticleRepo - GetDetailBySlug - row.Scan: %w",
 			err,
@@ -350,6 +355,9 @@ func (r *ArticleRepo) GetBasicBySlug(ctx context.Context, slug string) (entity.A
 		&a.Timestamps.UpdatedAt,
 	)
 	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return entity.Article{}, errors.New("notfound")
+		}
 		return entity.Article{}, fmt.Errorf("ArticleRepo - GetBasicBySlug - row.Scan: %w", err)
 	}
 
@@ -374,6 +382,29 @@ func (r *ArticleRepo) StoreUpdate(ctx context.Context, dto entity.Article) error
 	_, err = r.Pool.Exec(ctx, sql, args...)
 	if err != nil {
 		return fmt.Errorf("ArticleRepo - StoreUpdate - r.Pool.Exec: %w", err)
+	}
+
+	return nil
+}
+
+func (r *ArticleRepo) StoreDelete(ctx context.Context, userId, slug string) error {
+	sql, args, err := r.Builder.
+		Update("articles").
+		Set("deleted_at", squirrel.Expr("NOW()")).
+		Where(squirrel.Eq{"author_id": userId}).
+		Where(squirrel.Eq{"slug": slug}).
+		Where("deleted_at is null").
+		ToSql()
+	if err != nil {
+		return fmt.Errorf("ArticleRepo - StoreDelete - r.Builder: %w", err)
+	}
+
+	result, err := r.Pool.Exec(ctx, sql, args...)
+	if err != nil {
+		return fmt.Errorf("ArticleRepo - StoreDelete - r.Pool.Exec: %w", err)
+	}
+	if result.RowsAffected() == 0 {
+		return errors.New("ArticleRepo - StoreDelete - r.Pool.Exec: notfound")
 	}
 
 	return nil

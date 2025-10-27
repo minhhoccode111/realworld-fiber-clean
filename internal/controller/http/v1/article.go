@@ -177,6 +177,7 @@ func (r *V1) getFeedArticles(ctx *fiber.Ctx) error {
 // @Produce     json
 // @Param       slug path string true "Article slug"
 // @Success     200 {object} response.ArticleDetailResponse
+// @Success     404 {object} response.Error
 // @Failure     500 {object} response.Error
 // @Router      /articles/{slug} [get]
 // @Security    BearerAuth
@@ -194,12 +195,16 @@ func (r *V1) getArticle(ctx *fiber.Ctx) error {
 
 	article, err := r.a.Detail(ctx.UserContext(), userId, slug)
 	if err != nil {
+		if strings.Contains(err.Error(), "notfound") {
+			return errorResponse(ctx, http.StatusNotFound, "Article not found")
+		}
+
 		r.l.Error(err, "http - v1 - getArticle - r.a.Detail")
 
 		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
 	}
 
-	return ctx.Status(http.StatusCreated).JSON(response.ArticleDetailResponse{
+	return ctx.Status(http.StatusOK).JSON(response.ArticleDetailResponse{
 		Article: article,
 	})
 }
@@ -214,6 +219,8 @@ func (r *V1) getArticle(ctx *fiber.Ctx) error {
 // @Success     200 {object} response.ArticleDetailResponse
 // @Failure     400 {object} response.Error
 // @Failure     401 {object} response.Error
+// @Failure     403 {object} response.Error
+// @Failure     404 {object} response.Error
 // @Failure     500 {object} response.Error
 // @Router      /articles/{slug} [put]
 // @Security    BearerAuth
@@ -261,11 +268,15 @@ func (r *V1) putArticle(ctx *fiber.Ctx) error {
 		Body:        body.Article.Body,
 	})
 	if err != nil {
-		r.l.Error(err, "http - v1 - putArticle - r.a.Update")
-
-		if strings.Contains(err.Error(), "Forbidden") {
+		if strings.Contains(err.Error(), "forbidden") {
 			return errorResponse(ctx, http.StatusForbidden, "Only article author can update it")
 		}
+
+		if strings.Contains(err.Error(), "notfound") {
+			return errorResponse(ctx, http.StatusNotFound, "Article not found")
+		}
+
+		r.l.Error(err, "http - v1 - putArticle - r.a.Update")
 
 		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
 	}
@@ -273,4 +284,42 @@ func (r *V1) putArticle(ctx *fiber.Ctx) error {
 	return ctx.Status(http.StatusOK).JSON(response.ArticleDetailResponse{
 		Article: article,
 	})
+}
+
+// @Summary     Delete article
+// @Description Delete article by slug
+// @ID          articles-delete-by-slug
+// @Tags        articles
+// @Produce     json
+// @Param       slug path string true "Article slug"
+// @Success     204 "No Content"
+// @Failure     400 {object} response.Error
+// @Failure     401 {object} response.Error
+// @Failure     404 {object} response.Error
+// @Failure     500 {object} response.Error
+// @Router      /articles/{slug} [delete]
+// @Security    BearerAuth
+func (r *V1) deleteArticle(ctx *fiber.Ctx) error {
+	userId := ctx.Locals(middleware.CtxUserIdKey).(string)
+	if userId == "" {
+		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
+	}
+
+	slug := ctx.Params("slug")
+	if slug == "" {
+		return errorResponse(ctx, http.StatusBadRequest, "slug is required")
+	}
+
+	err := r.a.Delete(ctx.UserContext(), userId, slug)
+	if err != nil {
+		if strings.Contains(err.Error(), "notfound") {
+			return errorResponse(ctx, http.StatusNotFound, "Article not found")
+		}
+
+		r.l.Error(err, "http - v1 - deleteArticle - r.a.Delete")
+
+		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
+	}
+
+	return ctx.SendStatus(http.StatusNoContent)
 }

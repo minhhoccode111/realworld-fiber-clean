@@ -417,6 +417,41 @@ paths:
       tags:
       - articles
   /articles/{slug}:
+    delete:
+      description: Delete article by slug
+      operationId: articles-delete-by-slug
+      parameters:
+      - description: Article slug
+        in: path
+        name: slug
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      security:
+      - BearerAuth: []
+      summary: Delete article
+      tags:
+      - articles
     get:
       description: Get article by slug
       operationId: articles-get-by-slug
@@ -433,6 +468,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/response.ArticleDetailResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Error'
         "500":
           description: Internal Server Error
           schema:
@@ -470,6 +509,10 @@ paths:
             $ref: '#/definitions/response.Error'
         "401":
           description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Error'
+        "404":
+          description: Not Found
           schema:
             $ref: '#/definitions/response.Error'
         "500":

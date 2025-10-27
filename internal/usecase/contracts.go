@@ -50,6 +50,7 @@ type (
 			oldSlug string,
 			dto entity.Article,
 		) (entity.ArticleDetail, error)
+		Delete(ctx context.Context, userId string, slug string) error
 	}
 
 	// Tag -.

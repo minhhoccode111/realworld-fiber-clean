@@ -74,14 +74,14 @@ func (r *V1) postRegisterUser(ctx *fiber.Ctx) error {
 		Password: body.User.Password,
 	})
 	if err != nil {
-		r.l.Error(err, "http - v1 - postRegisterUser - r.u.Register")
-
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
 			if pgErr.Code == "23505" {
 				return errorResponse(ctx, http.StatusConflict, "email/username alread existed")
 			}
 		}
+
+		r.l.Error(err, "http - v1 - postRegisterUser - r.u.Register")
 
 		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
 	}
@@ -137,13 +137,16 @@ func (r *V1) postLoginUser(ctx *fiber.Ctx) error {
 		Password: body.User.Password,
 	})
 	if err != nil {
-		r.l.Error(err, "http - v1 - postLoginUser - r.u.Login")
 		if errors.Is(err, pgx.ErrNoRows) {
 			return errorResponse(ctx, http.StatusUnauthorized, "incorrect email")
 		}
+
 		if strings.Contains(err.Error(), "incorrect password") {
 			return errorResponse(ctx, http.StatusUnauthorized, "incorrect password")
 		}
+
+		r.l.Error(err, "http - v1 - postLoginUser - r.u.Login")
+
 		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
 	}
 
@@ -182,10 +185,12 @@ func (r *V1) getCurrentUser(ctx *fiber.Ctx) error {
 
 	user, err := r.u.Current(ctx.UserContext(), userId)
 	if err != nil {
-		r.l.Error(err, "http - v1 - getCurrentUser - r.u.Current")
 		if errors.Is(err, pgx.ErrNoRows) {
 			return errorResponse(ctx, http.StatusNotFound, "userId in token not found")
 		}
+
+		r.l.Error(err, "http - v1 - getCurrentUser - r.u.Current")
+
 		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
 	}
 
@@ -268,13 +273,14 @@ func (r *V1) putUpdateUser(ctx *fiber.Ctx) error {
 
 	user, err := r.u.Update(ctx.UserContext(), body.User.NewUser(userId))
 	if err != nil {
-		r.l.Error(err, "http - v1 - putUpdateUser - r.u.Update")
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
 			if pgErr.Code == "23505" {
 				return errorResponse(ctx, http.StatusConflict, "email/username alread existed")
 			}
 		}
+
+		r.l.Error(err, "http - v1 - putUpdateUser - r.u.Update")
 
 		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
 	}

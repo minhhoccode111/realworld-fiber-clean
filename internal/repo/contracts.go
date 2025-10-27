@@ -58,6 +58,7 @@ type (
 		) ([]entity.ArticlePreview, uint64, error)
 		GetBasicBySlug(ctx context.Context, slug string) (entity.Article, error)
 		StoreUpdate(ctx context.Context, dto entity.Article) (err error)
+		StoreDelete(ctx context.Context, userId, slug string) (err error)
 	}
 
 	// TagRepo -.

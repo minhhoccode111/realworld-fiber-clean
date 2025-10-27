@@ -109,7 +109,9 @@ func (uc *UseCase) Update(
 	}
 
 	if a.AuthorId != userId {
-		return entity.ArticleDetail{}, errors.New("ArticleUseCase - Update - Forbidden")
+		return entity.ArticleDetail{}, errors.New(
+			"ArticleUseCase - Update - uc.repo.GetBasicBySlug: forbidden",
+		)
 	}
 
 	baseSlug := slug.Make(dto.Title)
@@ -159,4 +161,16 @@ func (uc *UseCase) Update(
 	}
 
 	return article, nil
+}
+
+func (uc *UseCase) Delete(ctx context.Context, userId, slug string) error {
+	err := uc.repo.StoreDelete(ctx, userId, slug)
+	if err != nil {
+		return fmt.Errorf(
+			"ArticleUseCase - Delete - uc.repo.StoreDelete: %w",
+			err,
+		)
+	}
+
+	return nil
 }
