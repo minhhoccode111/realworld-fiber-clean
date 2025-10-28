@@ -20,8 +20,6 @@
 @description = description
 @body = body
 
-@commentId = 123
-
 ### Register
 POST {{api}}/users
 
@@ -209,8 +207,10 @@ Authorization: Token {{token0}}
 GET {{api}}/articles/{{slug}}/comments
 
 ### Delete Comment for Article
+@commentId = 4dbee433-249a-4a04-9f95-34dc99bb067f
+###
 DELETE {{api}}/articles/{{slug}}/comments/{{commentId}}
-Authorization: Token {{token0}}
+Authorization: Token {{token2}}
 
 ### Get Profile
 GET {{api}}/profiles/{{username0}}

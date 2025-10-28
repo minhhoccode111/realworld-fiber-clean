@@ -58,3 +58,15 @@ func (uc *UseCase) List(
 
 	return comments, total, nil
 }
+
+func (uc *UseCase) Delete(ctx context.Context, userId, slug, commentId string) error {
+	err := uc.repo.StoreDelete(ctx, userId, slug, commentId)
+	if err != nil {
+		return fmt.Errorf(
+			"CommentUseCase - Delete - uc.repo.StoreDelete: %w",
+			err,
+		)
+	}
+
+	return nil
+}

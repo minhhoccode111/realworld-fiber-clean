@@ -156,3 +156,30 @@ func (r *CommentRepo) GetList(
 
 	return comments, total, nil
 }
+
+func (r *CommentRepo) StoreDelete(ctx context.Context, userId, slug, commentId string) (err error) {
+	sql, args, err := r.Builder.
+		Update("comments").
+		Set("deleted_at", squirrel.Expr("NOW()")).
+		Where(squirrel.Eq{"author_id": userId}).
+		Where(squirrel.Expr(`exists (
+			select 1 from articles
+			where id = article_id
+			and slug = ?
+			and deleted_at is null)`, slug)).
+		Where(squirrel.Eq{"id": commentId}).
+		ToSql()
+	if err != nil {
+		return fmt.Errorf("CommentRepo - StoreDelete - r.Builder: %w", err)
+	}
+
+	result, err := r.Pool.Exec(ctx, sql, args...)
+	if err != nil {
+		return fmt.Errorf("CommentRepo - StoreDelete - r.Pool.Exec: %w", err)
+	}
+	if result.RowsAffected() == 0 {
+		return errors.New("CommentRepo - StoreDelete - r.Pool.Exec: notfound")
+	}
+
+	return nil
+}

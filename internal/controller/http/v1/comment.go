@@ -120,7 +120,7 @@ func (r *V1) getAllComments(ctx *fiber.Ctx) error {
 		offset,
 	)
 	if err != nil {
-		r.l.Error(err, "http - v1 - getAllComments - r.a.List")
+		r.l.Error(err, "http - v1 - getAllComments - r.c.List")
 
 		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
 	}
@@ -133,4 +133,47 @@ func (r *V1) getAllComments(ctx *fiber.Ctx) error {
 			Offset: offset,
 		},
 	})
+}
+
+// @Summary     Delete comment
+// @Description Delete comment by id
+// @ID          comment-delete-by-id
+// @Tags        comments
+// @Produce     json
+// @Param       slug path string true "Article slug"
+// @Success     204 "No Content"
+// @Failure     400 {object} response.Error
+// @Failure     401 {object} response.Error
+// @Failure     404 {object} response.Error
+// @Failure     500 {object} response.Error
+// @Router      /articles/{slug}/comments/{commentId} [delete]
+// @Security    BearerAuth
+func (r *V1) deleteComment(ctx *fiber.Ctx) error {
+	userId := ctx.Locals(middleware.CtxUserIdKey).(string)
+	if userId == "" {
+		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
+	}
+
+	slug := ctx.Params("slug")
+	if slug == "" {
+		return errorResponse(ctx, http.StatusBadRequest, "slug is required")
+	}
+
+	commentId := ctx.Params("commentId")
+	if commentId == "" {
+		return errorResponse(ctx, http.StatusBadRequest, "commentId is required")
+	}
+
+	err := r.c.Delete(ctx.UserContext(), userId, slug, commentId)
+	if err != nil {
+		if strings.Contains(err.Error(), "notfound") {
+			return errorResponse(ctx, http.StatusNotFound, "Article/comment not found")
+		}
+
+		r.l.Error(err, "http - v1 - deleteComment - r.c.Delete")
+
+		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
+	}
+
+	return ctx.SendStatus(http.StatusNoContent)
 }

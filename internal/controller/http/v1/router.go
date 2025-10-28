@@ -77,6 +77,7 @@ func NewV1Routes(
 	{
 		comments.Post("/", auth, r.postCreateComment)
 		comments.Get("/", optionalAuth, r.getAllComments)
+		comments.Delete("/:commentId", auth, r.deleteComment)
 	}
 
 	tags := apiV1Group.Group("/tags")

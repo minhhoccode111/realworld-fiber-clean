@@ -46,7 +46,7 @@ type (
 	// ArticleRepo -.
 	ArticleRepo interface {
 		StoreCreate(ctx context.Context, dto entity.Article, tags []string) (err error)
-		CanSlugBeUsed(ctx context.Context, articleId string, slug string) (bool, error)
+		CanSlugBeUsed(ctx context.Context, articleId, slug string) (bool, error)
 		GetDetailBySlug(ctx context.Context, userId, slug string) (entity.ArticleDetail, error)
 		StoreTagsList(ctx context.Context, tags []string) (ids []string, err error)
 		StoreArticleTagsList(ctx context.Context, articleId string, tagIds []string) error
@@ -69,6 +69,7 @@ type (
 			userId, slug string,
 			limit, offset uint64,
 		) ([]entity.CommentDetail, uint64, error)
+		StoreDelete(ctx context.Context, userId, slug, commentId string) (err error)
 	}
 
 	// TagRepo -.

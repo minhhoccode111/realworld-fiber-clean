@@ -12,6 +12,7 @@ type V1 struct {
 	l   logger.Interface
 	v   *validator.Validate
 	cfg *config.Config
+
 	t   usecase.Translation
 	tc  usecase.TranslationClone
 	u   usecase.User

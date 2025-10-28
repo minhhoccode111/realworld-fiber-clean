@@ -43,14 +43,13 @@ type (
 			userId, tag, author, favorited string,
 			limit, offset uint64,
 		) ([]entity.ArticlePreview, uint64, error)
-		Detail(ctx context.Context, userId string, slug string) (entity.ArticleDetail, error)
+		Detail(ctx context.Context, userId, slug string) (entity.ArticleDetail, error)
 		Update(
 			ctx context.Context,
-			userId string,
-			oldSlug string,
+			userId, oldSlug string,
 			dto entity.Article,
 		) (entity.ArticleDetail, error)
-		Delete(ctx context.Context, userId string, slug string) error
+		Delete(ctx context.Context, userId, slug string) error
 	}
 
 	Comment interface {
@@ -60,6 +59,7 @@ type (
 			userId, slug string,
 			limit, offset uint64,
 		) ([]entity.CommentDetail, uint64, error)
+		Delete(ctx context.Context, userId, slug, commentId string) error
 	}
 
 	// Tag -.
