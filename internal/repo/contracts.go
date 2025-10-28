@@ -61,6 +61,11 @@ type (
 		StoreDelete(ctx context.Context, userId, slug string) (err error)
 	}
 
+	CommentRepo interface {
+		StoreCreate(ctx context.Context, slug string, dto entity.Comment) (string, error)
+		GetDetailById(ctx context.Context, userId, commentId string) (entity.CommentDetail, error)
+	}
+
 	// TagRepo -.
 	TagRepo interface {
 		GetList(

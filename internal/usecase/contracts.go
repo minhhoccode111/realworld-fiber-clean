@@ -53,6 +53,10 @@ type (
 		Delete(ctx context.Context, userId string, slug string) error
 	}
 
+	Comment interface {
+		Create(ctx context.Context, slug string, dto entity.Comment) (entity.CommentDetail, error)
+	}
+
 	// Tag -.
 	Tag interface {
 		List(

@@ -23,7 +23,7 @@ import (
 // @Accept      json
 // @Produce     json
 // @Param       request body request.UserRegisterRequest true "Register User"
-// @Success     200 {object} response.UserAuthResponse
+// @Success     201 {object} response.UserAuthResponse
 // @Failure     400 {object} response.Error
 // @Failure     500 {object} response.Error
 // @Router      /users [post]

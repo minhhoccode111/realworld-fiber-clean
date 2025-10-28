@@ -16,5 +16,6 @@ type V1 struct {
 	tc  usecase.TranslationClone
 	u   usecase.User
 	a   usecase.Article
+	c   usecase.Comment
 	tag usecase.Tag
 }

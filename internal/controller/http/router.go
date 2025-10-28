@@ -35,6 +35,7 @@ func NewRouter(
 	tc usecase.TranslationClone,
 	u usecase.User,
 	a usecase.Article,
+	c usecase.Comment,
 	tag usecase.Tag,
 ) {
 	// Options
@@ -59,6 +60,6 @@ func NewRouter(
 	// Routers
 	apiV1Group := app.Group("/api/v1")
 	{
-		v1.NewV1Routes(apiV1Group, cfg, l, t, tc, u, a, tag)
+		v1.NewV1Routes(apiV1Group, cfg, l, t, tc, u, a, c, tag)
 	}
 }

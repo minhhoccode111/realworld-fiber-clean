@@ -186,7 +186,7 @@ Authorization: Token {{token0}}
 
 ### Create Comment for Article
 POST {{api}}/articles/{{slug}}/comments
-Authorization: Token {{token0}}
+Authorization: Token {{token2}}
 
 {
     "comment": {
