@@ -55,6 +55,11 @@ type (
 
 	Comment interface {
 		Create(ctx context.Context, slug string, dto entity.Comment) (entity.CommentDetail, error)
+		List(
+			ctx context.Context,
+			userId, slug string,
+			limit, offset uint64,
+		) ([]entity.CommentDetail, uint64, error)
 	}
 
 	// Tag -.

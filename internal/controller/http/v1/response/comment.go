@@ -6,7 +6,7 @@ type CommentDetailResponse struct {
 	Comment entity.CommentDetail `json:"comment"`
 }
 
-type CommentsResponse struct {
+type CommentDetailsResponse struct {
 	Comments []entity.CommentDetail `json:"comments"`
 
 	entity.Pagination

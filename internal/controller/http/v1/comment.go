@@ -10,6 +10,7 @@ import (
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/request"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/response"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/entity"
+	"github.com/minhhoccode111/realworld-fiber-clean/pkg/util"
 )
 
 // @Summary     Create Comment
@@ -81,5 +82,55 @@ func (r *V1) postCreateComment(ctx *fiber.Ctx) error {
 
 	return ctx.Status(http.StatusCreated).JSON(response.CommentDetailResponse{
 		Comment: comment,
+	})
+}
+
+// @Summary     Get all comments
+// @Description Get all comments of an article
+// @ID          comments-get-all
+// @Tags        comments
+// @Produce     json
+// @Param       limit      query uint64 false "Limit number of results"
+// @Param       offset     query uint64 false "Offset for pagination"
+// @Success     200 {object} response.CommentDetailsResponse
+// @Success     400 {object} response.CommentDetailsResponse
+// @Success     401 {object} response.CommentDetailsResponse
+// @Failure     500 {object} response.Error
+// @Router      /articles/{slug}/comments [get]
+// @Security    BearerAuth
+func (r *V1) getAllComments(ctx *fiber.Ctx) error {
+	isAuth := ctx.Locals(middleware.CtxIsAuthKey).(bool)
+	userId := ctx.Locals(middleware.CtxUserIdKey).(string)
+	if userId == "" && isAuth {
+		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
+	}
+
+	slug := ctx.Params("slug")
+	if slug == "" {
+		return errorResponse(ctx, http.StatusBadRequest, "slug is required")
+	}
+
+	_, _, _, limit, offset := util.SearchQueries(ctx)
+
+	comments, total, err := r.c.List(
+		ctx.UserContext(),
+		userId,
+		slug,
+		limit,
+		offset,
+	)
+	if err != nil {
+		r.l.Error(err, "http - v1 - getAllComments - r.a.List")
+
+		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
+	}
+
+	return ctx.Status(http.StatusOK).JSON(response.CommentDetailsResponse{
+		Comments: comments,
+		Pagination: entity.Pagination{
+			Total:  total,
+			Limit:  limit,
+			Offset: offset,
+		},
 	})
 }

@@ -95,3 +95,64 @@ func (r *CommentRepo) GetDetailById(
 
 	return c, nil
 }
+
+func (r *CommentRepo) GetList(
+	ctx context.Context,
+	userId, slug string,
+	limit, offset uint64,
+) (comments []entity.CommentDetail, total uint64, err error) {
+	query := `
+		select c.id, c.body, c.created_at, c.updated_at,
+		  u.username, u.bio, u.image,
+		  (select exists (
+			select 1 from follows
+			where follower_id::text = $1
+			and following_id = c.author_id
+		  )) as following,
+		  count(*) over() as comments_count
+		from comments c
+		left join users u on u.id = c.author_id
+		left join articles a on a.id = c.article_id
+		where c.deleted_at is null
+		and a.deleted_at is null
+		and a.slug = $2
+		group by a.id, u.id, c.id
+		order by c.created_at
+		limit $3
+		offset $4;
+	`
+	args := []any{userId, slug, limit, offset}
+
+	rows, err := r.Pool.Query(ctx, query, args...)
+	if err != nil {
+		return nil, 0, fmt.Errorf("CommentRepo - GetList - r.Pool.Query: %w", err)
+	}
+	defer rows.Close()
+
+	comments = []entity.CommentDetail{}
+	for rows.Next() {
+		var c entity.CommentDetail
+		err := rows.Scan(
+			&c.Id,
+			&c.Body,
+			&c.CreatedAt,
+			&c.UpdatedAt,
+			&c.Author.Username,
+			&c.Author.Bio,
+			&c.Author.Image,
+			&c.Author.Following,
+			&total,
+		)
+		if err != nil {
+			return nil, 0, fmt.Errorf("CommentRepo - GetList - rows.Scan: %w", err)
+		}
+		comments = append(comments, c)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return nil, 0, fmt.Errorf("CommentRepo - GetList - rows.Err: %w", err)
+	}
+
+	return comments, total, nil
+}

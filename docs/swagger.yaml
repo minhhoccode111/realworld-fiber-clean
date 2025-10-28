@@ -1,4 +1,961 @@
+basePath: /api/v1
+definitions:
+  entity.ArticleDetail:
+    properties:
+      author:
+        $ref: '#/definitions/entity.ProfilePreview'
+      body:
+        type: string
+      createdAt:
+        type: string
+      description:
+        type: string
+      favorited:
+        type: boolean
+      favoritesCount:
+        type: integer
+      slug:
+        type: string
+      tagList:
+        items:
+          type: string
+        type: array
+      title:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  entity.ArticlePreview:
+    properties:
+      author:
+        $ref: '#/definitions/entity.ProfilePreview'
+      createdAt:
+        type: string
+      description:
+        type: string
+      favorited:
+        type: boolean
+      favoritesCount:
+        type: integer
+      slug:
+        type: string
+      tagList:
+        items:
+          type: string
+        type: array
+      title:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  entity.CommentDetail:
+    properties:
+      author:
+        $ref: '#/definitions/entity.ProfilePreview'
+      body:
+        type: string
+      createdAt:
+        type: string
+      id:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  entity.ProfilePreview:
+    properties:
+      bio:
+        type: string
+      following:
+        type: boolean
+      image:
+        type: string
+      username:
+        type: string
+    type: object
+  entity.Translation:
+    properties:
+      destination:
+        example: en
+        type: string
+      original:
+        example: текст для перевода
+        type: string
+      source:
+        example: auto
+        type: string
+      translation:
+        example: text for translation
+        type: string
+    type: object
+  entity.TranslationClone:
+    properties:
+      destination:
+        example: en
+        type: string
+      original:
+        example: текст для перевода
+        type: string
+      source:
+        example: auto
+        type: string
+      translation:
+        example: text for translation
+        type: string
+    type: object
+  entity.TranslationHistory:
+    properties:
+      history:
+        items:
+          $ref: '#/definitions/entity.Translation'
+        type: array
+    type: object
+  request.ArticleCreate:
+    properties:
+      body:
+        example: this is article content
+        maxLength: 50000
+        type: string
+      description:
+        example: This is description
+        maxLength: 255
+        type: string
+      tagList:
+        example:
+        - go
+        - fiber
+        - api
+        - clean-arch
+        items:
+          type: string
+        type: array
+      title:
+        example: This is title - to generate slug
+        maxLength: 255
+        type: string
+    required:
+    - body
+    - description
+    - tagList
+    - title
+    type: object
+  request.ArticleCreateRequest:
+    properties:
+      article:
+        $ref: '#/definitions/request.ArticleCreate'
+    type: object
+  request.ArticleUpdate:
+    properties:
+      body:
+        example: this is article content
+        maxLength: 50000
+        type: string
+      description:
+        example: This is description
+        maxLength: 255
+        type: string
+      title:
+        example: This is title - to generate slug
+        maxLength: 255
+        type: string
+    type: object
+  request.ArticleUpdateRequest:
+    properties:
+      article:
+        $ref: '#/definitions/request.ArticleUpdate'
+    type: object
+  request.CommentCreate:
+    properties:
+      body:
+        example: this is a comment
+        maxLength: 10000
+        type: string
+    required:
+    - body
+    type: object
+  request.CommentCreateRequest:
+    properties:
+      comment:
+        $ref: '#/definitions/request.CommentCreate'
+    type: object
+  request.Translate:
+    properties:
+      destination:
+        example: en
+        type: string
+      original:
+        example: текст для перевода
+        type: string
+      source:
+        example: auto
+        type: string
+    required:
+    - destination
+    - original
+    - source
+    type: object
+  request.TranslateClone:
+    properties:
+      destination:
+        example: en
+        type: string
+      original:
+        example: Tại vì sao
+        type: string
+      source:
+        example: auto
+        type: string
+    required:
+    - destination
+    - original
+    - source
+    type: object
+  request.UserLogin:
+    properties:
+      email:
+        example: minhhoccode111@gmail.com
+        type: string
+      password:
+        example: P@ssw0rd
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  request.UserLoginRequest:
+    properties:
+      user:
+        $ref: '#/definitions/request.UserLogin'
+    type: object
+  request.UserRegister:
+    properties:
+      email:
+        example: minhhoccode111@gmail.com
+        type: string
+      password:
+        example: P@ssw0rd
+        maxLength: 50
+        minLength: 8
+        type: string
+      username:
+        example: minhhoccode111
+        maxLength: 50
+        minLength: 2
+        type: string
+    required:
+    - email
+    - password
+    - username
+    type: object
+  request.UserRegisterRequest:
+    properties:
+      user:
+        $ref: '#/definitions/request.UserRegister'
+    type: object
+  request.UserUpdate:
+    properties:
+      bio:
+        example: Trust the process
+        maxLength: 255
+        type: string
+      email:
+        example: minhhoccode111@gmail.com
+        maxLength: 320
+        minLength: 5
+        type: string
+      image:
+        example: https://www.w3schools.com/howto/img_avatar.png
+        maxLength: 2048
+        type: string
+      password:
+        example: P@ssw0rd
+        maxLength: 50
+        minLength: 8
+        type: string
+      username:
+        example: minhhoccode111
+        maxLength: 50
+        minLength: 2
+        type: string
+    type: object
+  request.UserUpdateRequest:
+    properties:
+      user:
+        $ref: '#/definitions/request.UserUpdate'
+    type: object
+  response.ArticleDetailResponse:
+    properties:
+      article:
+        $ref: '#/definitions/entity.ArticleDetail'
+    type: object
+  response.ArticlePreviewsResponse:
+    properties:
+      articles:
+        items:
+          $ref: '#/definitions/entity.ArticlePreview'
+        type: array
+      limit:
+        example: 10
+        type: integer
+      offset:
+        example: 0
+        type: integer
+      total:
+        example: 18
+        type: integer
+    type: object
+  response.CommentDetailResponse:
+    properties:
+      comment:
+        $ref: '#/definitions/entity.CommentDetail'
+    type: object
+  response.CommentDetailsResponse:
+    properties:
+      comments:
+        items:
+          $ref: '#/definitions/entity.CommentDetail'
+        type: array
+      limit:
+        example: 10
+        type: integer
+      offset:
+        example: 0
+        type: integer
+      total:
+        example: 18
+        type: integer
+    type: object
+  response.Error:
+    properties:
+      error:
+        example: message
+        type: string
+    type: object
+  response.TagsResponse:
+    properties:
+      limit:
+        example: 10
+        type: integer
+      offset:
+        example: 0
+        type: integer
+      tags:
+        items:
+          type: string
+        type: array
+      total:
+        example: 18
+        type: integer
+    type: object
+  response.TranslationHistory:
+    properties:
+      history:
+        items:
+          $ref: '#/definitions/entity.TranslationClone'
+        type: array
+      limit:
+        example: 10
+        type: integer
+      offset:
+        example: 0
+        type: integer
+      total:
+        example: 18
+        type: integer
+    type: object
+  response.UserAuth:
+    properties:
+      bio:
+        type: string
+      email:
+        type: string
+      image:
+        type: string
+      token:
+        type: string
+      username:
+        type: string
+    type: object
+  response.UserAuthResponse:
+    properties:
+      user:
+        $ref: '#/definitions/response.UserAuth'
+    type: object
+host: localhost:8080
 info:
   contact: {}
-paths: {}
+  description: Realworld API using Golang + Fiber + Clean Architecture
+  title: Realworld Fiber Clean API
+  version: "1.0"
+paths:
+  /articles:
+    get:
+      description: Get all articles (filter by author, favorited, tag)
+      operationId: articles-get-all
+      parameters:
+      - description: Limit number of results
+        format: int64
+        in: query
+        name: limit
+        type: integer
+      - description: Offset for pagination
+        format: int64
+        in: query
+        name: offset
+        type: integer
+      - description: Filter by author username
+        in: query
+        name: author
+        type: string
+      - description: Filter by favorited username
+        in: query
+        name: favorited
+        type: string
+      - description: Filter by tag
+        in: query
+        name: tag
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ArticlePreviewsResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      security:
+      - BearerAuth: []
+      summary: Get all articles
+      tags:
+      - articles
+    post:
+      consumes:
+      - application/json
+      description: Create Article
+      operationId: articles-create
+      parameters:
+      - description: Create Article
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.ArticleCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ArticleDetailResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      security:
+      - BearerAuth: []
+      summary: Create Article
+      tags:
+      - articles
+  /articles/{slug}:
+    delete:
+      description: Delete article by slug
+      operationId: articles-delete-by-slug
+      parameters:
+      - description: Article slug
+        in: path
+        name: slug
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      security:
+      - BearerAuth: []
+      summary: Delete article
+      tags:
+      - articles
+    get:
+      description: Get article by slug
+      operationId: articles-get-by-slug
+      parameters:
+      - description: Article slug
+        in: path
+        name: slug
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ArticleDetailResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      security:
+      - BearerAuth: []
+      summary: Get article
+      tags:
+      - articles
+    put:
+      description: Put article by slug
+      operationId: articles-put-by-slug
+      parameters:
+      - description: Article slug
+        in: path
+        name: slug
+        required: true
+        type: string
+      - description: Update Article
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.ArticleUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ArticleDetailResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      security:
+      - BearerAuth: []
+      summary: Put article
+      tags:
+      - articles
+  /articles/{slug}/comments:
+    get:
+      description: Get all comments of an article
+      operationId: comments-get-all
+      parameters:
+      - description: Limit number of results
+        format: int64
+        in: query
+        name: limit
+        type: integer
+      - description: Offset for pagination
+        format: int64
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommentDetailsResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      security:
+      - BearerAuth: []
+      summary: Get all comments
+      tags:
+      - comments
+    post:
+      consumes:
+      - application/json
+      description: Create Comment
+      operationId: comments-create
+      parameters:
+      - description: Create Comment
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.CommentCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.CommentDetailResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      security:
+      - BearerAuth: []
+      summary: Create Comment
+      tags:
+      - comments
+  /articles/feed:
+    get:
+      description: Get feed articles (from followed authors)
+      operationId: articles-get-feed
+      parameters:
+      - description: Limit number of results
+        format: int64
+        in: query
+        name: limit
+        type: integer
+      - description: Offset for pagination
+        format: int64
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ArticlePreviewsResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      security:
+      - BearerAuth: []
+      summary: Get feed articles
+      tags:
+      - articles
+  /tags:
+    get:
+      description: Get all tags of all articles with pagination
+      operationId: tags
+      parameters:
+      - default: 10
+        description: Number of items to return
+        in: query
+        minimum: 1
+        name: limit
+        type: integer
+      - default: 0
+        description: Number of items to skip
+        in: query
+        minimum: 0
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.TagsResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      summary: Get tags
+      tags:
+      - tags
+  /translation-clone/history:
+    get:
+      consumes:
+      - application/json
+      description: Show all translation history
+      operationId: history-clone
+      parameters:
+      - default: 10
+        description: Number of items to return
+        in: query
+        minimum: 1
+        name: limit
+        type: integer
+      - default: 0
+        description: Number of items to skip
+        in: query
+        minimum: 0
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.TranslationHistory'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      summary: Show history
+      tags:
+      - translation-clone
+  /translation-clone/translate:
+    post:
+      consumes:
+      - application/json
+      description: Translate a text
+      operationId: translate-clone
+      parameters:
+      - description: Set up translation
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.TranslateClone'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.TranslationClone'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      summary: Do Translate
+      tags:
+      - translation-clone
+  /translation/do-translate:
+    post:
+      consumes:
+      - application/json
+      description: Translate a text
+      operationId: do-translate
+      parameters:
+      - description: Set up translation
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.Translate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.Translation'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      summary: Translate
+      tags:
+      - translation
+  /translation/history:
+    get:
+      consumes:
+      - application/json
+      description: Show all translation history
+      operationId: history
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.TranslationHistory'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      summary: Show history
+      tags:
+      - translation
+  /user:
+    get:
+      description: Get current User
+      operationId: users-current
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.UserAuthResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      security:
+      - BearerAuth: []
+      summary: Get current User
+      tags:
+      - users
+    put:
+      consumes:
+      - application/json
+      description: Update User
+      operationId: users-update
+      parameters:
+      - description: Update User
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.UserUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.UserAuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      security:
+      - BearerAuth: []
+      summary: Update User
+      tags:
+      - users
+  /users:
+    post:
+      consumes:
+      - application/json
+      description: Register User
+      operationId: users-register
+      parameters:
+      - description: Register User
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.UserRegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.UserAuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      summary: Register User
+      tags:
+      - users
+  /users/login:
+    post:
+      consumes:
+      - application/json
+      description: Login User
+      operationId: users-login
+      parameters:
+      - description: Login User
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.UserLoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.UserAuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      summary: Login User
+      tags:
+      - users
+securityDefinitions:
+  BearerAuth:
+    description: Type "Token" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

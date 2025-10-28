@@ -42,3 +42,19 @@ func (uc *UseCase) Create(
 
 	return comment, nil
 }
+
+func (uc *UseCase) List(
+	ctx context.Context,
+	userId, slug string,
+	limit, offset uint64,
+) ([]entity.CommentDetail, uint64, error) {
+	comments, total, err := uc.repo.GetList(ctx, userId, slug, limit, offset)
+	if err != nil {
+		return nil, 0, fmt.Errorf(
+			"CommentUseCase - List - uc.repo.GetList: %w",
+			err,
+		)
+	}
+
+	return comments, total, nil
+}

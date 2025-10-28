@@ -64,6 +64,11 @@ type (
 	CommentRepo interface {
 		StoreCreate(ctx context.Context, slug string, dto entity.Comment) (string, error)
 		GetDetailById(ctx context.Context, userId, commentId string) (entity.CommentDetail, error)
+		GetList(
+			ctx context.Context,
+			userId, slug string,
+			limit, offset uint64,
+		) ([]entity.CommentDetail, uint64, error)
 	}
 
 	// TagRepo -.
