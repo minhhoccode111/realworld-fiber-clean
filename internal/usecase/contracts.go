@@ -68,7 +68,7 @@ type (
 	}
 
 	Profile interface {
-		Detail(context.Context)
+		Detail(ctx context.Context, userId, username string) (entity.ProfilePreview, error)
 		Follow(context.Context)
 		Unfollow(context.Context)
 	}
