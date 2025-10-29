@@ -19,5 +19,6 @@ type V1 struct {
 	a   usecase.Article
 	f   usecase.Favorite
 	c   usecase.Comment
+	p   usecase.Profile
 	tag usecase.Tag
 }

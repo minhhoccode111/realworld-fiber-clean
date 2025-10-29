@@ -21,6 +21,7 @@ func NewV1Routes(
 	a usecase.Article,
 	f usecase.Favorite,
 	c usecase.Comment,
+	p usecase.Profile,
 	tag usecase.Tag,
 ) {
 	r := &V1{
@@ -34,6 +35,7 @@ func NewV1Routes(
 		a:   a,
 		f:   f,
 		c:   c,
+		p:   p,
 		tag: tag,
 	}
 
@@ -86,6 +88,13 @@ func NewV1Routes(
 		comments.Post("/", auth, r.postComment)
 		comments.Get("/", optionalAuth, r.getAllComments)
 		comments.Delete("/:commentId", auth, r.deleteComment)
+	}
+
+	profiles := apiV1Group.Group("/profiles/:username")
+	{
+		profiles.Get("/", optionalAuth, r.getProfile)
+		profiles.Post("/follow", auth, r.postFollowProfile)
+		profiles.Delete("/follow", auth, r.deleteFollowProfile)
 	}
 
 	tags := apiV1Group.Group("/tags")

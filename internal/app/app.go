@@ -17,6 +17,7 @@ import (
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/usecase/article"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/usecase/comment"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/usecase/favorite"
+	"github.com/minhhoccode111/realworld-fiber-clean/internal/usecase/profile"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/usecase/tag"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/usecase/translation"
 	translationClone "github.com/minhhoccode111/realworld-fiber-clean/internal/usecase/translation_clone"
@@ -45,8 +46,9 @@ func Run(cfg *config.Config) { //nolint: gocyclo,cyclop,funlen,gocritic,nolintli
 	translationCloneUseCase := translationClone.New(persistent.NewClone(pg), webapi.NewClone())
 	userUseCase := user.New(persistent.NewUserRepo(pg))
 	articleUseCase := article.New(persistent.NewArticleRepo(pg))
-	commentUseCase := comment.New(persistent.NewCommentRepo(pg))
 	favoriteUseCase := favorite.New(persistent.NewFavoriteRepo(pg))
+	commentUseCase := comment.New(persistent.NewCommentRepo(pg))
+	profileUseCase := profile.New(persistent.NewProfileRepo(pg))
 	tagUseCase := tag.New(persistent.NewTagRepo(pg))
 
 	// RabbitMQ RPC Server
@@ -86,6 +88,7 @@ func Run(cfg *config.Config) { //nolint: gocyclo,cyclop,funlen,gocritic,nolintli
 		articleUseCase,
 		favoriteUseCase,
 		commentUseCase,
+		profileUseCase,
 		tagUseCase,
 	)
 

@@ -77,6 +77,12 @@ type (
 		StoreDelete(ctx context.Context, userId, slug, commentId string) (err error)
 	}
 
+	ProfileRepo interface {
+		GetDetail(ctx context.Context)
+		StoreCreate(ctx context.Context)
+		StoreDelete(ctx context.Context)
+	}
+
 	// TagRepo -.
 	TagRepo interface {
 		GetList(

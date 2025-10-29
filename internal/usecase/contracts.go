@@ -67,6 +67,12 @@ type (
 		Delete(ctx context.Context, userId, slug, commentId string) error
 	}
 
+	Profile interface {
+		Detail(context.Context)
+		Follow(context.Context)
+		Unfollow(context.Context)
+	}
+
 	// Tag -.
 	Tag interface {
 		List(
