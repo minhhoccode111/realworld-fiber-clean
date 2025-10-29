@@ -27,7 +27,7 @@ import (
 // @Failure     500 {object} response.Error
 // @Router      /articles/{slug}/comments [post]
 // @Security    BearerAuth
-func (r *V1) postCreateComment(ctx *fiber.Ctx) error {
+func (r *V1) postComment(ctx *fiber.Ctx) error {
 	var body request.CommentCreateRequest
 
 	if err := ctx.BodyParser(&body); err != nil {

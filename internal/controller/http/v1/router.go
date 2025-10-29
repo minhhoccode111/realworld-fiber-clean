@@ -19,6 +19,7 @@ func NewV1Routes(
 	tc usecase.TranslationClone,
 	u usecase.User,
 	a usecase.Article,
+	f usecase.Favorite,
 	c usecase.Comment,
 	tag usecase.Tag,
 ) {
@@ -31,6 +32,7 @@ func NewV1Routes(
 		tc:  tc,
 		u:   u,
 		a:   a,
+		f:   f,
 		c:   c,
 		tag: tag,
 	}
@@ -65,7 +67,7 @@ func NewV1Routes(
 
 	articles := apiV1Group.Group("/articles")
 	{
-		articles.Post("/", auth, r.postCreateArticle)
+		articles.Post("/", auth, r.postArticle)
 		articles.Get("/", optionalAuth, r.getAllArticles)
 		articles.Get("/feed", auth, r.getFeedArticles)
 		articles.Get("/:slug", optionalAuth, r.getArticle)
@@ -73,9 +75,15 @@ func NewV1Routes(
 		articles.Delete("/:slug", auth, r.deleteArticle)
 	}
 
+	favorites := apiV1Group.Group("/articles/:slug/favorite")
+	{
+		favorites.Post("/", auth, r.createFavorite)
+		favorites.Delete("/", auth, r.deleteFavorite)
+	}
+
 	comments := apiV1Group.Group("/articles/:slug/comments")
 	{
-		comments.Post("/", auth, r.postCreateComment)
+		comments.Post("/", auth, r.postComment)
 		comments.Get("/", optionalAuth, r.getAllComments)
 		comments.Delete("/:commentId", auth, r.deleteComment)
 	}

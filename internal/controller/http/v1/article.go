@@ -26,7 +26,7 @@ import (
 // @Failure     500 {object} response.Error
 // @Router      /articles [post]
 // @Security    BearerAuth
-func (r *V1) postCreateArticle(ctx *fiber.Ctx) error {
+func (r *V1) postArticle(ctx *fiber.Ctx) error {
 	var body request.ArticleCreateRequest
 
 	if err := ctx.BodyParser(&body); err != nil {

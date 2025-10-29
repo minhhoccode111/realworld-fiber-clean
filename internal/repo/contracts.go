@@ -61,6 +61,11 @@ type (
 		StoreDelete(ctx context.Context, userId, slug string) (err error)
 	}
 
+	FavoriteRepo interface {
+		StoreCreate(ctx context.Context, userId, slug string) error
+		StoreDelete(ctx context.Context, userId, slug string) error
+	}
+
 	CommentRepo interface {
 		StoreCreate(ctx context.Context, slug string, dto entity.Comment) (string, error)
 		GetDetailById(ctx context.Context, userId, commentId string) (entity.CommentDetail, error)

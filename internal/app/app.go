@@ -16,6 +16,7 @@ import (
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/repo/webapi"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/usecase/article"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/usecase/comment"
+	"github.com/minhhoccode111/realworld-fiber-clean/internal/usecase/favorite"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/usecase/tag"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/usecase/translation"
 	translationClone "github.com/minhhoccode111/realworld-fiber-clean/internal/usecase/translation_clone"
@@ -45,6 +46,7 @@ func Run(cfg *config.Config) { //nolint: gocyclo,cyclop,funlen,gocritic,nolintli
 	userUseCase := user.New(persistent.NewUserRepo(pg))
 	articleUseCase := article.New(persistent.NewArticleRepo(pg))
 	commentUseCase := comment.New(persistent.NewCommentRepo(pg))
+	favoriteUseCase := favorite.New(persistent.NewFavoriteRepo(pg))
 	tagUseCase := tag.New(persistent.NewTagRepo(pg))
 
 	// RabbitMQ RPC Server
@@ -82,6 +84,7 @@ func Run(cfg *config.Config) { //nolint: gocyclo,cyclop,funlen,gocritic,nolintli
 		translationCloneUseCase,
 		userUseCase,
 		articleUseCase,
+		favoriteUseCase,
 		commentUseCase,
 		tagUseCase,
 	)

@@ -52,6 +52,11 @@ type (
 		Delete(ctx context.Context, userId, slug string) error
 	}
 
+	Favorite interface {
+		Create(ctx context.Context, userId, slug string) error
+		Delete(ctx context.Context, userId, slug string) error
+	}
+
 	Comment interface {
 		Create(ctx context.Context, slug string, dto entity.Comment) (entity.CommentDetail, error)
 		List(
