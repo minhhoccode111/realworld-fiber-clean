@@ -1,0 +1,33 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Launch main application",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/cmd/app",
+      "args": ["-tags", "migrate"],
+      "env": {
+        "APP_NAME": "realworld-fiber-clean",
+        "APP_VERSION": "1.0.0",
+        "HTTP_PORT": "8080",
+        "HTTP_USE_PREFORK_MODE": "false",
+        "LOG_LEVEL": "debug",
+        "PG_POOL_MAX": "2",
+        "PG_URL": "postgresql://mhc:Bruh0%210%21@localhost:5432/fibercleanrealworld",
+        "GRPC_PORT": "8081",
+        "RMQ_RPC_SERVER": "rpc_server",
+        "RMQ_RPC_CLIENT": "rpc_client",
+        "RMQ_URL": "amqp://guest:guest@localhost:5672/",
+        "NATS_RPC_SERVER": "rpc_server",
+        "NATS_URL": "nats://guest:guest@localhost:4222/",
+        "METRICS_ENABLED": "true",
+        "SWAGGER_ENABLED": "true",
+        "JWT_ISSUER": "realworldfiberclean",
+        "JWT_SECRET": "c993332e-1a4e-4de5-ac74-98074ff41ff0",
+        "JWT_EXPIRATION": "240h"
+      }
+    }
+  ]
+}

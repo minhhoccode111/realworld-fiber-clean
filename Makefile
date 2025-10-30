@@ -63,7 +63,7 @@ format: ### Run code formatter
 run-swag: deps swag-v1 proto-v1 ### swag run for API v1
 	go mod download && \
 	CGO_ENABLED=0 go run -tags migrate ./cmd/app
-.PHONY: run
+.PHONY: run-swag
 
 run: ### run API v1
 	go mod download && \
