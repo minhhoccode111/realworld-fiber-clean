@@ -51,8 +51,8 @@ func (r *ProfileRepo) GetDetail(
 	err = r.Pool.QueryRow(ctx, sql, args...).Scan(&e.Username, &e.Bio, &e.Image, &e.Following)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return entity.ProfilePreview{}, fmt.Errorf(
-			"ProfileRepo - GetDetail - r.Pool.QueryRow - notfound: %w",
-			err,
+			"ProfileRepo - GetDetail - r.Pool.QueryRow: %w",
+			entity.ErrNoRows,
 		)
 	}
 	if err != nil {
@@ -65,6 +65,20 @@ func (r *ProfileRepo) GetDetail(
 	return e, nil
 }
 
-func (r *ProfileRepo) StoreCreate(ctx context.Context) {}
+func (r *ProfileRepo) StoreCreate(ctx context.Context, userId, username string) error {
+	sql, args, err := r.Builder.
+		Insert("follows").
+		Columns("follower_id", "following_id").
+		Values(userId, squirrel.Expr("(select id from users where username = ?)", username)).
+		Suffix("on conflict do nothing").
+		ToSql()
+	if err != nil {
+		return fmt.Errorf("ProfileRepo - StoreCreate - r.Builder: %w", err)
+	}
 
-func (r *ProfileRepo) StoreDelete(ctx context.Context) {}
+	return nil
+}
+
+func (r *ProfileRepo) StoreDelete(ctx context.Context, userId, username string) error {
+	return nil
+}

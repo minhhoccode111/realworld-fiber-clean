@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"errors"
 	"net/http"
 	"strings"
 
@@ -195,7 +196,7 @@ func (r *V1) getArticle(ctx *fiber.Ctx) error {
 
 	article, err := r.a.Detail(ctx.UserContext(), userId, slug)
 	if err != nil {
-		if strings.Contains(err.Error(), "notfound") {
+		if errors.Is(err, entity.ErrNoRows) {
 			return errorResponse(ctx, http.StatusNotFound, "Article not found")
 		}
 
@@ -272,7 +273,7 @@ func (r *V1) putArticle(ctx *fiber.Ctx) error {
 			return errorResponse(ctx, http.StatusForbidden, "Only article author can update it")
 		}
 
-		if strings.Contains(err.Error(), "notfound") {
+		if errors.Is(err, entity.ErrNoRows) {
 			return errorResponse(ctx, http.StatusNotFound, "Article not found")
 		}
 
@@ -312,7 +313,7 @@ func (r *V1) deleteArticle(ctx *fiber.Ctx) error {
 
 	err := r.a.Delete(ctx.UserContext(), userId, slug)
 	if err != nil {
-		if strings.Contains(err.Error(), "notfound") {
+		if errors.Is(err, entity.ErrNoRows) {
 			return errorResponse(ctx, http.StatusNotFound, "Article not found")
 		}
 

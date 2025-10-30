@@ -33,5 +33,19 @@ func (uc *UseCase) Detail(
 	return profile, nil
 }
 
-func (uc *UseCase) Follow(ctx context.Context)   {}
-func (uc *UseCase) Unfollow(ctx context.Context) {}
+func (uc *UseCase) Follow(ctx context.Context, userId, username string) error {
+	err := uc.repo.StoreCreate(ctx, userId, username)
+	if err != nil {
+		return fmt.Errorf("ProfileUseCase - Follow - uc.repo.StoreCreate: %w", err)
+	}
+
+	return nil
+}
+func (uc *UseCase) Unfollow(ctx context.Context, userId, username string) error {
+	err := uc.repo.StoreDelete(ctx, userId, username)
+	if err != nil {
+		return fmt.Errorf("ProfileUseCase - Unfollow - uc.repo.StoreDelete: %w", err)
+	}
+
+	return nil
+}

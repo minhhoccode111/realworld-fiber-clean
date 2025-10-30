@@ -3,12 +3,12 @@ package v1
 import (
 	"errors"
 	"net/http"
-	"strings"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/middleware"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/response"
+	"github.com/minhhoccode111/realworld-fiber-clean/internal/entity"
 )
 
 // @Summary     Favorite Article
@@ -50,7 +50,7 @@ func (r *V1) createFavorite(ctx *fiber.Ctx) error {
 
 	article, err := r.a.Detail(ctx.UserContext(), userId, slug)
 	if err != nil {
-		if strings.Contains(err.Error(), "notfound") {
+		if errors.Is(err, entity.ErrNoRows) {
 			return errorResponse(ctx, http.StatusNotFound, "Article not found")
 		}
 
@@ -97,7 +97,7 @@ func (r *V1) deleteFavorite(ctx *fiber.Ctx) error {
 
 	article, err := r.a.Detail(ctx.UserContext(), userId, slug)
 	if err != nil {
-		if strings.Contains(err.Error(), "notfound") {
+		if errors.Is(err, entity.ErrNoRows) {
 			return errorResponse(ctx, http.StatusNotFound, "Article not found")
 		}
 

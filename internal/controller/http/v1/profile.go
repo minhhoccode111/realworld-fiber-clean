@@ -1,14 +1,14 @@
 package v1
 
 import (
+	"errors"
 	"net/http"
-	"strings"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/jackc/pgx/v5"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/middleware"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/response"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/entity"
-	"github.com/minhhoccode111/realworld-fiber-clean/pkg/util"
 )
 
 // @Summary     Get profile
@@ -38,7 +38,7 @@ func (r *V1) getProfile(ctx *fiber.Ctx) error {
 
 	profile, err := r.p.Detail(ctx.UserContext(), userId, username)
 	if err != nil {
-		if strings.Contains(err.Error(), "notfound") {
+		if errors.Is(err, entity.ErrNoRows) {
 			return errorResponse(ctx, http.StatusNotFound, "Profile not found")
 		}
 
@@ -66,39 +66,40 @@ func (r *V1) getProfile(ctx *fiber.Ctx) error {
 // @Router      /articles/{slug}/comments [get]
 // @Security    BearerAuth
 func (r *V1) postFollowProfile(ctx *fiber.Ctx) error {
-	isAuth := ctx.Locals(middleware.CtxIsAuthKey).(bool)
 	userId := ctx.Locals(middleware.CtxUserIdKey).(string)
-	if userId == "" && isAuth {
+	if userId == "" {
 		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
 	}
 
-	slug := ctx.Params("slug")
-	if slug == "" {
-		return errorResponse(ctx, http.StatusBadRequest, "slug is required")
+	username := ctx.Params("username")
+	if username == "" {
+		return errorResponse(ctx, http.StatusBadRequest, "username is required")
 	}
 
-	_, _, _, limit, offset := util.SearchQueries(ctx)
-
-	comments, total, err := r.c.List(
-		ctx.UserContext(),
-		userId,
-		slug,
-		limit,
-		offset,
-	)
+	err := r.p.Follow(ctx.UserContext(), userId, username)
 	if err != nil {
-		r.l.Error(err, "http - v1 - getAllComments - r.c.List")
+		if errors.Is(err, entity.ErrNoRows) {
+			return errorResponse(ctx, http.StatusNotFound, "Profile not found")
+		}
+
+		r.l.Error(err, "http - v1 - postFollowProfile - r.p.Follow")
 
 		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
 	}
 
-	return ctx.Status(http.StatusOK).JSON(response.CommentDetailsResponse{
-		Comments: comments,
-		Pagination: entity.Pagination{
-			Total:  total,
-			Limit:  limit,
-			Offset: offset,
-		},
+	profile, err := r.p.Detail(ctx.UserContext(), userId, username)
+	if err != nil {
+		if errors.Is(err, entity.ErrNoRows) {
+			return errorResponse(ctx, http.StatusNotFound, "Profile not found")
+		}
+
+		r.l.Error(err, "http - v1 - postFollowProfile - r.p.Detail")
+
+		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
+	}
+
+	return ctx.Status(200).JSON(response.ProfilePreviewResponse{
+		Profile: profile,
 	})
 }
 
@@ -133,8 +134,8 @@ func (r *V1) deleteFollowProfile(ctx *fiber.Ctx) error {
 
 	err := r.c.Delete(ctx.UserContext(), userId, slug, commentId)
 	if err != nil {
-		if strings.Contains(err.Error(), "notfound") {
-			return errorResponse(ctx, http.StatusNotFound, "Article/comment not found")
+		if errors.Is(err, pgx.ErrNoRows) {
+			return errorResponse(ctx, http.StatusNotFound, "Profile not found")
 		}
 
 		r.l.Error(err, "http - v1 - deleteComment - r.c.Delete")

@@ -118,8 +118,8 @@ func (r *ArticleRepo) GetDetailBySlug(ctx context.Context, userId, slug string,
 	)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return entity.ArticleDetail{}, fmt.Errorf(
-			"ArticleRepo - GetDetailBySlug - row.Scan - notfound: %w",
-			err,
+			"ArticleRepo - GetDetailBySlug - row.Scan: %w",
+			entity.ErrNoRows,
 		)
 	}
 	if err != nil {
@@ -359,8 +359,8 @@ func (r *ArticleRepo) GetBasicBySlug(ctx context.Context, slug string) (entity.A
 	)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return entity.Article{}, fmt.Errorf(
-			"ArticleRepo - GetBasicBySlug - row.Scan - notfound: %w",
-			err,
+			"ArticleRepo - GetBasicBySlug - row.Scan: %w",
+			entity.ErrNoRows,
 		)
 	}
 	if err != nil {
@@ -410,7 +410,7 @@ func (r *ArticleRepo) StoreDelete(ctx context.Context, userId, slug string) erro
 		return fmt.Errorf("ArticleRepo - StoreDelete - r.Pool.Exec: %w", err)
 	}
 	if result.RowsAffected() == 0 {
-		return errors.New("ArticleRepo - StoreDelete - r.Pool.Exec: notfound")
+		return fmt.Errorf("ArticleRepo - StoreDelete - r.Pool.Exec: %w", entity.ErrNoRows)
 	}
 
 	return nil

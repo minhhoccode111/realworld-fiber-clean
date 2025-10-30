@@ -79,8 +79,8 @@ type (
 
 	ProfileRepo interface {
 		GetDetail(ctx context.Context, userId, username string) (entity.ProfilePreview, error)
-		StoreCreate(ctx context.Context)
-		StoreDelete(ctx context.Context)
+		StoreCreate(ctx context.Context, userId, username string) error
+		StoreDelete(ctx context.Context, userId, username string) error
 	}
 
 	// TagRepo -.

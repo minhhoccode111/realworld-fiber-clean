@@ -38,7 +38,7 @@ func (r *CommentRepo) StoreCreate(
 	row := r.Pool.QueryRow(ctx, sql, args...)
 	err = row.Scan(&id)
 	if errors.Is(err, pgx.ErrNoRows) {
-		return "", fmt.Errorf("CommentRepo - StoreCreate - r.Pool.QueryRow - notfound: %w", err)
+		return "", fmt.Errorf("CommentRepo - StoreCreate - r.Pool.QueryRow: %w", entity.ErrNoRows)
 	}
 	if err != nil {
 		return "", fmt.Errorf("CommentRepo - StoreCreate - r.Pool.QueryRow: %w", err)
@@ -178,7 +178,7 @@ func (r *CommentRepo) StoreDelete(ctx context.Context, userId, slug, commentId s
 		return fmt.Errorf("CommentRepo - StoreDelete - r.Pool.Exec: %w", err)
 	}
 	if result.RowsAffected() == 0 {
-		return errors.New("CommentRepo - StoreDelete - r.Pool.Exec: notfound")
+		return fmt.Errorf("CommentRepo - StoreDelete - r.Pool.Exec: %w", entity.ErrNoRows)
 	}
 
 	return nil

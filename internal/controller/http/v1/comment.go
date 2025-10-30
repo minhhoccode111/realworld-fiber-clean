@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"errors"
 	"net/http"
 	"strings"
 
@@ -71,7 +72,7 @@ func (r *V1) postComment(ctx *fiber.Ctx) error {
 		entity.Comment{AuthorId: userId, Body: body.Comment.Body},
 	)
 	if err != nil {
-		if strings.Contains(err.Error(), "notfound") {
+		if errors.Is(err, entity.ErrNoRows) {
 			return errorResponse(ctx, http.StatusNotFound, "Article not found")
 		}
 
@@ -166,7 +167,7 @@ func (r *V1) deleteComment(ctx *fiber.Ctx) error {
 
 	err := r.c.Delete(ctx.UserContext(), userId, slug, commentId)
 	if err != nil {
-		if strings.Contains(err.Error(), "notfound") {
+		if errors.Is(err, entity.ErrNoRows) {
 			return errorResponse(ctx, http.StatusNotFound, "Article/comment not found")
 		}
 

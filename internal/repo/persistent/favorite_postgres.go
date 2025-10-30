@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/Masterminds/squirrel"
+	"github.com/minhhoccode111/realworld-fiber-clean/internal/entity"
 	"github.com/minhhoccode111/realworld-fiber-clean/pkg/postgres"
 )
 
@@ -30,9 +31,12 @@ func (r *FavoriteRepo) StoreCreate(ctx context.Context, userId, slug string) err
 		return fmt.Errorf("FavoriteRepo - StoreCreate - r.Builder: %w", err)
 	}
 
-	_, err = r.Pool.Exec(ctx, sql, args...)
+	result, err := r.Pool.Exec(ctx, sql, args...)
 	if err != nil {
 		return fmt.Errorf("FavoriteRepo - StoreCreate - r.Pool.Exec: %w", err)
+	}
+	if result.RowsAffected() == 0 {
+		return fmt.Errorf("FavoriteRepo - StoreCreate - r.Pool.Exec: %w", entity.ErrNoRows)
 	}
 
 	return nil
@@ -48,9 +52,12 @@ func (r *FavoriteRepo) StoreDelete(ctx context.Context, userId, slug string) err
 		return fmt.Errorf("FavoriteRepo - StoreDelete - r.Builder: %w", err)
 	}
 
-	_, err = r.Pool.Exec(ctx, sql, args...)
+	result, err := r.Pool.Exec(ctx, sql, args...)
 	if err != nil {
 		return fmt.Errorf("FavoriteRepo - StoreDelete - r.Pool.Exec: %w", err)
+	}
+	if result.RowsAffected() == 0 {
+		return fmt.Errorf("FavoriteRepo - StoreDelete - r.Pool.Exec: %w", entity.ErrNoRows)
 	}
 
 	return nil
