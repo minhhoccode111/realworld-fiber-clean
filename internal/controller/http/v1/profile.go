@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/jackc/pgx/v5"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/middleware"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/response"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/entity"
@@ -52,18 +51,18 @@ func (r *V1) getProfile(ctx *fiber.Ctx) error {
 	})
 }
 
-// @Summary     Get all comments
-// @Description Get all comments of an article
-// @ID          comments-get-all
-// @Tags        comments
+// @Summary     Follow user
+// @Description Follow user by username
+// @ID          profiles-follow
+// @Tags        profiles
 // @Produce     json
-// @Param       limit      query uint64 false "Limit number of results"
-// @Param       offset     query uint64 false "Offset for pagination"
-// @Success     200 {object} response.CommentDetailsResponse
-// @Success     400 {object} response.CommentDetailsResponse
-// @Success     401 {object} response.CommentDetailsResponse
+// @Param       username path string true "Username of the profile to follow"
+// @Success     200 {object} response.ProfilePreviewResponse
+// @Failure     400 {object} response.Error
+// @Failure     401 {object} response.Error
+// @Failure     404 {object} response.Error
 // @Failure     500 {object} response.Error
-// @Router      /articles/{slug}/comments [get]
+// @Router      /profiles/{username}/follow [post]
 // @Security    BearerAuth
 func (r *V1) postFollowProfile(ctx *fiber.Ctx) error {
 	userId := ctx.Locals(middleware.CtxUserIdKey).(string)
@@ -103,18 +102,18 @@ func (r *V1) postFollowProfile(ctx *fiber.Ctx) error {
 	})
 }
 
-// @Summary     Delete comment
-// @Description Delete comment by id
-// @ID          comment-delete-by-id
-// @Tags        comments
+// @Summary     Unfollow user
+// @Description Unfollow user by username
+// @ID          profiles-unfollow
+// @Tags        profiles
 // @Produce     json
-// @Param       slug path string true "Article slug"
-// @Success     204 "No Content"
+// @Param       username path string true "Username of the profile to unfollow"
+// @Success     200 {object} response.ProfilePreviewResponse
 // @Failure     400 {object} response.Error
 // @Failure     401 {object} response.Error
 // @Failure     404 {object} response.Error
 // @Failure     500 {object} response.Error
-// @Router      /articles/{slug}/comments/{commentId} [delete]
+// @Router      /profiles/{username}/follow [delete]
 // @Security    BearerAuth
 func (r *V1) deleteFollowProfile(ctx *fiber.Ctx) error {
 	userId := ctx.Locals(middleware.CtxUserIdKey).(string)
@@ -122,26 +121,34 @@ func (r *V1) deleteFollowProfile(ctx *fiber.Ctx) error {
 		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
 	}
 
-	slug := ctx.Params("slug")
-	if slug == "" {
-		return errorResponse(ctx, http.StatusBadRequest, "slug is required")
+	username := ctx.Params("username")
+	if username == "" {
+		return errorResponse(ctx, http.StatusBadRequest, "username is required")
 	}
 
-	commentId := ctx.Params("commentId")
-	if commentId == "" {
-		return errorResponse(ctx, http.StatusBadRequest, "commentId is required")
-	}
-
-	err := r.c.Delete(ctx.UserContext(), userId, slug, commentId)
+	err := r.p.Unfollow(ctx.UserContext(), userId, username)
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
+		if errors.Is(err, entity.ErrNoRows) {
 			return errorResponse(ctx, http.StatusNotFound, "Profile not found")
 		}
 
-		r.l.Error(err, "http - v1 - deleteComment - r.c.Delete")
+		r.l.Error(err, "http - v1 - postFollowProfile - r.p.Follow")
 
 		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
 	}
 
-	return ctx.SendStatus(http.StatusNoContent)
+	profile, err := r.p.Detail(ctx.UserContext(), userId, username)
+	if err != nil {
+		if errors.Is(err, entity.ErrNoRows) {
+			return errorResponse(ctx, http.StatusNotFound, "Profile not found")
+		}
+
+		r.l.Error(err, "http - v1 - postFollowProfile - r.p.Detail")
+
+		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
+	}
+
+	return ctx.Status(200).JSON(response.ProfilePreviewResponse{
+		Profile: profile,
+	})
 }

@@ -330,6 +330,11 @@ definitions:
         example: message
         type: string
     type: object
+  response.ProfilePreviewResponse:
+    properties:
+      profile:
+        $ref: '#/definitions/entity.ProfilePreview'
+    type: object
   response.TagsResponse:
     properties:
       limit:
@@ -837,6 +842,81 @@ paths:
       security:
       - BearerAuth: []
       summary: Get profile
+      tags:
+      - profiles
+  /profiles/{username}/follow:
+    delete:
+      description: Unfollow user by username
+      operationId: profiles-unfollow
+      parameters:
+      - description: Username of the profile to unfollow
+        in: path
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ProfilePreviewResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      security:
+      - BearerAuth: []
+      summary: Unfollow user
+      tags:
+      - profiles
+    post:
+      description: Follow user by username
+      operationId: profiles-follow
+      parameters:
+      - description: Username of the profile to follow
+        in: path
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ProfilePreviewResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      security:
+      - BearerAuth: []
+      summary: Follow user
       tags:
       - profiles
   /tags:

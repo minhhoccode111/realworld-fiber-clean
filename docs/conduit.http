@@ -217,11 +217,11 @@ GET {{api}}/profiles/{{username0}}asd
 Authorization: Token {{token0}}
 
 ### Follow Profile
-POST {{api}}/profiles/{{username0}}/follow
+POST {{api}}/profiles/{{username0}}asd/follow
 Authorization: Token {{token0}}
 
 ### Unfollow Profile
-DELETE {{api}}/profiles/{{username0}}/follow
+DELETE {{api}}/profiles/{{username0}}asd/follow
 Authorization: Token {{token0}}
 
 ### Get Tags

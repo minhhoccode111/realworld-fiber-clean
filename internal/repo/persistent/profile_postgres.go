@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/Masterminds/squirrel"
+	"github.com/jackc/pgconn"
 	"github.com/jackc/pgx/v5"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/entity"
 	"github.com/minhhoccode111/realworld-fiber-clean/pkg/postgres"
@@ -76,9 +77,33 @@ func (r *ProfileRepo) StoreCreate(ctx context.Context, userId, username string) 
 		return fmt.Errorf("ProfileRepo - StoreCreate - r.Builder: %w", err)
 	}
 
+	_, err = r.Pool.Exec(ctx, sql, args...)
+	if err != nil {
+		fmt.Printf("DEBUG error: type=%T, val=%+v\n", err, err)
+		if pgErr, ok := err.(*pgconn.PgError); ok && pgErr.Code == "23502" {
+			return fmt.Errorf("ProfileRepo - StoreCreate - r.Pool.Exec: %w", entity.ErrNoRows)
+		}
+
+		return fmt.Errorf("ProfileRepo - StoreCreate - r.Pool.Exec: %w", err)
+	}
+
 	return nil
 }
 
 func (r *ProfileRepo) StoreDelete(ctx context.Context, userId, username string) error {
+	sql, args, err := r.Builder.
+		Delete("follows").
+		Where(squirrel.Expr("follower_id = ?", userId)).
+		Where(squirrel.Expr("following_id = (select id from users where username = ?)", username)).
+		ToSql()
+	if err != nil {
+		return fmt.Errorf("ProfileRepo - StoreDelete - r.Builder: %w", err)
+	}
+
+	_, err = r.Pool.Exec(ctx, sql, args...)
+	if err != nil {
+		return fmt.Errorf("ProfileRepo - StoreDelete - r.Pool.Exec: %w", err)
+	}
+
 	return nil
 }
