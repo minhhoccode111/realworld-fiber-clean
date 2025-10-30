@@ -801,6 +801,44 @@ paths:
       summary: Get feed articles
       tags:
       - articles
+  /profiles/{username}:
+    get:
+      description: Get profile by username
+      operationId: profiles-get-by-username
+      parameters:
+      - description: Username of the profile to get
+        in: path
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.ProfilePreview'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Error'
+      security:
+      - BearerAuth: []
+      summary: Get profile
+      tags:
+      - profiles
   /tags:
     get:
       description: Get all tags of all articles with pagination

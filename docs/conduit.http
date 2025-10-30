@@ -213,7 +213,7 @@ DELETE {{api}}/articles/{{slug}}/comments/{{commentId}}
 Authorization: Token {{token2}}
 
 ### Get Profile
-GET {{api}}/profiles/{{username0}}
+GET {{api}}/profiles/{{username0}}asd
 Authorization: Token {{token0}}
 
 ### Follow Profile

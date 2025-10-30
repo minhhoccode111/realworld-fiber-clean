@@ -116,10 +116,13 @@ func (r *ArticleRepo) GetDetailBySlug(ctx context.Context, userId, slug string,
 		&a.Author.Image,
 		&a.Author.Following,
 	)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return entity.ArticleDetail{}, fmt.Errorf(
+			"ArticleRepo - GetDetailBySlug - row.Scan - notfound: %w",
+			err,
+		)
+	}
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return entity.ArticleDetail{}, errors.New("notfound")
-		}
 		return entity.ArticleDetail{}, fmt.Errorf(
 			"ArticleRepo - GetDetailBySlug - row.Scan: %w",
 			err,
@@ -354,10 +357,13 @@ func (r *ArticleRepo) GetBasicBySlug(ctx context.Context, slug string) (entity.A
 		&a.Timestamps.CreatedAt,
 		&a.Timestamps.UpdatedAt,
 	)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return entity.Article{}, fmt.Errorf(
+			"ArticleRepo - GetBasicBySlug - row.Scan - notfound: %w",
+			err,
+		)
+	}
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return entity.Article{}, errors.New("notfound")
-		}
 		return entity.Article{}, fmt.Errorf("ArticleRepo - GetBasicBySlug - row.Scan: %w", err)
 	}
 

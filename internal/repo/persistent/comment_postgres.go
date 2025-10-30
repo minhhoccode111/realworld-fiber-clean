@@ -37,10 +37,10 @@ func (r *CommentRepo) StoreCreate(
 	var id string
 	row := r.Pool.QueryRow(ctx, sql, args...)
 	err = row.Scan(&id)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return "", fmt.Errorf("CommentRepo - StoreCreate - r.Pool.QueryRow - notfound: %w", err)
+	}
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return "", errors.New("notfound")
-		}
 		return "", fmt.Errorf("CommentRepo - StoreCreate - r.Pool.QueryRow: %w", err)
 	}
 

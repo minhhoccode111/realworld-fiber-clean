@@ -11,19 +11,18 @@ import (
 	"github.com/minhhoccode111/realworld-fiber-clean/pkg/util"
 )
 
-// @Summary     Create Comment
-// @Description Create Comment
-// @ID          comments-create
-// @Tags  	    comments
-// @Accept      json
+// @Summary     Get profile
+// @Description Get profile by username
+// @ID          profiles-get-by-username
+// @Tags  	    profiles
 // @Produce     json
-// @Param       request body request.CommentCreateRequest true "Create Comment"
-// @Success     201 {object} response.CommentDetailResponse
+// @Param       username path string true "Username of the profile to get"
+// @Success     200 {object} entity.ProfilePreview
 // @Failure     400 {object} response.Error
 // @Failure     401 {object} response.Error
 // @Failure     404 {object} response.Error
 // @Failure     500 {object} response.Error
-// @Router      /articles/{username}/comments [post]
+// @Router      /profiles/{username} [get]
 // @Security    BearerAuth
 func (r *V1) getProfile(ctx *fiber.Ctx) error {
 	isAuth := ctx.Locals(middleware.CtxIsAuthKey).(bool)

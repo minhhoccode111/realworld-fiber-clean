@@ -649,6 +649,65 @@
                 ]
             }
         },
+        "/profiles/{username}": {
+            "get": {
+                "description": "Get profile by username",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "profiles"
+                ],
+                "summary": "Get profile",
+                "operationId": "profiles-get-by-username",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Username of the profile to get",
+                        "name": "username",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/entity.ProfilePreview"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Error"
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
         "/tags": {
             "get": {
                 "description": "Get all tags of all articles with pagination",
