@@ -395,13 +395,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.CommentDetailsResponse"
+                            "$ref": "#/definitions/response.Error"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/response.CommentDetailsResponse"
+                            "$ref": "#/definitions/response.Error"
                         }
                     },
                     "500": {
@@ -679,7 +679,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/entity.ProfilePreview"
+                            "$ref": "#/definitions/response.ProfilePreviewResponse"
                         }
                     },
                     "400": {
@@ -1035,7 +1035,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/entity.TranslationHistory"
+                            "$ref": "#/definitions/response.TranslationHistory"
                         }
                     },
                     "500": {
@@ -1395,17 +1395,6 @@ const docTemplate = `{
                 }
             }
         },
-        "entity.TranslationHistory": {
-            "type": "object",
-            "properties": {
-                "history": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/entity.Translation"
-                    }
-                }
-            }
-        },
         "request.ArticleCreate": {
             "type": "object",
             "required": [
@@ -1662,6 +1651,11 @@ const docTemplate = `{
                         "$ref": "#/definitions/entity.ArticlePreview"
                     }
                 },
+                "articlesCount": {
+                    "description": "should be \"total\" but RealWorld API Specs expect \"articlesCount\"",
+                    "type": "integer",
+                    "example": 18
+                },
                 "limit": {
                     "type": "integer",
                     "example": 10
@@ -1669,10 +1663,6 @@ const docTemplate = `{
                 "offset": {
                     "type": "integer",
                     "example": 0
-                },
-                "total": {
-                    "type": "integer",
-                    "example": 18
                 }
             }
         },
@@ -1687,6 +1677,11 @@ const docTemplate = `{
         "response.CommentDetailsResponse": {
             "type": "object",
             "properties": {
+                "articlesCount": {
+                    "description": "should be \"total\" but RealWorld API Specs expect \"articlesCount\"",
+                    "type": "integer",
+                    "example": 18
+                },
                 "comments": {
                     "type": "array",
                     "items": {
@@ -1700,10 +1695,6 @@ const docTemplate = `{
                 "offset": {
                     "type": "integer",
                     "example": 0
-                },
-                "total": {
-                    "type": "integer",
-                    "example": 18
                 }
             }
         },
@@ -1727,6 +1718,11 @@ const docTemplate = `{
         "response.TagsResponse": {
             "type": "object",
             "properties": {
+                "articlesCount": {
+                    "description": "should be \"total\" but RealWorld API Specs expect \"articlesCount\"",
+                    "type": "integer",
+                    "example": 18
+                },
                 "limit": {
                     "type": "integer",
                     "example": 10
@@ -1740,16 +1736,17 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
-                },
-                "total": {
-                    "type": "integer",
-                    "example": 18
                 }
             }
         },
         "response.TranslationHistory": {
             "type": "object",
             "properties": {
+                "articlesCount": {
+                    "description": "should be \"total\" but RealWorld API Specs expect \"articlesCount\"",
+                    "type": "integer",
+                    "example": 18
+                },
                 "history": {
                     "type": "array",
                     "items": {
@@ -1763,10 +1760,6 @@ const docTemplate = `{
                 "offset": {
                     "type": "integer",
                     "example": 0
-                },
-                "total": {
-                    "type": "integer",
-                    "example": 18
                 }
             }
         },

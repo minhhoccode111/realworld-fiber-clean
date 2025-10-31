@@ -16,7 +16,7 @@ import (
 // @Tags  	    profiles
 // @Produce     json
 // @Param       username path string true "Username of the profile to get"
-// @Success     200 {object} entity.ProfilePreview
+// @Success     200 {object} response.ProfilePreviewResponse
 // @Failure     400 {object} response.Error
 // @Failure     401 {object} response.Error
 // @Failure     404 {object} response.Error

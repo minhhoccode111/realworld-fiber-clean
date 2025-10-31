@@ -389,13 +389,13 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.CommentDetailsResponse"
+                            "$ref": "#/definitions/response.Error"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/response.CommentDetailsResponse"
+                            "$ref": "#/definitions/response.Error"
                         }
                     },
                     "500": {
@@ -673,7 +673,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/entity.ProfilePreview"
+                            "$ref": "#/definitions/response.ProfilePreviewResponse"
                         }
                     },
                     "400": {
@@ -1029,7 +1029,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/entity.TranslationHistory"
+                            "$ref": "#/definitions/response.TranslationHistory"
                         }
                     },
                     "500": {
@@ -1389,17 +1389,6 @@
                 }
             }
         },
-        "entity.TranslationHistory": {
-            "type": "object",
-            "properties": {
-                "history": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/entity.Translation"
-                    }
-                }
-            }
-        },
         "request.ArticleCreate": {
             "type": "object",
             "required": [
@@ -1656,6 +1645,11 @@
                         "$ref": "#/definitions/entity.ArticlePreview"
                     }
                 },
+                "articlesCount": {
+                    "description": "should be \"total\" but RealWorld API Specs expect \"articlesCount\"",
+                    "type": "integer",
+                    "example": 18
+                },
                 "limit": {
                     "type": "integer",
                     "example": 10
@@ -1663,10 +1657,6 @@
                 "offset": {
                     "type": "integer",
                     "example": 0
-                },
-                "total": {
-                    "type": "integer",
-                    "example": 18
                 }
             }
         },
@@ -1681,6 +1671,11 @@
         "response.CommentDetailsResponse": {
             "type": "object",
             "properties": {
+                "articlesCount": {
+                    "description": "should be \"total\" but RealWorld API Specs expect \"articlesCount\"",
+                    "type": "integer",
+                    "example": 18
+                },
                 "comments": {
                     "type": "array",
                     "items": {
@@ -1694,10 +1689,6 @@
                 "offset": {
                     "type": "integer",
                     "example": 0
-                },
-                "total": {
-                    "type": "integer",
-                    "example": 18
                 }
             }
         },
@@ -1721,6 +1712,11 @@
         "response.TagsResponse": {
             "type": "object",
             "properties": {
+                "articlesCount": {
+                    "description": "should be \"total\" but RealWorld API Specs expect \"articlesCount\"",
+                    "type": "integer",
+                    "example": 18
+                },
                 "limit": {
                     "type": "integer",
                     "example": 10
@@ -1734,16 +1730,17 @@
                     "items": {
                         "type": "string"
                     }
-                },
-                "total": {
-                    "type": "integer",
-                    "example": 18
                 }
             }
         },
         "response.TranslationHistory": {
             "type": "object",
             "properties": {
+                "articlesCount": {
+                    "description": "should be \"total\" but RealWorld API Specs expect \"articlesCount\"",
+                    "type": "integer",
+                    "example": 18
+                },
                 "history": {
                     "type": "array",
                     "items": {
@@ -1757,10 +1754,6 @@
                 "offset": {
                     "type": "integer",
                     "example": 0
-                },
-                "total": {
-                    "type": "integer",
-                    "example": 18
                 }
             }
         },

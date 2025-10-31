@@ -94,8 +94,8 @@ func (r *V1) postComment(ctx *fiber.Ctx) error {
 // @Param       limit      query uint64 false "Limit number of results"
 // @Param       offset     query uint64 false "Offset for pagination"
 // @Success     200 {object} response.CommentDetailsResponse
-// @Success     400 {object} response.CommentDetailsResponse
-// @Success     401 {object} response.CommentDetailsResponse
+// @Failure     400 {object} response.Error
+// @Failure     401 {object} response.Error
 // @Failure     500 {object} response.Error
 // @Router      /articles/{slug}/comments [get]
 // @Security    BearerAuth

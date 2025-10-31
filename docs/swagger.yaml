@@ -102,13 +102,6 @@ definitions:
         example: text for translation
         type: string
     type: object
-  entity.TranslationHistory:
-    properties:
-      history:
-        items:
-          $ref: '#/definitions/entity.Translation'
-        type: array
-    type: object
   request.ArticleCreate:
     properties:
       body:
@@ -293,14 +286,15 @@ definitions:
         items:
           $ref: '#/definitions/entity.ArticlePreview'
         type: array
+      articlesCount:
+        description: should be "total" but RealWorld API Specs expect "articlesCount"
+        example: 18
+        type: integer
       limit:
         example: 10
         type: integer
       offset:
         example: 0
-        type: integer
-      total:
-        example: 18
         type: integer
     type: object
   response.CommentDetailResponse:
@@ -310,6 +304,10 @@ definitions:
     type: object
   response.CommentDetailsResponse:
     properties:
+      articlesCount:
+        description: should be "total" but RealWorld API Specs expect "articlesCount"
+        example: 18
+        type: integer
       comments:
         items:
           $ref: '#/definitions/entity.CommentDetail'
@@ -319,9 +317,6 @@ definitions:
         type: integer
       offset:
         example: 0
-        type: integer
-      total:
-        example: 18
         type: integer
     type: object
   response.Error:
@@ -337,6 +332,10 @@ definitions:
     type: object
   response.TagsResponse:
     properties:
+      articlesCount:
+        description: should be "total" but RealWorld API Specs expect "articlesCount"
+        example: 18
+        type: integer
       limit:
         example: 10
         type: integer
@@ -347,12 +346,13 @@ definitions:
         items:
           type: string
         type: array
-      total:
-        example: 18
-        type: integer
     type: object
   response.TranslationHistory:
     properties:
+      articlesCount:
+        description: should be "total" but RealWorld API Specs expect "articlesCount"
+        example: 18
+        type: integer
       history:
         items:
           $ref: '#/definitions/entity.TranslationClone'
@@ -362,9 +362,6 @@ definitions:
         type: integer
       offset:
         example: 0
-        type: integer
-      total:
-        example: 18
         type: integer
     type: object
   response.UserAuth:
@@ -608,11 +605,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.CommentDetailsResponse'
+            $ref: '#/definitions/response.Error'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/response.CommentDetailsResponse'
+            $ref: '#/definitions/response.Error'
         "500":
           description: Internal Server Error
           schema:
@@ -822,7 +819,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/entity.ProfilePreview'
+            $ref: '#/definitions/response.ProfilePreviewResponse'
         "400":
           description: Bad Request
           schema:
@@ -1057,7 +1054,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/entity.TranslationHistory'
+            $ref: '#/definitions/response.TranslationHistory'
         "500":
           description: Internal Server Error
           schema:
