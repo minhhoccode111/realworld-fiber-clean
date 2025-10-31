@@ -213,15 +213,15 @@ DELETE {{api}}/articles/{{slug}}/comments/{{commentId}}
 Authorization: Token {{token2}}
 
 ### Get Profile
-GET {{api}}/profiles/{{username0}}asd
+GET {{api}}/profiles/{{username0}}
 Authorization: Token {{token0}}
 
 ### Follow Profile
-POST {{api}}/profiles/{{username0}}asd/follow
+POST {{api}}/profiles/{{username0}}/follow
 Authorization: Token {{token0}}
 
 ### Unfollow Profile
-DELETE {{api}}/profiles/{{username0}}asd/follow
+DELETE {{api}}/profiles/{{username0}}/follow
 Authorization: Token {{token0}}
 
 ### Get Tags

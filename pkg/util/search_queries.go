@@ -15,7 +15,7 @@ func SearchQueries(ctx *fiber.Ctx) (tag, author, favorited string, limit, offset
 	favorited = strings.TrimSpace(ctx.Query("favorited"))
 
 	limit, err = strconv.ParseUint(ctx.Query("limit", "10"), 10, 64)
-	if err != nil {
+	if err != nil || limit > 200 {
 		limit = 10
 	}
 
