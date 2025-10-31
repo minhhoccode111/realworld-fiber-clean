@@ -2,7 +2,6 @@ package article
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"strconv"
 
@@ -108,13 +107,26 @@ func (uc *UseCase) Update(
 		)
 	}
 
+	if dto.Title != "" {
+		a.Title = dto.Title
+	}
+
+	if dto.Body != "" {
+		a.Body = dto.Body
+	}
+
+	if dto.Description != "" {
+		a.Description = dto.Description
+	}
+
 	if a.AuthorId != userId {
-		return entity.ArticleDetail{}, errors.New(
-			"ArticleUseCase - Update - uc.repo.GetBasicBySlug: forbidden",
+		return entity.ArticleDetail{}, fmt.Errorf(
+			"ArticleUseCase - Update - uc.repo.GetBasicBySlug: %w",
+			entity.ErrForbidden,
 		)
 	}
 
-	baseSlug := slug.Make(dto.Title)
+	baseSlug := slug.Make(a.Title)
 	a.Slug = baseSlug
 	for i := 0; ; i++ {
 		yes, err := uc.repo.CanSlugBeUsed(ctx, a.Id, a.Slug)
@@ -130,18 +142,6 @@ func (uc *UseCase) Update(
 		}
 
 		a.Slug = baseSlug + "-" + strconv.Itoa(i)
-	}
-
-	if dto.Title != "" {
-		a.Title = dto.Title
-	}
-
-	if dto.Body != "" {
-		a.Body = dto.Body
-	}
-
-	if dto.Description != "" {
-		a.Description = dto.Description
 	}
 
 	err = uc.repo.StoreUpdate(ctx, a)

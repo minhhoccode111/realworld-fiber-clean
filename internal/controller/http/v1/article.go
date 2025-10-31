@@ -178,7 +178,7 @@ func (r *V1) getFeedArticles(ctx *fiber.Ctx) error {
 // @Produce     json
 // @Param       slug path string true "Article slug"
 // @Success     200 {object} response.ArticleDetailResponse
-// @Success     404 {object} response.Error
+// @Failure     404 {object} response.Error
 // @Failure     500 {object} response.Error
 // @Router      /articles/{slug} [get]
 // @Security    BearerAuth
@@ -269,7 +269,7 @@ func (r *V1) putArticle(ctx *fiber.Ctx) error {
 		Body:        body.Article.Body,
 	})
 	if err != nil {
-		if strings.Contains(err.Error(), "forbidden") {
+		if errors.Is(err, entity.ErrForbidden) {
 			return errorResponse(ctx, http.StatusForbidden, "Only article author can update it")
 		}
 
