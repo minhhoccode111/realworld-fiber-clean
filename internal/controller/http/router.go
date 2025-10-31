@@ -43,6 +43,7 @@ func NewRouter(
 	// Options
 	app.Use(middleware.Logger(l))
 	app.Use(middleware.Recovery(l))
+	app.Use(middleware.CORS(cfg))
 
 	// Prometheus metrics
 	if cfg.Metrics.Enabled {

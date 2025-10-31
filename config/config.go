@@ -21,6 +21,7 @@ type (
 		Metrics Metrics
 		Swagger Swagger
 		JWT     JWT
+		CORS    CORS
 	}
 
 	// App -.
@@ -79,6 +80,14 @@ type (
 		Issuer     string        `env:"JWT_ISSUER,required"`
 		Secret     string        `env:"JWT_SECRET,required"`
 		Expiration time.Duration `env:"JWT_EXPIRATION,required"`
+	}
+
+	// CORS -.
+	CORS struct {
+		CORS_ALLOW_ORIGINS     string `env:"CORS_ALLOW_ORIGINS,required"`
+		CORS_ALLOW_CREDENTIALS bool   `env:"CORS_ALLOW_CREDENTIALS,required"`
+		CORS_ALLOW_HEADERS     string `env:"CORS_ALLOW_HEADERS,required"`
+		CORS_ALLOW_METHODS     string `env:"CORS_ALLOW_METHODS,required"`
 	}
 )
 
