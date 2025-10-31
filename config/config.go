@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/caarlos0/env/v11"
+	"github.com/joho/godotenv"
 )
 
 type (
@@ -83,6 +84,9 @@ type (
 
 // NewConfig returns app config.
 func NewConfig() (*Config, error) {
+	// .env must be loaded manually for 'air' to work
+	_ = godotenv.Load()
+
 	cfg := &Config{}
 	if err := env.Parse(cfg); err != nil {
 		return nil, fmt.Errorf("config error: %w", err)
