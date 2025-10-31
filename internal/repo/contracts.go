@@ -78,6 +78,7 @@ type (
 	}
 
 	ProfileRepo interface {
+		IsExisted(ctx context.Context, username string) error
 		GetDetail(ctx context.Context, userId, username string) (entity.ProfilePreview, error)
 		StoreCreate(ctx context.Context, userId, username string) error
 		StoreDelete(ctx context.Context, userId, username string) error

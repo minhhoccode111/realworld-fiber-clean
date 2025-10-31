@@ -34,13 +34,19 @@ func (uc *UseCase) Detail(
 }
 
 func (uc *UseCase) Follow(ctx context.Context, userId, username string) error {
-	err := uc.repo.StoreCreate(ctx, userId, username)
+	err := uc.repo.IsExisted(ctx, username)
+	if err != nil {
+		return fmt.Errorf("ProfileUseCase - Follow - uc.repo.IsExisted: %w", err)
+	}
+
+	err = uc.repo.StoreCreate(ctx, userId, username)
 	if err != nil {
 		return fmt.Errorf("ProfileUseCase - Follow - uc.repo.StoreCreate: %w", err)
 	}
 
 	return nil
 }
+
 func (uc *UseCase) Unfollow(ctx context.Context, userId, username string) error {
 	err := uc.repo.StoreDelete(ctx, userId, username)
 	if err != nil {

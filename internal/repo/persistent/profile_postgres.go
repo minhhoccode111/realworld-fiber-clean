@@ -6,7 +6,6 @@ import (
 	"fmt"
 
 	"github.com/Masterminds/squirrel"
-	"github.com/jackc/pgconn"
 	"github.com/jackc/pgx/v5"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/entity"
 	"github.com/minhhoccode111/realworld-fiber-clean/pkg/postgres"
@@ -18,6 +17,28 @@ type ProfileRepo struct {
 
 func NewProfileRepo(pg *postgres.Postgres) *ProfileRepo {
 	return &ProfileRepo{pg}
+}
+
+func (r *ProfileRepo) IsExisted(ctx context.Context, username string) error {
+	sql, args, err := r.Builder.
+		Select().
+		Column(squirrel.Expr("exists (select 1 from users where username = ?)", username)).
+		From("users").
+		ToSql()
+	if err != nil {
+		return fmt.Errorf("ProfileRepo - IsExisted - r.Builder: %w", err)
+	}
+
+	var isExisted bool
+	err = r.Pool.QueryRow(ctx, sql, args...).Scan(&isExisted)
+	if err != nil {
+		return fmt.Errorf("ProfileRepo - IsExisted - r.Pool.QueryRow: %w", err)
+	}
+	if !isExisted {
+		return fmt.Errorf("ProfileRepo - IsExisted - r.Pool.QueryRow: %w", entity.ErrNoRows)
+	}
+
+	return nil
 }
 
 func (r *ProfileRepo) GetDetail(
@@ -79,11 +100,6 @@ func (r *ProfileRepo) StoreCreate(ctx context.Context, userId, username string) 
 
 	_, err = r.Pool.Exec(ctx, sql, args...)
 	if err != nil {
-		fmt.Printf("DEBUG error: type=%T, val=%+v\n", err, err)
-		if pgErr, ok := err.(*pgconn.PgError); ok && pgErr.Code == "23502" {
-			return fmt.Errorf("ProfileRepo - StoreCreate - r.Pool.Exec: %w", entity.ErrNoRows)
-		}
-
 		return fmt.Errorf("ProfileRepo - StoreCreate - r.Pool.Exec: %w", err)
 	}
 
