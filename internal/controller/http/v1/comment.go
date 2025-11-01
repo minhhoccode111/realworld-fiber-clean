@@ -142,6 +142,7 @@ func (r *V1) getAllComments(ctx *fiber.Ctx) error {
 // @Tags        comments
 // @Produce     json
 // @Param       slug path string true "Article slug"
+// @Param       commentId path string true "Comment Id"
 // @Success     204 "No Content"
 // @Failure     400 {object} response.Error
 // @Failure     401 {object} response.Error
