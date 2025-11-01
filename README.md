@@ -2,21 +2,24 @@
 
 > ### Golang codebase containing real world examples (CRUD, auth, advanced patterns, etc) that adheres to the [RealWorld](https://github.com/gothinkster/realworld) spec and API.
 
-My first time working on this project [here](github.com/minhhoccode111/realworldgo)
-
-[Go Clean Template](https://github.com/evrone/go-clean-template)
-
 ## Learned Concepts
 
 - Go + Fiber
 - Clean Architecture
 - Dependency Injection
 - Embedded struct like `Pagination` and `Timestamps` in other struct
-- `Validator` for input validation
+- Generate mocks with `mockgen` and `go generate ./...`
+- Build Tags like '-tags migrate'
+- Struct tags for input validation in `pkg/validatorx/validator.go`
+- Struct tags for env vars loading in `config/config.go`
+- Swagger support in Golang project
+- DB Migration with `migrate`
+- `squirrel` for query builder
+- `lvh.me` domain
+- Go debugger with `.vscode/launch.json`
 - In `repo` layer, we don't return `pgx.ErrNoRows` to outer layer to handle
   because it will make the router layer depend on postgresql implementation,
   instead we return our custom not found error `entity.ErrNoRows`
-- Go debugger with `.vscode/launch.json`
 
 ## How to start developing
 
@@ -133,10 +136,15 @@ idx    - name      - unique
 
 ## Todo
 
-- [ ] Add unit testing, mock, integration testing
+- [ ] Add mocks, unit testing, integration testing
 - [ ] Add caching Redis
 
 ## Resources
+
+- My first Realworld implementation using Golang:
+  [gorealworld](github.com/minhhoccode111/realworldgo)
+- Starter Template using [Golang Clean
+  Architecture](https://github.com/evrone/go-clean-template)
 
 ## Contributing
 
