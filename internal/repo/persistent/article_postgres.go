@@ -9,6 +9,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/entity"
 	"github.com/minhhoccode111/realworld-fiber-clean/pkg/postgres"
+	"golang.org/x/sync/errgroup"
 )
 
 type ArticleRepo struct {
@@ -44,19 +45,34 @@ func (r *ArticleRepo) StoreCreate(ctx context.Context, dto entity.Article, tags 
 		return fmt.Errorf("ArticleRepo - StoreCreate - r.Builder: %w", err)
 	}
 
-	// TODO: insert article and tags can be done concurrently
-	row := r.Pool.QueryRow(ctx, sql, args...)
-	err = row.Scan(&dto.Id)
-	if err != nil {
-		return fmt.Errorf("ArticleRepo - StoreCreate - r.Pool.QueryRow: %w", err)
+	var g errgroup.Group
+	var tagIds []string
+
+	// insert article concurrently
+	g.Go(func() error {
+		row := r.Pool.QueryRow(ctx, sql, args...)
+		err = row.Scan(&dto.Id)
+		if err != nil {
+			return fmt.Errorf("ArticleRepo - StoreCreate - r.Pool.QueryRow: %w", err)
+		}
+		return nil
+	})
+
+	// insert tags concurrently
+	g.Go(func() error {
+		ids, err := r.StoreTagsList(ctx, tags)
+		if err != nil {
+			return fmt.Errorf("ArticleRepo - StoreCreate - r.StoreTagsList: %w", err)
+		}
+		tagIds = ids
+		return nil
+	})
+
+	if err := g.Wait(); err != nil {
+		return err
 	}
 
-	ids, err := r.StoreTagsList(ctx, tags)
-	if err != nil {
-		return fmt.Errorf("ArticleRepo - StoreCreate - r.StoreTagsList: %w", err)
-	}
-
-	err = r.StoreArticleTagsList(ctx, dto.Id, ids)
+	err = r.StoreArticleTagsList(ctx, dto.Id, tagIds)
 	if err != nil {
 		return fmt.Errorf("ArticleRepo - StoreCreate - r.StoreArticleTagsList: %w", err)
 	}
