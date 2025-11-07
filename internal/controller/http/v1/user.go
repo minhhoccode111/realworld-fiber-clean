@@ -167,20 +167,23 @@ func (r *V1) postLoginUser(ctx *fiber.Ctx) error {
 	})
 }
 
+func (r *V1) postLogoutUser(ctx *fiber.Ctx) error {
+	return ctx.SendStatus(200)
+}
+
 // @Summary     Get current User
 // @Description Get current User
 // @ID          users-current
 // @Tags  	    users
 // @Produce     json
 // @Success     200 {object} response.UserAuthResponse
-// @Failure     401 {object} response.Error
 // @Failure     500 {object} response.Error
 // @Router      /user [get]
 // @Security    BearerAuth
 func (r *V1) getCurrentUser(ctx *fiber.Ctx) error {
 	userId := ctx.Locals(middleware.CtxUserIdKey).(string)
 	if userId == "" {
-		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
+		return errorResponse(ctx, http.StatusInternalServerError, "cannot authorize user in jwt")
 	}
 
 	user, err := r.u.Current(ctx.UserContext(), userId)
@@ -220,7 +223,6 @@ func (r *V1) getCurrentUser(ctx *fiber.Ctx) error {
 // @Param       request body request.UserUpdateRequest true "Update User"
 // @Success     200 {object} response.UserAuthResponse
 // @Failure     400 {object} response.Error
-// @Failure     401 {object} response.Error
 // @Failure     500 {object} response.Error
 // @Router      /user [put]
 // @Security    BearerAuth
@@ -268,7 +270,7 @@ func (r *V1) putUpdateUser(ctx *fiber.Ctx) error {
 
 	userId := ctx.Locals(middleware.CtxUserIdKey).(string)
 	if userId == "" {
-		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
+		return errorResponse(ctx, http.StatusInternalServerError, "cannot authorize user in jwt")
 	}
 
 	user, err := r.u.Update(ctx.UserContext(), body.User.NewUser(userId))

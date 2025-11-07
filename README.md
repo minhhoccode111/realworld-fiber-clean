@@ -20,6 +20,7 @@
 - In `repo` layer, we don't return `pgx.ErrNoRows` to outer layer to handle
   because it will make the router layer depend on postgresql implementation,
   instead we return our custom not found error `entity.ErrNoRows`
+- Generate TypeScript API types
 
 ## How to start developing
 
@@ -48,6 +49,8 @@ And for many more `make` commands please checkout with
 ```bash
 make help
 ```
+
+Generate `types.ts`
 
 ## Endpoints
 

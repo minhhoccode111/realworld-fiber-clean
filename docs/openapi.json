@@ -1,0 +1,2098 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "description": "Realworld API using Golang + Fiber + Clean Architecture",
+        "title": "Realworld Fiber Clean API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "paths": {
+        "/articles": {
+            "get": {
+                "description": "Get all articles (filter by author, favorited, tag)",
+                "tags": [
+                    "articles"
+                ],
+                "summary": "Get all articles",
+                "operationId": "articles-get-all",
+                "parameters": [
+                    {
+                        "description": "Limit number of results",
+                        "name": "limit",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "description": "Offset for pagination",
+                        "name": "offset",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "description": "Filter by author username",
+                        "name": "author",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "Filter by favorited username",
+                        "name": "favorited",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "Filter by tag",
+                        "name": "tag",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.ArticlePreviewsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "description": "Create Article",
+                "tags": [
+                    "articles"
+                ],
+                "summary": "Create Article",
+                "operationId": "articles-create",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/request.ArticleCreateRequest"
+                            }
+                        }
+                    },
+                    "description": "Create Article",
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.ArticleDetailResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/articles/feed": {
+            "get": {
+                "description": "Get feed articles (from followed authors)",
+                "tags": [
+                    "articles"
+                ],
+                "summary": "Get feed articles",
+                "operationId": "articles-get-feed",
+                "parameters": [
+                    {
+                        "description": "Limit number of results",
+                        "name": "limit",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "description": "Offset for pagination",
+                        "name": "offset",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.ArticlePreviewsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/articles/{slug}": {
+            "get": {
+                "description": "Get article by slug",
+                "tags": [
+                    "articles"
+                ],
+                "summary": "Get article",
+                "operationId": "articles-get-by-slug",
+                "parameters": [
+                    {
+                        "description": "Article slug",
+                        "name": "slug",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.ArticleDetailResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "description": "Put article by slug",
+                "tags": [
+                    "articles"
+                ],
+                "summary": "Put article",
+                "operationId": "articles-put-by-slug",
+                "parameters": [
+                    {
+                        "description": "Article slug",
+                        "name": "slug",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/request.ArticleUpdateRequest"
+                            }
+                        }
+                    },
+                    "description": "Update Article",
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.ArticleDetailResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "description": "Delete article by slug",
+                "tags": [
+                    "articles"
+                ],
+                "summary": "Delete article",
+                "operationId": "articles-delete-by-slug",
+                "parameters": [
+                    {
+                        "description": "Article slug",
+                        "name": "slug",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/articles/{slug}/comments": {
+            "get": {
+                "description": "Get all comments of an article",
+                "tags": [
+                    "comments"
+                ],
+                "summary": "Get all comments",
+                "operationId": "comments-get-all",
+                "parameters": [
+                    {
+                        "description": "Limit number of results",
+                        "name": "limit",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "description": "Offset for pagination",
+                        "name": "offset",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.CommentDetailsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "description": "Create Comment",
+                "tags": [
+                    "comments"
+                ],
+                "summary": "Create Comment",
+                "operationId": "comments-create",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/request.CommentCreateRequest"
+                            }
+                        }
+                    },
+                    "description": "Create Comment",
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.CommentDetailResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/articles/{slug}/comments/{commentId}": {
+            "delete": {
+                "description": "Delete comment by id",
+                "tags": [
+                    "comments"
+                ],
+                "summary": "Delete comment",
+                "operationId": "comment-delete-by-id",
+                "parameters": [
+                    {
+                        "description": "Article slug",
+                        "name": "slug",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "Comment Id",
+                        "name": "commentId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/articles/{slug}/favorite": {
+            "post": {
+                "description": "Favorite an article",
+                "tags": [
+                    "favorites"
+                ],
+                "summary": "Favorite Article",
+                "operationId": "favorites-create",
+                "parameters": [
+                    {
+                        "description": "Article slug",
+                        "name": "slug",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.ArticleDetailResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "description": "Unfavorite an article",
+                "tags": [
+                    "favorites"
+                ],
+                "summary": "Unfavorite Article",
+                "operationId": "favorites-delete",
+                "parameters": [
+                    {
+                        "description": "Article slug",
+                        "name": "slug",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.ArticleDetailResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/profiles/{username}": {
+            "get": {
+                "description": "Get profile by username",
+                "tags": [
+                    "profiles"
+                ],
+                "summary": "Get profile",
+                "operationId": "profiles-get-by-username",
+                "parameters": [
+                    {
+                        "description": "Username of the profile to get",
+                        "name": "username",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.ProfilePreviewResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/profiles/{username}/follow": {
+            "post": {
+                "description": "Follow user by username",
+                "tags": [
+                    "profiles"
+                ],
+                "summary": "Follow user",
+                "operationId": "profiles-follow",
+                "parameters": [
+                    {
+                        "description": "Username of the profile to follow",
+                        "name": "username",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.ProfilePreviewResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "description": "Unfollow user by username",
+                "tags": [
+                    "profiles"
+                ],
+                "summary": "Unfollow user",
+                "operationId": "profiles-unfollow",
+                "parameters": [
+                    {
+                        "description": "Username of the profile to unfollow",
+                        "name": "username",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.ProfilePreviewResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/tags": {
+            "get": {
+                "description": "Get all tags of all articles with pagination",
+                "tags": [
+                    "tags"
+                ],
+                "summary": "Get tags",
+                "operationId": "tags",
+                "parameters": [
+                    {
+                        "description": "Number of items to return",
+                        "name": "limit",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "default": 10
+                        }
+                    },
+                    {
+                        "description": "Number of items to skip",
+                        "name": "offset",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "default": 0
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.TagsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/translation-clone/history": {
+            "get": {
+                "description": "Show all translation history",
+                "tags": [
+                    "translation-clone"
+                ],
+                "summary": "Show history",
+                "operationId": "history-clone",
+                "parameters": [
+                    {
+                        "description": "Number of items to return",
+                        "name": "limit",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "default": 10
+                        }
+                    },
+                    {
+                        "description": "Number of items to skip",
+                        "name": "offset",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "default": 0
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.TranslationHistory"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/translation-clone/translate": {
+            "post": {
+                "description": "Translate a text",
+                "tags": [
+                    "translation-clone"
+                ],
+                "summary": "Do Translate",
+                "operationId": "translate-clone",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/request.TranslateClone"
+                            }
+                        }
+                    },
+                    "description": "Set up translation",
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/entity.TranslationClone"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/translation/do-translate": {
+            "post": {
+                "description": "Translate a text",
+                "tags": [
+                    "translation"
+                ],
+                "summary": "Translate",
+                "operationId": "do-translate",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/request.Translate"
+                            }
+                        }
+                    },
+                    "description": "Set up translation",
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/entity.Translation"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/translation/history": {
+            "get": {
+                "description": "Show all translation history",
+                "tags": [
+                    "translation"
+                ],
+                "summary": "Show history",
+                "operationId": "history",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.TranslationHistory"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/user": {
+            "get": {
+                "description": "Get current User",
+                "tags": [
+                    "users"
+                ],
+                "summary": "Get current User",
+                "operationId": "users-current",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.UserAuthResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "description": "Update User",
+                "tags": [
+                    "users"
+                ],
+                "summary": "Update User",
+                "operationId": "users-update",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/request.UserUpdateRequest"
+                            }
+                        }
+                    },
+                    "description": "Update User",
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.UserAuthResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/users": {
+            "post": {
+                "description": "Register User",
+                "tags": [
+                    "users"
+                ],
+                "summary": "Register User",
+                "operationId": "users-register",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/request.UserRegisterRequest"
+                            }
+                        }
+                    },
+                    "description": "Register User",
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.UserAuthResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/login": {
+            "post": {
+                "description": "Login User",
+                "tags": [
+                    "users"
+                ],
+                "summary": "Login User",
+                "operationId": "users-login",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/request.UserLoginRequest"
+                            }
+                        }
+                    },
+                    "description": "Login User",
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.UserAuthResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/response.Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "servers": [
+        {
+            "url": "//localhost:8080/api/v1"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "BearerAuth": {
+                "description": "Type \"Token\" followed by a space and JWT token.",
+                "type": "apiKey",
+                "name": "Authorization",
+                "in": "header"
+            }
+        },
+        "schemas": {
+            "entity.ArticleDetail": {
+                "type": "object",
+                "properties": {
+                    "author": {
+                        "$ref": "#/components/schemas/entity.ProfilePreview"
+                    },
+                    "body": {
+                        "type": "string"
+                    },
+                    "createdAt": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "favorited": {
+                        "type": "boolean"
+                    },
+                    "favoritesCount": {
+                        "type": "integer"
+                    },
+                    "slug": {
+                        "type": "string"
+                    },
+                    "tagList": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "updatedAt": {
+                        "type": "string"
+                    }
+                }
+            },
+            "entity.ArticlePreview": {
+                "type": "object",
+                "properties": {
+                    "author": {
+                        "$ref": "#/components/schemas/entity.ProfilePreview"
+                    },
+                    "createdAt": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "favorited": {
+                        "type": "boolean"
+                    },
+                    "favoritesCount": {
+                        "type": "integer"
+                    },
+                    "slug": {
+                        "type": "string"
+                    },
+                    "tagList": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "updatedAt": {
+                        "type": "string"
+                    }
+                }
+            },
+            "entity.CommentDetail": {
+                "type": "object",
+                "properties": {
+                    "author": {
+                        "$ref": "#/components/schemas/entity.ProfilePreview"
+                    },
+                    "body": {
+                        "type": "string"
+                    },
+                    "createdAt": {
+                        "type": "string"
+                    },
+                    "id": {
+                        "type": "string"
+                    },
+                    "updatedAt": {
+                        "type": "string"
+                    }
+                }
+            },
+            "entity.ProfilePreview": {
+                "type": "object",
+                "properties": {
+                    "bio": {
+                        "type": "string"
+                    },
+                    "following": {
+                        "type": "boolean"
+                    },
+                    "image": {
+                        "type": "string"
+                    },
+                    "username": {
+                        "type": "string"
+                    }
+                }
+            },
+            "entity.Translation": {
+                "type": "object",
+                "properties": {
+                    "destination": {
+                        "type": "string",
+                        "example": "en"
+                    },
+                    "original": {
+                        "type": "string",
+                        "example": "текст для перевода"
+                    },
+                    "source": {
+                        "type": "string",
+                        "example": "auto"
+                    },
+                    "translation": {
+                        "type": "string",
+                        "example": "text for translation"
+                    }
+                }
+            },
+            "entity.TranslationClone": {
+                "type": "object",
+                "properties": {
+                    "destination": {
+                        "type": "string",
+                        "example": "en"
+                    },
+                    "original": {
+                        "type": "string",
+                        "example": "текст для перевода"
+                    },
+                    "source": {
+                        "type": "string",
+                        "example": "auto"
+                    },
+                    "translation": {
+                        "type": "string",
+                        "example": "text for translation"
+                    }
+                }
+            },
+            "request.ArticleCreate": {
+                "type": "object",
+                "required": [
+                    "body",
+                    "description",
+                    "tagList",
+                    "title"
+                ],
+                "properties": {
+                    "body": {
+                        "type": "string",
+                        "maxLength": 50000,
+                        "example": "this is article content"
+                    },
+                    "description": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "example": "This is description"
+                    },
+                    "tagList": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "example": [
+                            "go",
+                            "fiber",
+                            "api",
+                            "clean-arch"
+                        ]
+                    },
+                    "title": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "example": "This is title - to generate slug"
+                    }
+                }
+            },
+            "request.ArticleCreateRequest": {
+                "type": "object",
+                "properties": {
+                    "article": {
+                        "$ref": "#/components/schemas/request.ArticleCreate"
+                    }
+                }
+            },
+            "request.ArticleUpdate": {
+                "type": "object",
+                "properties": {
+                    "body": {
+                        "type": "string",
+                        "maxLength": 50000,
+                        "example": "this is article content"
+                    },
+                    "description": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "example": "This is description"
+                    },
+                    "title": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "example": "This is title - to generate slug"
+                    }
+                }
+            },
+            "request.ArticleUpdateRequest": {
+                "type": "object",
+                "properties": {
+                    "article": {
+                        "$ref": "#/components/schemas/request.ArticleUpdate"
+                    }
+                }
+            },
+            "request.CommentCreate": {
+                "type": "object",
+                "required": [
+                    "body"
+                ],
+                "properties": {
+                    "body": {
+                        "type": "string",
+                        "maxLength": 10000,
+                        "example": "this is a comment"
+                    }
+                }
+            },
+            "request.CommentCreateRequest": {
+                "type": "object",
+                "properties": {
+                    "comment": {
+                        "$ref": "#/components/schemas/request.CommentCreate"
+                    }
+                }
+            },
+            "request.Translate": {
+                "type": "object",
+                "required": [
+                    "destination",
+                    "original",
+                    "source"
+                ],
+                "properties": {
+                    "destination": {
+                        "type": "string",
+                        "example": "en"
+                    },
+                    "original": {
+                        "type": "string",
+                        "example": "текст для перевода"
+                    },
+                    "source": {
+                        "type": "string",
+                        "example": "auto"
+                    }
+                }
+            },
+            "request.TranslateClone": {
+                "type": "object",
+                "required": [
+                    "destination",
+                    "original",
+                    "source"
+                ],
+                "properties": {
+                    "destination": {
+                        "type": "string",
+                        "example": "en"
+                    },
+                    "original": {
+                        "type": "string",
+                        "example": "Tại vì sao"
+                    },
+                    "source": {
+                        "type": "string",
+                        "example": "auto"
+                    }
+                }
+            },
+            "request.UserLogin": {
+                "type": "object",
+                "required": [
+                    "email",
+                    "password"
+                ],
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "example": "minhhoccode111@gmail.com"
+                    },
+                    "password": {
+                        "type": "string",
+                        "example": "P@ssw0rd"
+                    }
+                }
+            },
+            "request.UserLoginRequest": {
+                "type": "object",
+                "properties": {
+                    "user": {
+                        "$ref": "#/components/schemas/request.UserLogin"
+                    }
+                }
+            },
+            "request.UserRegister": {
+                "type": "object",
+                "required": [
+                    "email",
+                    "password",
+                    "username"
+                ],
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "example": "minhhoccode111@gmail.com"
+                    },
+                    "password": {
+                        "type": "string",
+                        "maxLength": 50,
+                        "minLength": 8,
+                        "example": "P@ssw0rd"
+                    },
+                    "username": {
+                        "type": "string",
+                        "maxLength": 50,
+                        "minLength": 2,
+                        "example": "minhhoccode111"
+                    }
+                }
+            },
+            "request.UserRegisterRequest": {
+                "type": "object",
+                "properties": {
+                    "user": {
+                        "$ref": "#/components/schemas/request.UserRegister"
+                    }
+                }
+            },
+            "request.UserUpdate": {
+                "type": "object",
+                "properties": {
+                    "bio": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "example": "Trust the process"
+                    },
+                    "email": {
+                        "type": "string",
+                        "maxLength": 320,
+                        "minLength": 5,
+                        "example": "minhhoccode111@gmail.com"
+                    },
+                    "image": {
+                        "type": "string",
+                        "maxLength": 2048,
+                        "example": "https://www.w3schools.com/howto/img_avatar.png"
+                    },
+                    "password": {
+                        "type": "string",
+                        "maxLength": 50,
+                        "minLength": 8,
+                        "example": "P@ssw0rd"
+                    },
+                    "username": {
+                        "type": "string",
+                        "maxLength": 50,
+                        "minLength": 2,
+                        "example": "minhhoccode111"
+                    }
+                }
+            },
+            "request.UserUpdateRequest": {
+                "type": "object",
+                "properties": {
+                    "user": {
+                        "$ref": "#/components/schemas/request.UserUpdate"
+                    }
+                }
+            },
+            "response.ArticleDetailResponse": {
+                "type": "object",
+                "properties": {
+                    "article": {
+                        "$ref": "#/components/schemas/entity.ArticleDetail"
+                    }
+                }
+            },
+            "response.ArticlePreviewsResponse": {
+                "type": "object",
+                "properties": {
+                    "articles": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/entity.ArticlePreview"
+                        }
+                    },
+                    "articlesCount": {
+                        "description": "should be \"total\" but RealWorld API Specs expect \"articlesCount\"",
+                        "type": "integer",
+                        "example": 18
+                    },
+                    "limit": {
+                        "type": "integer",
+                        "example": 10
+                    },
+                    "offset": {
+                        "type": "integer",
+                        "example": 0
+                    }
+                }
+            },
+            "response.CommentDetailResponse": {
+                "type": "object",
+                "properties": {
+                    "comment": {
+                        "$ref": "#/components/schemas/entity.CommentDetail"
+                    }
+                }
+            },
+            "response.CommentDetailsResponse": {
+                "type": "object",
+                "properties": {
+                    "articlesCount": {
+                        "description": "should be \"total\" but RealWorld API Specs expect \"articlesCount\"",
+                        "type": "integer",
+                        "example": 18
+                    },
+                    "comments": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/entity.CommentDetail"
+                        }
+                    },
+                    "limit": {
+                        "type": "integer",
+                        "example": 10
+                    },
+                    "offset": {
+                        "type": "integer",
+                        "example": 0
+                    }
+                }
+            },
+            "response.Error": {
+                "type": "object",
+                "properties": {
+                    "error": {
+                        "type": "string",
+                        "example": "message"
+                    }
+                }
+            },
+            "response.ProfilePreviewResponse": {
+                "type": "object",
+                "properties": {
+                    "profile": {
+                        "$ref": "#/components/schemas/entity.ProfilePreview"
+                    }
+                }
+            },
+            "response.TagsResponse": {
+                "type": "object",
+                "properties": {
+                    "articlesCount": {
+                        "description": "should be \"total\" but RealWorld API Specs expect \"articlesCount\"",
+                        "type": "integer",
+                        "example": 18
+                    },
+                    "limit": {
+                        "type": "integer",
+                        "example": 10
+                    },
+                    "offset": {
+                        "type": "integer",
+                        "example": 0
+                    },
+                    "tags": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "response.TranslationHistory": {
+                "type": "object",
+                "properties": {
+                    "articlesCount": {
+                        "description": "should be \"total\" but RealWorld API Specs expect \"articlesCount\"",
+                        "type": "integer",
+                        "example": 18
+                    },
+                    "history": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/entity.TranslationClone"
+                        }
+                    },
+                    "limit": {
+                        "type": "integer",
+                        "example": 10
+                    },
+                    "offset": {
+                        "type": "integer",
+                        "example": 0
+                    }
+                }
+            },
+            "response.UserAuth": {
+                "type": "object",
+                "properties": {
+                    "bio": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "image": {
+                        "type": "string"
+                    },
+                    "token": {
+                        "type": "string"
+                    },
+                    "username": {
+                        "type": "string"
+                    }
+                }
+            },
+            "response.UserAuthResponse": {
+                "type": "object",
+                "properties": {
+                    "user": {
+                        "$ref": "#/components/schemas/response.UserAuth"
+                    }
+                }
+            }
+        }
+    }
+}
