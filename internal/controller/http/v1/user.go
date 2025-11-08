@@ -77,7 +77,7 @@ func (r *V1) postRegisterUser(ctx *fiber.Ctx) error {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
 			if pgErr.Code == "23505" {
-				return errorResponse(ctx, http.StatusConflict, "email/username alread existed")
+				return errorResponse(ctx, http.StatusConflict, "email/username already existed")
 			}
 		}
 

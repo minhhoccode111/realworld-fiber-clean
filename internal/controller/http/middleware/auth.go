@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
@@ -19,7 +18,7 @@ const (
 )
 
 func errorResponse(ctx *fiber.Ctx, code int, msg string) error {
-	return ctx.Status(code).JSON(fiber.Map{"Error": msg})
+	return ctx.Status(code).JSON(fiber.Map{"error": msg})
 }
 
 // AuthMiddleware -.
@@ -33,24 +32,24 @@ func AuthMiddleware(l logger.Interface, jwtSecret string, isOptional bool) func(
 			if isOptional {
 				return c.Next()
 			}
-			return errorResponse(c, http.StatusBadRequest, "missing auth header")
+			return errorResponse(c, http.StatusUnauthorized, "missing authorization header")
 		}
 
 		parts := strings.Fields(authHeader)
+		if len(parts) != 2 {
+			if isOptional {
+				return c.Next()
+			}
+			return errorResponse(c, http.StatusUnauthorized, "invalid authorization header format")
+		}
 		if !strings.EqualFold(parts[0], "Token") {
 			if isOptional {
 				return c.Next()
 			}
-			return errorResponse(c, http.StatusBadRequest,
-				"auth header must start with 'Token'",
-			)
-		}
-		if len(parts) < 2 {
-			if isOptional {
-				return c.Next()
-			}
-			return errorResponse(c, http.StatusBadRequest,
-				"auth header must be formatted as 'Token <token>'",
+			return errorResponse(
+				c,
+				http.StatusUnauthorized,
+				"authorization header must use 'Token' scheme",
 			)
 		}
 
@@ -62,12 +61,11 @@ func AuthMiddleware(l logger.Interface, jwtSecret string, isOptional bool) func(
 			return []byte(jwtSecret), nil
 		})
 		if err != nil {
-			if strings.Contains(err.Error(), "expired") {
-				return errorResponse(c, http.StatusBadRequest, "token is expired")
+			if isOptional {
+				return c.Next()
 			}
 			l.Error(err, "http - middleware - AuthMiddleware - jwt.Parse")
-
-			return errorResponse(c, http.StatusInternalServerError, "parse jwt problems")
+			return errorResponse(c, http.StatusUnauthorized, "invalid or expired token")
 		}
 
 		claims, ok := token.Claims.(jwt.MapClaims)
@@ -75,21 +73,7 @@ func AuthMiddleware(l logger.Interface, jwtSecret string, isOptional bool) func(
 			if isOptional {
 				return c.Next()
 			}
-			return errorResponse(c, http.StatusBadRequest, "invalid token")
-		}
-
-		expiredTime, ok := claims["exp"].(float64)
-		if !ok {
-			if isOptional {
-				return c.Next()
-			}
-			return errorResponse(c, http.StatusBadRequest, "missing exp in token")
-		}
-		if int64(expiredTime) < time.Now().Unix() {
-			if isOptional {
-				return c.Next()
-			}
-			return errorResponse(c, http.StatusBadRequest, "token expired")
+			return errorResponse(c, http.StatusUnauthorized, "invalid token claims")
 		}
 
 		userId, ok := claims["sub"].(string)
@@ -97,7 +81,7 @@ func AuthMiddleware(l logger.Interface, jwtSecret string, isOptional bool) func(
 			if isOptional {
 				return c.Next()
 			}
-			return errorResponse(c, http.StatusBadRequest, "missing sub in token")
+			return errorResponse(c, http.StatusUnauthorized, "missing user id in token")
 		}
 
 		c.Locals(CtxIsAuthKey, true)
