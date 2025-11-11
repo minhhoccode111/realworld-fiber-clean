@@ -20,16 +20,16 @@ func NewUserRepo(pg *postgres.Postgres) *UserRepo {
 func (r *UserRepo) StoreRegister(ctx context.Context, user entity.User) (entity.User, error) {
 	sql, args, err := r.Builder.
 		Insert("users").
-		Columns("email, username, password, bio, image").
-		Values(user.Email, user.Username, user.Password, user.Bio, user.Image).
-		Suffix("returning id").
+		Columns("email, username, password").
+		Values(user.Email, user.Username, user.Password).
+		Suffix("returning id, image, bio").
 		ToSql()
 	if err != nil {
 		return entity.User{}, fmt.Errorf("UserRepo - StoreRegister - r.Builder: %w", err)
 	}
 
 	row := r.Pool.QueryRow(ctx, sql, args...)
-	err = row.Scan(&user.Id)
+	err = row.Scan(&user.Id, &user.Image, &user.Bio)
 	if err != nil {
 		return entity.User{}, fmt.Errorf("UserRepo - StoreRegister - row.Scan: %w", err)
 	}
