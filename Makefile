@@ -104,7 +104,7 @@ mock: ### run mockgen
 	mockgen -source ./internal/usecase/contracts.go -package usecase_test > ./internal/usecase/mocks_usecase_test.go
 .PHONY: mock
 
-migrate-create:  ### create new migration
+migrate-create:  ### create new migration with name="$(name)"
 	migrate create -ext sql -dir migrations "$(name)"
 .PHONY: migrate-create
 
@@ -124,6 +124,10 @@ migrate-redo: ### rollback and reapply last migration
 migrate-status: ### show migration version
 	migrate -path migrations -database '$(PG_URL)?sslmode=disable' version
 .PHONY: migrate-status
+
+migrate-list: ### list migrations, order by modified date
+	ls -l migrations/*.up.sql
+.PHONY: migrate-list
 
 bin-deps: ### install tools
 	go install tool
