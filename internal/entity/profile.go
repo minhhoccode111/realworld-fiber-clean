@@ -1,8 +1,9 @@
 package entity
 
 type ProfilePreview struct {
-	Username  string `json:"username"`
-	Bio       string `json:"bio"`
-	Image     string `json:"image"`
-	Following bool   `json:"following"`
+	Username       string `json:"username"`
+	Bio            string `json:"bio"`
+	Image          string `json:"image"`
+	Following      bool   `json:"following"`
+	FollowersCount int    `json:"followersCount"`
 }

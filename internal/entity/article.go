@@ -12,19 +12,6 @@ type Article struct {
 	Timestamps
 }
 
-type ArticleDetail struct {
-	Slug           string         `json:"slug"`
-	Title          string         `json:"title"`
-	Description    string         `json:"description"`
-	TagList        []string       `json:"tagList"`
-	Favorited      bool           `json:"favorited"`
-	FavoritesCount int            `json:"favoritesCount"`
-	Author         ProfilePreview `json:"author"`
-	Body           string         `json:"body"`
-
-	Timestamps
-}
-
 type ArticlePreview struct {
 	Slug           string         `json:"slug"`
 	Title          string         `json:"title"`
@@ -33,7 +20,13 @@ type ArticlePreview struct {
 	Favorited      bool           `json:"favorited"`
 	FavoritesCount int            `json:"favoritesCount"`
 	Author         ProfilePreview `json:"author"`
-	// Body           string         `json:"body"`
 
+	Timestamps
+}
+
+type ArticleDetail struct {
+	Body string `json:"body"`
+
+	ArticlePreview
 	Timestamps
 }

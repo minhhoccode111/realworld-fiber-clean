@@ -98,7 +98,8 @@ func (r *ArticleRepo) GetDetailBySlug(ctx context.Context, userId, slug string,
 		  u.username, u.bio, u.image,
 		  (select exists
 			(select 1 from follows where a.author_id = following_id and follower_id::text = $1)
-		  ) as following
+		  ) as following,
+		  (select count(distinct(follower_id)) from follows where following_id = u.id) as followers_count
 		from articles a
 		left join users u on a.author_id = u.id
 		left join article_tags at on at.article_id = a.id
@@ -131,6 +132,7 @@ func (r *ArticleRepo) GetDetailBySlug(ctx context.Context, userId, slug string,
 		&a.Author.Bio,
 		&a.Author.Image,
 		&a.Author.Following,
+		&a.Author.FollowersCount,
 	)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return entity.ArticleDetail{}, fmt.Errorf(
@@ -252,6 +254,7 @@ func (r *ArticleRepo) GetList(
 		  (select exists
 			(select 1 from follows where follower_id::text = $1 and following_id = u.id)
 		  ) as following,
+		  (select count(distinct(follower_id)) from follows where following_id = u.id) as followers_count,
 		  coalesce(array_agg(distinct t.name) filter (where t.name is not null), '{}') as tags,
 		  count(distinct f.user_id) as favorites_count,
 		  count(*) over() as articles_count
@@ -282,6 +285,7 @@ func (r *ArticleRepo) GetList(
 		  (select exists
 			(select 1 from follows where follower_id::text = $1 and following_id = u.id)
 		  ) as following,
+		  (select count(distinct(follower_id)) from follows where following_id = u.id) as followers_count,
 		  coalesce(array_agg(distinct t.name) filter (where t.name is not null), '{}') as tags,
 		  count(distinct f.user_id) as favorites_count,
 		  count(*) over() as articles_count -- count all articles match before applying limit
@@ -332,6 +336,7 @@ func (r *ArticleRepo) GetList(
 			&a.Author.Bio,
 			&a.Author.Image,
 			&a.Author.Following,
+			&a.Author.FollowersCount,
 			&a.TagList,
 			&a.FavoritesCount,
 			&total,

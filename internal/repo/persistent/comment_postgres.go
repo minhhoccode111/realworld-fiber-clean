@@ -58,7 +58,9 @@ func (r *CommentRepo) GetDetailById(
 			select 1 from follows
 			where follower_id::text = $1
 			and following_id = c.author_id
-		  )) as following
+		  )) as following,
+		  (select count(distinct(follower_id)) from follows
+		  where following_id = c.author_id) as followers_count
 		from comments c
 		left join users u on u.id = c.author_id
 		left join articles a on a.id = c.article_id
@@ -85,6 +87,7 @@ func (r *CommentRepo) GetDetailById(
 		&c.Author.Bio,
 		&c.Author.Image,
 		&c.Author.Following,
+		&c.Author.FollowersCount,
 	)
 	if err != nil {
 		return entity.CommentDetail{}, fmt.Errorf(
@@ -109,6 +112,8 @@ func (r *CommentRepo) GetList(
 			where follower_id::text = $1
 			and following_id = c.author_id
 		  )) as following,
+		  (select count(distinct(follower_id)) from follows
+		  where following_id = c.author_id) as followers_count,
 		  count(*) over() as comments_count
 		from comments c
 		left join users u on u.id = c.author_id
@@ -141,6 +146,7 @@ func (r *CommentRepo) GetList(
 			&c.Author.Bio,
 			&c.Author.Image,
 			&c.Author.Following,
+			&c.Author.FollowersCount,
 			&total,
 		)
 		if err != nil {

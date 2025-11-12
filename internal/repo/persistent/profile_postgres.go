@@ -51,17 +51,14 @@ func (r *ProfileRepo) GetDetail(
 			"bio",
 			"image",
 		).
-		Column(
-			squirrel.Expr(
-				`(select exists
-					(select 1 from follows
-						where follower_id::text = ?
-						and following_id = (select id from users where username = ?))
-				) as following`,
-				userId,
-				username,
-			),
-		).
+		Column(squirrel.Expr(`
+			(select exists (select 1 from follows where follower_id::text = ?
+			and following_id = (select id from users where username = ?))) as following
+			`, userId, username)).
+		Column(squirrel.Expr(`
+			(select count(distinct(follower_id)) from follows where following_id =
+			(select id from users where username = ?)) as followers_count
+			`, username)).
 		From("users").
 		Where(squirrel.Eq{"username": username}).
 		ToSql()
@@ -70,7 +67,8 @@ func (r *ProfileRepo) GetDetail(
 	}
 
 	var e entity.ProfilePreview
-	err = r.Pool.QueryRow(ctx, sql, args...).Scan(&e.Username, &e.Bio, &e.Image, &e.Following)
+	err = r.Pool.QueryRow(ctx, sql, args...).
+		Scan(&e.Username, &e.Bio, &e.Image, &e.Following, &e.FollowersCount)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return entity.ProfilePreview{}, fmt.Errorf(
 			"ProfileRepo - GetDetail - r.Pool.QueryRow: %w",
