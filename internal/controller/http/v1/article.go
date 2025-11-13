@@ -313,7 +313,7 @@ func (r *V1) deleteArticle(ctx *fiber.Ctx) error {
 
 	err := r.a.Delete(ctx.UserContext(), userId, slug)
 	if err != nil {
-		if errors.Is(err, entity.ErrNoRows) {
+		if errors.Is(err, entity.ZeroRowsAffected) {
 			return errorResponse(ctx, http.StatusNotFound, "Article not found")
 		}
 

@@ -431,7 +431,7 @@ func (r *ArticleRepo) StoreDelete(ctx context.Context, userId, slug string) erro
 		return fmt.Errorf("ArticleRepo - StoreDelete - r.Pool.Exec: %w", err)
 	}
 	if result.RowsAffected() == 0 {
-		return fmt.Errorf("ArticleRepo - StoreDelete - r.Pool.Exec: %w", entity.ErrNoRows)
+		return fmt.Errorf("ArticleRepo - StoreDelete - r.Pool.Exec: %w", entity.ZeroRowsAffected)
 	}
 
 	return nil

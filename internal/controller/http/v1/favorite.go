@@ -38,6 +38,10 @@ func (r *V1) createFavorite(ctx *fiber.Ctx) error {
 
 	err := r.f.Create(ctx.UserContext(), userId, slug)
 	if err != nil {
+		if errors.Is(err, entity.ZeroRowsAffected) {
+			return errorResponse(ctx, http.StatusBadRequest, "Article is already favorited")
+		}
+
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) && pgErr.Code == "23502" { // not null constraint
 			return errorResponse(ctx, http.StatusNotFound, "Article not found")
@@ -90,6 +94,10 @@ func (r *V1) deleteFavorite(ctx *fiber.Ctx) error {
 
 	err := r.f.Delete(ctx.UserContext(), userId, slug)
 	if err != nil {
+		if errors.Is(err, entity.ZeroRowsAffected) {
+			return errorResponse(ctx, http.StatusBadRequest, "Article is already unfavorited")
+		}
+
 		r.l.Error(err, "http - v1 - deleteFavorite - r.c.Delete")
 
 		return errorResponse(ctx, http.StatusInternalServerError, "database problems")

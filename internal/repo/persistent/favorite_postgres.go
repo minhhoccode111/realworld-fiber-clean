@@ -36,7 +36,7 @@ func (r *FavoriteRepo) StoreCreate(ctx context.Context, userId, slug string) err
 		return fmt.Errorf("FavoriteRepo - StoreCreate - r.Pool.Exec: %w", err)
 	}
 	if result.RowsAffected() == 0 {
-		return fmt.Errorf("FavoriteRepo - StoreCreate - r.Pool.Exec: %w", entity.ErrNoRows)
+		return fmt.Errorf("FavoriteRepo - StoreCreate - r.Pool.Exec: %w", entity.ZeroRowsAffected)
 	}
 
 	return nil
@@ -57,7 +57,7 @@ func (r *FavoriteRepo) StoreDelete(ctx context.Context, userId, slug string) err
 		return fmt.Errorf("FavoriteRepo - StoreDelete - r.Pool.Exec: %w", err)
 	}
 	if result.RowsAffected() == 0 {
-		return fmt.Errorf("FavoriteRepo - StoreDelete - r.Pool.Exec: %w", entity.ErrNoRows)
+		return fmt.Errorf("FavoriteRepo - StoreDelete - r.Pool.Exec: %w", entity.ZeroRowsAffected)
 	}
 
 	return nil

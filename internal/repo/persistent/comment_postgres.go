@@ -184,7 +184,7 @@ func (r *CommentRepo) StoreDelete(ctx context.Context, userId, slug, commentId s
 		return fmt.Errorf("CommentRepo - StoreDelete - r.Pool.Exec: %w", err)
 	}
 	if result.RowsAffected() == 0 {
-		return fmt.Errorf("CommentRepo - StoreDelete - r.Pool.Exec: %w", entity.ErrNoRows)
+		return fmt.Errorf("CommentRepo - StoreDelete - r.Pool.Exec: %w", entity.ZeroRowsAffected)
 	}
 
 	return nil

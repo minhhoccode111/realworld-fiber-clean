@@ -168,7 +168,7 @@ func (r *V1) deleteComment(ctx *fiber.Ctx) error {
 
 	err := r.c.Delete(ctx.UserContext(), userId, slug, commentId)
 	if err != nil {
-		if errors.Is(err, entity.ErrNoRows) {
+		if errors.Is(err, entity.ZeroRowsAffected) {
 			return errorResponse(ctx, http.StatusNotFound, "Article/comment not found")
 		}
 
