@@ -6,7 +6,7 @@ import (
 
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/entity"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/repo"
-	"github.com/minhhoccode111/realworld-fiber-clean/pkg/util"
+	"github.com/minhhoccode111/realworld-fiber-clean/pkg/utils"
 )
 
 // UseCase -.
@@ -20,91 +20,93 @@ func New(r repo.UserRepo) *UseCase {
 }
 
 // Register -.
-func (uc *UseCase) Register(ctx context.Context, userDTO entity.User) (entity.User, error) {
-	hashedPassword, err := util.HashPassword(userDTO.Password)
+func (uc *UseCase) Register(ctx context.Context, u *entity.User) error {
+	hashedPassword, err := utils.HashPassword(u.Password)
 	if err != nil {
-		return entity.User{}, fmt.Errorf(
-			"UserUseCase - Register - util.HashPassword: %w",
+		return fmt.Errorf(
+			"UserUseCase - Register - utils.HashPassword: %w",
 			err,
 		)
 	}
 
-	userDTO.Password = hashedPassword
-	user, err := uc.repo.StoreRegister(ctx, userDTO)
+	u.Password = hashedPassword
+
+	err = uc.repo.StoreRegister(ctx, u)
 	if err != nil {
-		return entity.User{}, fmt.Errorf(
+		return fmt.Errorf(
 			"UserUseCase - Register - uc.repo.StoreRegister: %w",
 			err,
 		)
 	}
 
-	return user, nil
+	return nil
 }
 
 // Login -.
-func (uc *UseCase) Login(ctx context.Context, userDTO entity.User) (entity.User, error) {
-	user, err := uc.repo.GetUserByEmail(ctx, userDTO.Email)
+func (uc *UseCase) Login(ctx context.Context, dto *entity.User) (*entity.User, error) {
+	u, err := uc.repo.GetUserByEmail(ctx, dto.Email)
 	if err != nil {
-		return entity.User{}, fmt.Errorf(
+		return nil, fmt.Errorf(
 			"UserUseCase - Login - uc.repo.GetUserByEmail: %w",
 			err,
 		)
 	}
 
-	if !util.IsValidPassword(user.Password, userDTO.Password) {
-		return entity.User{}, fmt.Errorf(
-			"UserUseCase - Login - util.IsValidPassword: incorrect password",
+	if !utils.IsValidPassword(u.Password, dto.Password) {
+		return nil, fmt.Errorf(
+			"UserUseCase - Login - utils.IsValidPassword: incorrect password",
 		)
 	}
 
-	return user, nil
+	return u, nil
 }
 
 // Current -.
-func (uc *UseCase) Current(ctx context.Context, userId string) (entity.User, error) {
-	user, err := uc.repo.GetUserById(ctx, userId)
+func (uc *UseCase) Current(ctx context.Context, userID string) (*entity.User, error) {
+	u, err := uc.repo.GetUserByID(ctx, userID)
 	if err != nil {
-		return entity.User{}, fmt.Errorf("UserUseCase - Current - uc.repo.GetUserById: %w", err)
+		return nil, fmt.Errorf("UserUseCase - Current - uc.repo.GetUserByID: %w", err)
 	}
 
-	return user, nil
+	return u, nil
 }
 
 // Update -.
-func (uc *UseCase) Update(ctx context.Context, userDTO entity.User) (entity.User, error) {
-	user, err := uc.repo.GetUserById(ctx, userDTO.Id)
+func (uc *UseCase) Update(ctx context.Context, dto *entity.User) (*entity.User, error) {
+	u, err := uc.repo.GetUserByID(ctx, dto.ID)
 	if err != nil {
-		return entity.User{}, fmt.Errorf("UserUseCase - Update - uc.repo.GetUserById: %w", err)
+		return nil, fmt.Errorf("UserUseCase - Update - uc.repo.GetUserByID: %w", err)
 	}
 
-	if userDTO.Password != "" {
-		hashedPassword, err := util.HashPassword(userDTO.Password)
+	if dto.Password != "" {
+		hashedPassword, err := utils.HashPassword(dto.Password)
 		if err != nil {
-			return entity.User{}, fmt.Errorf("UserUseCase - Update - util.HashPassword: %w", err)
+			return nil, fmt.Errorf("UserUseCase - Update - utils.HashPassword: %w", err)
 		}
-		user.Password = hashedPassword
+
+		u.Password = hashedPassword
 	}
 
-	if userDTO.Email != "" {
-		user.Email = userDTO.Email
+	if dto.Email != "" {
+		u.Email = dto.Email
 	}
 
-	if userDTO.Username != "" {
-		user.Username = userDTO.Username
+	if dto.Username != "" {
+		u.Username = dto.Username
 	}
 
-	if userDTO.Bio != "" {
-		user.Bio = userDTO.Bio
+	if dto.Bio != "" {
+		u.Bio = dto.Bio
 	}
 
-	if userDTO.Image != "" {
-		user.Image = userDTO.Image
+	if dto.Image != "" {
+		u.Image = dto.Image
 	}
 
-	err = uc.repo.StoreUpdate(ctx, user)
+	err = uc.repo.StoreUpdate(ctx, u)
 	if err != nil {
-		return entity.User{}, fmt.Errorf("UserUseCase - Update - uc.repo.StoreUpdate: %w", err)
+		return nil, fmt.Errorf("UserUseCase - Update - uc.repo.StoreUpdate: %w", err)
 	}
 
-	return user, nil
+	return u, nil
 }

@@ -18,7 +18,7 @@ func New(r repo.TagRepo) *UseCase {
 	return &UseCase{repo: r}
 }
 
-// GetTags - get all tags of all articles
+// GetTags - get all tags of all articles.
 func (uc *UseCase) List(ctx context.Context, limit, offset uint64,
 ) ([]entity.TagName, uint64, error) {
 	tags, total, err := uc.repo.GetList(ctx, limit, offset)

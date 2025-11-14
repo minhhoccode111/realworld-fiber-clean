@@ -13,7 +13,7 @@ import (
 type ctxKey string
 
 const (
-	CtxUserIdKey ctxKey = "userId"
+	CtxUserIDKey ctxKey = "userID"
 	CtxIsAuthKey ctxKey = "isAuth"
 )
 
@@ -25,27 +25,33 @@ func errorResponse(ctx *fiber.Ctx, code int, msg string) error {
 func AuthMiddleware(l logger.Interface, jwtSecret string, isOptional bool) func(*fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		c.Locals(CtxIsAuthKey, false)
-		c.Locals(CtxUserIdKey, "")
+		c.Locals(CtxUserIDKey, "")
 
 		authHeader := c.Get("Authorization")
 		if authHeader == "" {
 			if isOptional {
 				return c.Next()
 			}
+
 			return errorResponse(c, http.StatusUnauthorized, "missing authorization header")
 		}
 
 		parts := strings.Fields(authHeader)
-		if len(parts) != 2 {
+
+		const lenParts = 2
+		if len(parts) != lenParts {
 			if isOptional {
 				return c.Next()
 			}
+
 			return errorResponse(c, http.StatusUnauthorized, "invalid authorization header format")
 		}
+
 		if !strings.EqualFold(parts[0], "Token") {
 			if isOptional {
 				return c.Next()
 			}
+
 			return errorResponse(
 				c,
 				http.StatusUnauthorized,
@@ -54,17 +60,21 @@ func AuthMiddleware(l logger.Interface, jwtSecret string, isOptional bool) func(
 		}
 
 		tokenStr := parts[1]
+
 		token, err := jwt.Parse(tokenStr, func(t *jwt.Token) (any, error) {
 			if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
 			}
+
 			return []byte(jwtSecret), nil
 		})
 		if err != nil {
 			if isOptional {
 				return c.Next()
 			}
+
 			l.Error(err, "http - middleware - AuthMiddleware - jwt.Parse")
+
 			return errorResponse(c, http.StatusUnauthorized, "invalid or expired token")
 		}
 
@@ -73,19 +83,22 @@ func AuthMiddleware(l logger.Interface, jwtSecret string, isOptional bool) func(
 			if isOptional {
 				return c.Next()
 			}
+
 			return errorResponse(c, http.StatusUnauthorized, "invalid token claims")
 		}
 
-		userId, ok := claims["sub"].(string)
-		if !ok || userId == "" {
+		userID, ok := claims["sub"].(string)
+		if !ok || userID == "" {
 			if isOptional {
 				return c.Next()
 			}
+
 			return errorResponse(c, http.StatusUnauthorized, "missing user id in token")
 		}
 
 		c.Locals(CtxIsAuthKey, true)
-		c.Locals(CtxUserIdKey, userId)
+		c.Locals(CtxUserIDKey, userID)
+
 		return c.Next()
 	}
 }

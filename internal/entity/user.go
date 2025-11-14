@@ -1,8 +1,8 @@
 package entity
 
-// User - Database Shape
+// User - Database Shape.
 type User struct {
-	Id       string
+	ID       string
 	Email    string
 	Username string
 	Image    string

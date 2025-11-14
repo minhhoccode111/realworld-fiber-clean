@@ -207,9 +207,9 @@ Authorization: Token {{token0}}
 GET {{api}}/articles/{{slug}}/comments
 
 ### Delete Comment for Article
-@commentId = 4dbee433-249a-4a04-9f95-34dc99bb067f
+@commentID = 4dbee433-249a-4a04-9f95-34dc99bb067f
 ###
-DELETE {{api}}/articles/{{slug}}/comments/{{commentId}}
+DELETE {{api}}/articles/{{slug}}/comments/{{commentID}}
 Authorization: Token {{token2}}
 
 ### Get Profile

@@ -59,7 +59,7 @@ func NewV1Routes(
 	{
 		users.Post("/", r.postRegisterUser)
 		users.Post("/login", r.postLoginUser)
-		users.Post("/logout", r.postLogoutUser)
+		// users.Post("/logout", r.postLogoutUser)
 	}
 
 	user := apiV1Group.Group("/user")
@@ -88,7 +88,7 @@ func NewV1Routes(
 	{
 		comments.Post("/", auth, r.postComment)
 		comments.Get("/", optionalAuth, r.getAllComments)
-		comments.Delete("/:commentId", auth, r.deleteComment)
+		comments.Delete("/:commentID", auth, r.deleteComment)
 	}
 
 	profiles := apiV1Group.Group("/profiles/:username")

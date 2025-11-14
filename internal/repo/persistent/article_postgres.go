@@ -20,7 +20,7 @@ func NewArticleRepo(pg *postgres.Postgres) *ArticleRepo {
 	return &ArticleRepo{pg}
 }
 
-func (r *ArticleRepo) StoreCreate(ctx context.Context, dto entity.Article, tags []string) error {
+func (r *ArticleRepo) StoreCreate(ctx context.Context, dto *entity.Article, tags []string) error {
 	tx, err := r.Pool.Begin(ctx)
 	if err != nil {
 		return fmt.Errorf("ArticleRepo - StoreCreate - r.Pool.Begin: %w", err)
@@ -38,23 +38,28 @@ func (r *ArticleRepo) StoreCreate(ctx context.Context, dto entity.Article, tags 
 	sql, args, err := r.Builder.
 		Insert("articles").
 		Columns("author_id", "slug", "title", "description", "body").
-		Values(dto.AuthorId, dto.Slug, dto.Title, dto.Description, dto.Body).
+		Values(dto.AuthorID, dto.Slug, dto.Title, dto.Description, dto.Body).
 		Suffix("returning id").
 		ToSql()
 	if err != nil {
 		return fmt.Errorf("ArticleRepo - StoreCreate - r.Builder: %w", err)
 	}
 
-	var g errgroup.Group
-	var tagIds []string
+	var (
+		g      errgroup.Group
+		tagIDs []string
+	)
 
 	// insert article concurrently
+
 	g.Go(func() error {
 		row := r.Pool.QueryRow(ctx, sql, args...)
-		err = row.Scan(&dto.Id)
+
+		err = row.Scan(&dto.ID)
 		if err != nil {
 			return fmt.Errorf("ArticleRepo - StoreCreate - r.Pool.QueryRow: %w", err)
 		}
+
 		return nil
 	})
 
@@ -64,7 +69,9 @@ func (r *ArticleRepo) StoreCreate(ctx context.Context, dto entity.Article, tags 
 		if err != nil {
 			return fmt.Errorf("ArticleRepo - StoreCreate - r.StoreTagsList: %w", err)
 		}
-		tagIds = ids
+
+		tagIDs = ids
+
 		return nil
 	})
 
@@ -72,7 +79,7 @@ func (r *ArticleRepo) StoreCreate(ctx context.Context, dto entity.Article, tags 
 		return err
 	}
 
-	err = r.StoreArticleTagsList(ctx, dto.Id, tagIds)
+	err = r.StoreArticleTagsList(ctx, dto.ID, tagIDs)
 	if err != nil {
 		return fmt.Errorf("ArticleRepo - StoreCreate - r.StoreArticleTagsList: %w", err)
 	}
@@ -85,8 +92,8 @@ func (r *ArticleRepo) StoreCreate(ctx context.Context, dto entity.Article, tags 
 	return nil
 }
 
-func (r *ArticleRepo) GetDetailBySlug(ctx context.Context, userId, slug string,
-) (entity.ArticleDetail, error) {
+func (r *ArticleRepo) GetDetailBySlug(ctx context.Context, userID, slug string,
+) (*entity.ArticleDetail, error) {
 	// NOTE: can't use squirrel because compldex queries should look complex :)
 	query := `
 		select a.slug, a.title, a.description, a.body, a.created_at, a.updated_at,
@@ -117,7 +124,8 @@ func (r *ArticleRepo) GetDetailBySlug(ctx context.Context, userId, slug string,
 	*/
 
 	a := entity.ArticleDetail{}
-	row := r.Pool.QueryRow(ctx, query, userId, slug)
+	row := r.Pool.QueryRow(ctx, query, userID, slug)
+
 	err := row.Scan(
 		&a.Slug,
 		&a.Title,
@@ -135,19 +143,20 @@ func (r *ArticleRepo) GetDetailBySlug(ctx context.Context, userId, slug string,
 		&a.Author.FollowersCount,
 	)
 	if errors.Is(err, pgx.ErrNoRows) {
-		return entity.ArticleDetail{}, fmt.Errorf(
+		return nil, fmt.Errorf(
 			"ArticleRepo - GetDetailBySlug - row.Scan: %w",
 			entity.ErrNoRows,
 		)
 	}
+
 	if err != nil {
-		return entity.ArticleDetail{}, fmt.Errorf(
+		return nil, fmt.Errorf(
 			"ArticleRepo - GetDetailBySlug - row.Scan: %w",
 			err,
 		)
 	}
 
-	return a, nil
+	return &a, nil
 }
 
 func (r *ArticleRepo) StoreTagsList(ctx context.Context, tags []string,
@@ -180,16 +189,21 @@ func (r *ArticleRepo) StoreTagsList(ctx context.Context, tags []string,
 	ids = []string{}
 	for rows.Next() {
 		var id string
-		rows.Scan(&id)
+
+		err := rows.Scan(&id)
+		if err != nil {
+			return nil, fmt.Errorf("ArticleRepo - StoreTagsList - rows.Scan: %w", err)
+		}
+
 		ids = append(ids, id)
 	}
 
 	return ids, nil
 }
 
-func (r *ArticleRepo) StoreArticleTagsList(ctx context.Context, articleId string, tagIds []string,
+func (r *ArticleRepo) StoreArticleTagsList(ctx context.Context, articleID string, tagIDs []string,
 ) error {
-	if len(tagIds) == 0 {
+	if len(tagIDs) == 0 {
 		return nil
 	}
 
@@ -197,8 +211,8 @@ func (r *ArticleRepo) StoreArticleTagsList(ctx context.Context, articleId string
 		Insert("article_tags").
 		Columns("article_id", "tag_id")
 
-	for _, tagId := range tagIds {
-		builder = builder.Values(articleId, tagId)
+	for _, tagID := range tagIDs {
+		builder = builder.Values(articleID, tagID)
 	}
 
 	builder = builder.Suffix("on conflict do nothing")
@@ -216,18 +230,18 @@ func (r *ArticleRepo) StoreArticleTagsList(ctx context.Context, articleId string
 	return nil
 }
 
-func (r *ArticleRepo) CanSlugBeUsed(ctx context.Context, articleId, slug string) (bool, error) {
+func (r *ArticleRepo) CanSlugBeUsed(ctx context.Context, articleID, slug string) (bool, error) {
 	// query to check if slug is already existed
 	query, _, err := r.Builder.
 		Select("exists (select 1 from articles where id::text <> ? and slug = ?)").
 		ToSql()
-
 	if err != nil {
 		return false, fmt.Errorf("ArticleRepo - CanSlugBeUsed - r.Builder: %w", err)
 	}
 
 	var existed bool
-	err = r.Pool.QueryRow(ctx, query, articleId, slug).Scan(&existed)
+
+	err = r.Pool.QueryRow(ctx, query, articleID, slug).Scan(&existed)
 	if err != nil {
 		return false, fmt.Errorf("ArticleRepo - CanSlugBeUsed - r.Builder: %w", err)
 	}
@@ -238,12 +252,15 @@ func (r *ArticleRepo) CanSlugBeUsed(ctx context.Context, articleId, slug string)
 func (r *ArticleRepo) GetList(
 	ctx context.Context,
 	isFeed bool,
-	userId, tag, author, favorited string,
+	userID, tag, author, favorited string,
 	limit, offset uint64,
 ) (articles []entity.ArticlePreview, total uint64, err error) {
-	var query string
-	var args []any
+	var (
+		query string
+		args  []any
+	)
 	// NOTE: can't use squirrel because compldex queries should look complex :)
+
 	if isFeed {
 		query = `
 		select a.slug, a.title, a.description, a.created_at, a.updated_at,
@@ -274,7 +291,7 @@ func (r *ArticleRepo) GetList(
 		limit $2
 		offset $3;
 	`
-		args = []any{userId, limit, offset}
+		args = []any{userID, limit, offset}
 	} else {
 		query = `
 		select a.slug, a.title, a.description, a.created_at, a.updated_at,
@@ -306,7 +323,7 @@ func (r *ArticleRepo) GetList(
 		limit $5
 		offset $6;
 	`
-		args = []any{userId, author, favorited, tag, limit, offset}
+		args = []any{userID, author, favorited, tag, limit, offset}
 	}
 
 	/*
@@ -325,6 +342,7 @@ func (r *ArticleRepo) GetList(
 	articles = []entity.ArticlePreview{}
 	for rows.Next() {
 		var a entity.ArticlePreview
+
 		err = rows.Scan(
 			&a.Slug,
 			&a.Title,
@@ -344,6 +362,7 @@ func (r *ArticleRepo) GetList(
 		if err != nil {
 			return nil, 0, fmt.Errorf("ArticleRepo - GetList - rows.Scan: %w", err)
 		}
+
 		articles = append(articles, a)
 	}
 
@@ -355,7 +374,7 @@ func (r *ArticleRepo) GetList(
 	return articles, total, nil
 }
 
-func (r *ArticleRepo) GetBasicBySlug(ctx context.Context, slug string) (entity.Article, error) {
+func (r *ArticleRepo) GetBasicBySlug(ctx context.Context, slug string) (*entity.Article, error) {
 	sql, args, err := r.Builder.
 		Select("id, author_id, slug, title, body, description, created_at, updated_at").
 		From("articles").
@@ -363,35 +382,38 @@ func (r *ArticleRepo) GetBasicBySlug(ctx context.Context, slug string) (entity.A
 		Where("deleted_at is null").
 		ToSql()
 	if err != nil {
-		return entity.Article{}, fmt.Errorf("ArticleRepo - GetBasicBySlug - r.Builder: %w", err)
+		return nil, fmt.Errorf("ArticleRepo - GetBasicBySlug - r.Builder: %w", err)
 	}
 
 	var a entity.Article
+
 	row := r.Pool.QueryRow(ctx, sql, args...)
+
 	err = row.Scan(
-		&a.Id,
-		&a.AuthorId,
+		&a.ID,
+		&a.AuthorID,
 		&a.Slug,
 		&a.Title,
 		&a.Body,
 		&a.Description,
-		&a.Timestamps.CreatedAt,
-		&a.Timestamps.UpdatedAt,
+		&a.CreatedAt,
+		&a.UpdatedAt,
 	)
 	if errors.Is(err, pgx.ErrNoRows) {
-		return entity.Article{}, fmt.Errorf(
+		return nil, fmt.Errorf(
 			"ArticleRepo - GetBasicBySlug - row.Scan: %w",
 			entity.ErrNoRows,
 		)
 	}
+
 	if err != nil {
-		return entity.Article{}, fmt.Errorf("ArticleRepo - GetBasicBySlug - row.Scan: %w", err)
+		return nil, fmt.Errorf("ArticleRepo - GetBasicBySlug - row.Scan: %w", err)
 	}
 
-	return a, nil
+	return &a, nil
 }
 
-func (r *ArticleRepo) StoreUpdate(ctx context.Context, dto entity.Article) error {
+func (r *ArticleRepo) StoreUpdate(ctx context.Context, dto *entity.Article) error {
 	sql, args, err := r.Builder.
 		Update("articles").
 		Set("slug", dto.Slug).
@@ -399,7 +421,7 @@ func (r *ArticleRepo) StoreUpdate(ctx context.Context, dto entity.Article) error
 		Set("body", dto.Body).
 		Set("description", dto.Description).
 		// updated_at automatically trigger
-		Where(squirrel.Eq{"id": dto.Id}).
+		Where(squirrel.Eq{"id": dto.ID}).
 		Where("deleted_at is null").
 		ToSql()
 	if err != nil {
@@ -414,11 +436,11 @@ func (r *ArticleRepo) StoreUpdate(ctx context.Context, dto entity.Article) error
 	return nil
 }
 
-func (r *ArticleRepo) StoreDelete(ctx context.Context, userId, slug string) error {
+func (r *ArticleRepo) StoreDelete(ctx context.Context, userID, slug string) error {
 	sql, args, err := r.Builder.
 		Update("articles").
 		Set("deleted_at", squirrel.Expr("NOW()")).
-		Where(squirrel.Eq{"author_id": userId}).
+		Where(squirrel.Eq{"author_id": userID}).
 		Where(squirrel.Eq{"slug": slug}).
 		Where("deleted_at is null").
 		ToSql()
@@ -430,8 +452,9 @@ func (r *ArticleRepo) StoreDelete(ctx context.Context, userId, slug string) erro
 	if err != nil {
 		return fmt.Errorf("ArticleRepo - StoreDelete - r.Pool.Exec: %w", err)
 	}
+
 	if result.RowsAffected() == 0 {
-		return fmt.Errorf("ArticleRepo - StoreDelete - r.Pool.Exec: %w", entity.ZeroRowsAffected)
+		return fmt.Errorf("ArticleRepo - StoreDelete - r.Pool.Exec: %w", entity.ErrNoEffect)
 	}
 
 	return nil

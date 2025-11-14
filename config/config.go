@@ -84,10 +84,10 @@ type (
 
 	// CORS -.
 	CORS struct {
-		CORS_ALLOW_ORIGINS     string `env:"CORS_ALLOW_ORIGINS,required"`
-		CORS_ALLOW_CREDENTIALS bool   `env:"CORS_ALLOW_CREDENTIALS,required"`
-		CORS_ALLOW_HEADERS     string `env:"CORS_ALLOW_HEADERS,required"`
-		CORS_ALLOW_METHODS     string `env:"CORS_ALLOW_METHODS,required"`
+		AllowOrigins     string `env:"CORS_ALLOW_ORIGINS,required"`
+		AllowCredentials bool   `env:"CORS_ALLOW_CREDENTIALS,required"`
+		AllowHeaders     string `env:"CORS_ALLOW_HEADERS,required"`
+		AllowMethods     string `env:"CORS_ALLOW_METHODS,required"`
 	}
 )
 

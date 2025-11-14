@@ -20,26 +20,27 @@ func New(r repo.ProfileRepo) *UseCase {
 
 func (uc *UseCase) Detail(
 	ctx context.Context,
-	userId, username string,
-) (entity.ProfilePreview, error) {
-	profile, err := uc.repo.GetDetail(ctx, userId, username)
+	userID, username string,
+) (*entity.ProfilePreview, error) {
+	p, err := uc.repo.GetDetail(ctx, userID, username)
 	if err != nil {
-		return entity.ProfilePreview{}, fmt.Errorf(
+		return nil, fmt.Errorf(
 			"ProfileUseCase - Detail - uc.repo.GetDetail: %w",
 			err,
 		)
 	}
 
-	return profile, nil
+	return p, nil
 }
 
-func (uc *UseCase) Follow(ctx context.Context, userId, username string) error {
+func (uc *UseCase) Follow(ctx context.Context, userID, username string) error {
+	// NOTE: don't add concurrency because it's random between NoRows and NoEffect
 	err := uc.repo.IsExisted(ctx, username)
 	if err != nil {
 		return fmt.Errorf("ProfileUseCase - Follow - uc.repo.IsExisted: %w", err)
 	}
 
-	err = uc.repo.StoreCreate(ctx, userId, username)
+	err = uc.repo.StoreCreate(ctx, userID, username)
 	if err != nil {
 		return fmt.Errorf("ProfileUseCase - Follow - uc.repo.StoreCreate: %w", err)
 	}
@@ -47,8 +48,14 @@ func (uc *UseCase) Follow(ctx context.Context, userId, username string) error {
 	return nil
 }
 
-func (uc *UseCase) Unfollow(ctx context.Context, userId, username string) error {
-	err := uc.repo.StoreDelete(ctx, userId, username)
+func (uc *UseCase) Unfollow(ctx context.Context, userID, username string) error {
+	// NOTE: don't add concurrency because it's random between NoRows and NoEffect
+	err := uc.repo.IsExisted(ctx, username)
+	if err != nil {
+		return fmt.Errorf("ProfileUseCase - Follow - uc.repo.IsExisted: %w", err)
+	}
+
+	err = uc.repo.StoreDelete(ctx, userID, username)
 	if err != nil {
 		return fmt.Errorf("ProfileUseCase - Unfollow - uc.repo.StoreDelete: %w", err)
 	}

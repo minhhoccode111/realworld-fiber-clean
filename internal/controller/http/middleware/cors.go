@@ -9,9 +9,9 @@ import (
 // CORS -.
 func CORS(cfg *config.Config) func(*fiber.Ctx) error {
 	return cors.New(cors.Config{
-		AllowOrigins:     cfg.CORS.CORS_ALLOW_ORIGINS,
-		AllowHeaders:     cfg.CORS.CORS_ALLOW_HEADERS,
-		AllowCredentials: cfg.CORS.CORS_ALLOW_CREDENTIALS,
-		AllowMethods:     cfg.CORS.CORS_ALLOW_METHODS,
+		AllowOrigins:     cfg.CORS.AllowOrigins,
+		AllowHeaders:     cfg.CORS.AllowHeaders,
+		AllowCredentials: cfg.CORS.AllowCredentials,
+		AllowMethods:     cfg.CORS.AllowMethods,
 	})
 }

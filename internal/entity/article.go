@@ -1,9 +1,9 @@
 package entity
 
-// Article -. Database Shape
+// Article -. Database Shape.
 type Article struct {
-	Id          string
-	AuthorId    string
+	ID          string
+	AuthorID    string
 	Slug        string
 	Title       string
 	Body        string

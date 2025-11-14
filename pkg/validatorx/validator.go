@@ -19,6 +19,7 @@ func New() *validator.Validate {
 		hasLower := regexp.MustCompile(`[a-z]`).MatchString(p)
 		hasDigit := regexp.MustCompile(`\d`).MatchString(p)
 		hasSpecial := regexp.MustCompile(`[!@#~$%^&*()+|_{}<>?,./-]`).MatchString(p)
+
 		return hasUpper && hasLower && hasDigit && hasSpecial
 	})
 

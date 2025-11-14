@@ -37,51 +37,51 @@ type (
 
 	// UserRepo -.
 	UserRepo interface {
-		StoreRegister(context.Context, entity.User) (entity.User, error)
-		GetUserByEmail(context.Context, string) (entity.User, error)
-		GetUserById(context.Context, string) (entity.User, error)
-		StoreUpdate(context.Context, entity.User) error
+		StoreRegister(context.Context, *entity.User) error
+		GetUserByEmail(context.Context, string) (*entity.User, error)
+		GetUserByID(context.Context, string) (*entity.User, error)
+		StoreUpdate(context.Context, *entity.User) error
 	}
 
 	// ArticleRepo -.
 	ArticleRepo interface {
-		StoreCreate(ctx context.Context, dto entity.Article, tags []string) (err error)
-		CanSlugBeUsed(ctx context.Context, articleId, slug string) (bool, error)
-		GetDetailBySlug(ctx context.Context, userId, slug string) (entity.ArticleDetail, error)
+		StoreCreate(ctx context.Context, dto *entity.Article, tags []string) (err error)
+		CanSlugBeUsed(ctx context.Context, articleID, slug string) (bool, error)
+		GetDetailBySlug(ctx context.Context, userID, slug string) (*entity.ArticleDetail, error)
 		StoreTagsList(ctx context.Context, tags []string) (ids []string, err error)
-		StoreArticleTagsList(ctx context.Context, articleId string, tagIds []string) error
+		StoreArticleTagsList(ctx context.Context, articleID string, tagIDs []string) error
 		GetList(
 			ctx context.Context,
 			isFeed bool,
-			userId, tag, author, favorited string,
+			userID, tag, author, favorited string,
 			limit, offset uint64,
 		) ([]entity.ArticlePreview, uint64, error)
-		GetBasicBySlug(ctx context.Context, slug string) (entity.Article, error)
-		StoreUpdate(ctx context.Context, dto entity.Article) (err error)
-		StoreDelete(ctx context.Context, userId, slug string) (err error)
+		GetBasicBySlug(ctx context.Context, slug string) (*entity.Article, error)
+		StoreUpdate(ctx context.Context, dto *entity.Article) (err error)
+		StoreDelete(ctx context.Context, userID, slug string) (err error)
 	}
 
 	FavoriteRepo interface {
-		StoreCreate(ctx context.Context, userId, slug string) error
-		StoreDelete(ctx context.Context, userId, slug string) error
+		StoreCreate(ctx context.Context, userID, slug string) error
+		StoreDelete(ctx context.Context, userID, slug string) error
 	}
 
 	CommentRepo interface {
-		StoreCreate(ctx context.Context, slug string, dto entity.Comment) (string, error)
-		GetDetailById(ctx context.Context, userId, commentId string) (entity.CommentDetail, error)
+		StoreCreate(ctx context.Context, slug string, dto *entity.Comment) (string, error)
+		GetDetailByID(ctx context.Context, userID, commentID string) (*entity.CommentDetail, error)
 		GetList(
 			ctx context.Context,
-			userId, slug string,
+			userID, slug string,
 			limit, offset uint64,
 		) ([]entity.CommentDetail, uint64, error)
-		StoreDelete(ctx context.Context, userId, slug, commentId string) (err error)
+		StoreDelete(ctx context.Context, userID, slug, commentID string) (err error)
 	}
 
 	ProfileRepo interface {
 		IsExisted(ctx context.Context, username string) error
-		GetDetail(ctx context.Context, userId, username string) (entity.ProfilePreview, error)
-		StoreCreate(ctx context.Context, userId, username string) error
-		StoreDelete(ctx context.Context, userId, username string) error
+		GetDetail(ctx context.Context, userID, username string) (*entity.ProfilePreview, error)
+		StoreCreate(ctx context.Context, userID, username string) error
+		StoreDelete(ctx context.Context, userID, username string) error
 	}
 
 	// TagRepo -.

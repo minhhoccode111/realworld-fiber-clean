@@ -13,7 +13,7 @@ import (
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/request"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/response"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/entity"
-	"github.com/minhhoccode111/realworld-fiber-clean/pkg/util"
+	"github.com/minhhoccode111/realworld-fiber-clean/pkg/utils"
 )
 
 // @Summary     Register User
@@ -40,39 +40,44 @@ func (r *V1) postRegisterUser(ctx *fiber.Ctx) error {
 
 	if err := r.v.Struct(body.User); err != nil {
 		r.l.Error(err, "http - v1 - postRegisterUser - r.v.Struct")
-		if verrs, ok := err.(validator.ValidationErrors); ok {
-			errors := make([]string, 0, len(verrs))
+
+		var verrs validator.ValidationErrors
+		if errors.As(err, &verrs) {
+			errs := make([]string, 0, len(verrs))
 			for _, e := range verrs {
 				switch e.Tag() {
 				case "required":
-					errors = append(errors, e.Field()+" is required")
+					errs = append(errs, e.Field()+" is required")
 				case "email":
-					errors = append(errors, "invalid email format")
+					errs = append(errs, "invalid email format")
 				case "password":
-					errors = append(
-						errors,
+					errs = append(
+						errs,
 						"password must include upper, lower, digit, and special char",
 					)
 				case "username":
-					errors = append(
-						errors,
+					errs = append(
+						errs,
 						"username can only contain letters, numbers, and underscore",
 					)
 				default:
-					errors = append(errors, e.Field()+" is invalid")
+					errs = append(errs, e.Field()+" is invalid")
 				}
 			}
-			return errorResponse(ctx, http.StatusBadRequest, strings.Join(errors, "; "))
+
+			return errorResponse(ctx, http.StatusBadRequest, strings.Join(errs, "; "))
 		}
+
 		return errorResponse(ctx, http.StatusInternalServerError, "validation error")
 	}
 
-	// user.Id generated, user.Password hashed
-	user, err := r.u.Register(ctx.UserContext(), entity.User{
+	u := &entity.User{
 		Username: body.User.Username,
 		Email:    body.User.Email,
 		Password: body.User.Password,
-	})
+	}
+	// user.ID generated, user.Password hashed
+	err := r.u.Register(ctx.UserContext(), u)
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
@@ -86,20 +91,20 @@ func (r *V1) postRegisterUser(ctx *fiber.Ctx) error {
 		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
 	}
 
-	token, err := util.GenerateJWT(
-		user.Id,
+	token, err := utils.GenerateJWT(
+		u.ID,
 		r.cfg.JWT.Secret,
 		r.cfg.JWT.Issuer,
 		r.cfg.JWT.Expiration,
 	)
 	if err != nil {
-		r.l.Error(err, "http - v1 - postRegisterUser - util.GenerateJWT")
+		r.l.Error(err, "http - v1 - postRegisterUser - utils.GenerateJWT")
 
 		return errorResponse(ctx, http.StatusInternalServerError, "generate jwt error")
 	}
 
 	return ctx.Status(http.StatusCreated).JSON(response.UserAuthResponse{
-		User: response.NewUserAuth(user, token),
+		User: response.NewUserAuth(u, token),
 	})
 }
 
@@ -132,7 +137,7 @@ func (r *V1) postLoginUser(ctx *fiber.Ctx) error {
 		return errorResponse(ctx, http.StatusBadRequest, "invalid request body")
 	}
 
-	user, err := r.u.Login(ctx.UserContext(), entity.User{
+	u, err := r.u.Login(ctx.UserContext(), &entity.User{
 		Email:    body.User.Email,
 		Password: body.User.Password,
 	})
@@ -150,26 +155,26 @@ func (r *V1) postLoginUser(ctx *fiber.Ctx) error {
 		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
 	}
 
-	token, err := util.GenerateJWT(
-		user.Id,
+	token, err := utils.GenerateJWT(
+		u.ID,
 		r.cfg.JWT.Secret,
 		r.cfg.JWT.Issuer,
 		r.cfg.JWT.Expiration,
 	)
 	if err != nil {
-		r.l.Error(err, "http - v1 - postLoginUser - util.GenerateJWT")
+		r.l.Error(err, "http - v1 - postLoginUser - utils.GenerateJWT")
 
 		return errorResponse(ctx, http.StatusInternalServerError, "jwt problems")
 	}
 
 	return ctx.Status(http.StatusOK).JSON(response.UserAuthResponse{
-		User: response.NewUserAuth(user, token),
+		User: response.NewUserAuth(u, token),
 	})
 }
 
-func (r *V1) postLogoutUser(ctx *fiber.Ctx) error {
-	return ctx.SendStatus(200)
-}
+// func (r *V1) postLogoutUser(ctx *fiber.Ctx) error {
+// 	return ctx.SendStatus(200)
+// }
 
 // @Summary     Get current User
 // @Description Get current User
@@ -181,15 +186,15 @@ func (r *V1) postLogoutUser(ctx *fiber.Ctx) error {
 // @Router      /user [get]
 // @Security    BearerAuth
 func (r *V1) getCurrentUser(ctx *fiber.Ctx) error {
-	userId := ctx.Locals(middleware.CtxUserIdKey).(string)
-	if userId == "" {
+	userID := ctx.Locals(middleware.CtxUserIDKey).(string)
+	if userID == "" {
 		return errorResponse(ctx, http.StatusInternalServerError, "cannot authorize user in jwt")
 	}
 
-	user, err := r.u.Current(ctx.UserContext(), userId)
+	u, err := r.u.Current(ctx.UserContext(), userID)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return errorResponse(ctx, http.StatusNotFound, "userId in token not found")
+			return errorResponse(ctx, http.StatusNotFound, "userID in token not found")
 		}
 
 		r.l.Error(err, "http - v1 - getCurrentUser - r.u.Current")
@@ -197,20 +202,20 @@ func (r *V1) getCurrentUser(ctx *fiber.Ctx) error {
 		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
 	}
 
-	token, err := util.GenerateJWT(
-		userId,
+	token, err := utils.GenerateJWT(
+		userID,
 		r.cfg.JWT.Secret,
 		r.cfg.JWT.Issuer,
 		r.cfg.JWT.Expiration,
 	)
 	if err != nil {
-		r.l.Error(err, "http - v1 - getCurrentUser - util.GenerateJWT")
+		r.l.Error(err, "http - v1 - getCurrentUser - utils.GenerateJWT")
 
 		return errorResponse(ctx, http.StatusInternalServerError, "jwt problems")
 	}
 
 	return ctx.Status(http.StatusOK).JSON(response.UserAuthResponse{
-		User: response.NewUserAuth(user, token),
+		User: response.NewUserAuth(u, token),
 	})
 }
 
@@ -243,37 +248,41 @@ func (r *V1) putUpdateUser(ctx *fiber.Ctx) error {
 
 	if err := r.v.Struct(body.User); err != nil {
 		r.l.Error(err, "http - v1 - putUpdateUser - r.v.Struct")
-		if verrs, ok := err.(validator.ValidationErrors); ok {
-			errors := make([]string, 0, len(verrs))
+
+		var verrs validator.ValidationErrors
+		if errors.As(err, &verrs) {
+			errs := make([]string, 0, len(verrs))
 			for _, e := range verrs {
 				switch e.Tag() {
 				case "email":
-					errors = append(errors, "invalid email format")
+					errs = append(errs, "invalid email format")
 				case "password":
-					errors = append(
-						errors,
+					errs = append(
+						errs,
 						"password must include upper, lower, digit, and special char",
 					)
 				case "username":
-					errors = append(
-						errors,
+					errs = append(
+						errs,
 						"username can only contain letters, numbers, and underscore",
 					)
 				default:
-					errors = append(errors, e.Field()+" is invalid")
+					errs = append(errs, e.Field()+" is invalid")
 				}
 			}
-			return errorResponse(ctx, http.StatusBadRequest, strings.Join(errors, "; "))
+
+			return errorResponse(ctx, http.StatusBadRequest, strings.Join(errs, "; "))
 		}
+
 		return errorResponse(ctx, http.StatusInternalServerError, "validation error")
 	}
 
-	userId := ctx.Locals(middleware.CtxUserIdKey).(string)
-	if userId == "" {
+	userID := ctx.Locals(middleware.CtxUserIDKey).(string)
+	if userID == "" {
 		return errorResponse(ctx, http.StatusInternalServerError, "cannot authorize user in jwt")
 	}
 
-	user, err := r.u.Update(ctx.UserContext(), body.User.NewUser(userId))
+	u, err := r.u.Update(ctx.UserContext(), body.User.NewUser(userID))
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
@@ -287,19 +296,19 @@ func (r *V1) putUpdateUser(ctx *fiber.Ctx) error {
 		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
 	}
 
-	token, err := util.GenerateJWT(
-		userId,
+	token, err := utils.GenerateJWT(
+		userID,
 		r.cfg.JWT.Secret,
 		r.cfg.JWT.Issuer,
 		r.cfg.JWT.Expiration,
 	)
 	if err != nil {
-		r.l.Error(err, "http - v1 - putUpdateUser - util.GenerateJWT")
+		r.l.Error(err, "http - v1 - putUpdateUser - utils.GenerateJWT")
 
 		return errorResponse(ctx, http.StatusInternalServerError, "generate jwt error")
 	}
 
 	return ctx.Status(http.StatusOK).JSON(response.UserAuthResponse{
-		User: response.NewUserAuth(user, token),
+		User: response.NewUserAuth(u, token),
 	})
 }

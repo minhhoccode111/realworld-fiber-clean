@@ -480,7 +480,7 @@ const docTemplate = `{
                 ]
             }
         },
-        "/articles/{slug}/comments/{commentId}": {
+        "/articles/{slug}/comments/{commentID}": {
             "delete": {
                 "description": "Delete comment by id",
                 "produces": [
@@ -501,8 +501,8 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "Comment Id",
-                        "name": "commentId",
+                        "description": "Comment ID",
+                        "name": "commentID",
                         "in": "path",
                         "required": true
                     }
@@ -1337,6 +1337,9 @@ const docTemplate = `{
                 "bio": {
                     "type": "string"
                 },
+                "followersCount": {
+                    "type": "integer"
+                },
                 "following": {
                     "type": "boolean"
                 },
@@ -1647,9 +1650,7 @@ const docTemplate = `{
                     }
                 },
                 "articlesCount": {
-                    "description": "should be \"total\" but RealWorld API Specs expect \"articlesCount\"",
-                    "type": "integer",
-                    "example": 18
+                    "type": "integer"
                 },
                 "limit": {
                     "type": "integer",
@@ -1658,6 +1659,10 @@ const docTemplate = `{
                 "offset": {
                     "type": "integer",
                     "example": 0
+                },
+                "total": {
+                    "type": "integer",
+                    "example": 18
                 }
             }
         },
@@ -1673,9 +1678,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "articlesCount": {
-                    "description": "should be \"total\" but RealWorld API Specs expect \"articlesCount\"",
-                    "type": "integer",
-                    "example": 18
+                    "type": "integer"
                 },
                 "comments": {
                     "type": "array",
@@ -1690,6 +1693,10 @@ const docTemplate = `{
                 "offset": {
                     "type": "integer",
                     "example": 0
+                },
+                "total": {
+                    "type": "integer",
+                    "example": 18
                 }
             }
         },
@@ -1714,9 +1721,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "articlesCount": {
-                    "description": "should be \"total\" but RealWorld API Specs expect \"articlesCount\"",
-                    "type": "integer",
-                    "example": 18
+                    "type": "integer"
                 },
                 "limit": {
                     "type": "integer",
@@ -1731,6 +1736,10 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
+                },
+                "total": {
+                    "type": "integer",
+                    "example": 18
                 }
             }
         },
@@ -1738,9 +1747,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "articlesCount": {
-                    "description": "should be \"total\" but RealWorld API Specs expect \"articlesCount\"",
-                    "type": "integer",
-                    "example": 18
+                    "type": "integer"
                 },
                 "history": {
                     "type": "array",
@@ -1755,6 +1762,10 @@ const docTemplate = `{
                 "offset": {
                     "type": "integer",
                     "example": 0
+                },
+                "total": {
+                    "type": "integer",
+                    "example": 18
                 }
             }
         },

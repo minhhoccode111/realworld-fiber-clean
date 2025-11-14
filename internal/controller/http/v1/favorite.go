@@ -26,8 +26,8 @@ import (
 // @Router      /articles/{slug}/favorite [post]
 // @Security    BearerAuth
 func (r *V1) createFavorite(ctx *fiber.Ctx) error {
-	userId := ctx.Locals(middleware.CtxUserIdKey).(string)
-	if userId == "" {
+	userID := ctx.Locals(middleware.CtxUserIDKey).(string)
+	if userID == "" {
 		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
 	}
 
@@ -36,9 +36,9 @@ func (r *V1) createFavorite(ctx *fiber.Ctx) error {
 		return errorResponse(ctx, http.StatusBadRequest, "slug is required")
 	}
 
-	err := r.f.Create(ctx.UserContext(), userId, slug)
+	err := r.f.Create(ctx.UserContext(), userID, slug)
 	if err != nil {
-		if errors.Is(err, entity.ZeroRowsAffected) {
+		if errors.Is(err, entity.ErrNoEffect) {
 			return errorResponse(ctx, http.StatusBadRequest, "Article is already favorited")
 		}
 
@@ -52,7 +52,7 @@ func (r *V1) createFavorite(ctx *fiber.Ctx) error {
 		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
 	}
 
-	article, err := r.a.Detail(ctx.UserContext(), userId, slug)
+	a, err := r.a.Detail(ctx.UserContext(), userID, slug)
 	if err != nil {
 		if errors.Is(err, entity.ErrNoRows) {
 			return errorResponse(ctx, http.StatusNotFound, "Article not found")
@@ -64,7 +64,7 @@ func (r *V1) createFavorite(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.Status(http.StatusOK).JSON(response.ArticleDetailResponse{
-		Article: article,
+		Article: a,
 	})
 }
 
@@ -82,8 +82,8 @@ func (r *V1) createFavorite(ctx *fiber.Ctx) error {
 // @Router      /articles/{slug}/favorite [delete]
 // @Security    BearerAuth
 func (r *V1) deleteFavorite(ctx *fiber.Ctx) error {
-	userId := ctx.Locals(middleware.CtxUserIdKey).(string)
-	if userId == "" {
+	userID := ctx.Locals(middleware.CtxUserIDKey).(string)
+	if userID == "" {
 		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
 	}
 
@@ -92,9 +92,9 @@ func (r *V1) deleteFavorite(ctx *fiber.Ctx) error {
 		return errorResponse(ctx, http.StatusBadRequest, "slug is required")
 	}
 
-	err := r.f.Delete(ctx.UserContext(), userId, slug)
+	err := r.f.Delete(ctx.UserContext(), userID, slug)
 	if err != nil {
-		if errors.Is(err, entity.ZeroRowsAffected) {
+		if errors.Is(err, entity.ErrNoEffect) {
 			return errorResponse(ctx, http.StatusBadRequest, "Article is already unfavorited")
 		}
 
@@ -103,7 +103,7 @@ func (r *V1) deleteFavorite(ctx *fiber.Ctx) error {
 		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
 	}
 
-	article, err := r.a.Detail(ctx.UserContext(), userId, slug)
+	a, err := r.a.Detail(ctx.UserContext(), userID, slug)
 	if err != nil {
 		if errors.Is(err, entity.ErrNoRows) {
 			return errorResponse(ctx, http.StatusNotFound, "Article not found")
@@ -115,6 +115,6 @@ func (r *V1) deleteFavorite(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.Status(http.StatusOK).JSON(response.ArticleDetailResponse{
-		Article: article,
+		Article: a,
 	})
 }

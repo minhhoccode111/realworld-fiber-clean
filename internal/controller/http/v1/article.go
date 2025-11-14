@@ -11,7 +11,7 @@ import (
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/request"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/response"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/entity"
-	"github.com/minhhoccode111/realworld-fiber-clean/pkg/util"
+	"github.com/minhhoccode111/realworld-fiber-clean/pkg/utils"
 )
 
 // @Summary     Create Article
@@ -40,28 +40,32 @@ func (r *V1) postArticle(ctx *fiber.Ctx) error {
 
 	if err := r.v.Struct(body.Article); err != nil {
 		r.l.Error(err, "http - v1 - postCreateArticle - r.v.Struct")
-		if verrs, ok := err.(validator.ValidationErrors); ok {
-			errors := make([]string, 0, len(verrs))
+
+		var verrs validator.ValidationErrors
+		if errors.As(err, &verrs) {
+			errs := make([]string, 0, len(verrs))
 			for _, e := range verrs {
 				switch e.Tag() {
 				case "required":
-					errors = append(errors, e.Field()+" is required")
+					errs = append(errs, e.Field()+" is required")
 				default:
-					errors = append(errors, e.Field()+" is invalid")
+					errs = append(errs, e.Field()+" is invalid")
 				}
 			}
-			return errorResponse(ctx, http.StatusBadRequest, strings.Join(errors, "; "))
+
+			return errorResponse(ctx, http.StatusBadRequest, strings.Join(errs, "; "))
 		}
+
 		return errorResponse(ctx, http.StatusInternalServerError, "validation error")
 	}
 
-	userId := ctx.Locals(middleware.CtxUserIdKey).(string)
-	if userId == "" {
+	userID := ctx.Locals(middleware.CtxUserIDKey).(string)
+	if userID == "" {
 		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
 	}
 
-	article, err := r.a.Create(ctx.UserContext(), entity.Article{
-		AuthorId:    userId,
+	a, err := r.a.Create(ctx.UserContext(), &entity.Article{
+		AuthorID:    userID,
 		Title:       body.Article.Title,
 		Body:        body.Article.Body,
 		Description: body.Article.Description,
@@ -73,7 +77,7 @@ func (r *V1) postArticle(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.Status(http.StatusCreated).JSON(response.ArticleDetailResponse{
-		Article: article,
+		Article: a,
 	})
 }
 
@@ -93,17 +97,18 @@ func (r *V1) postArticle(ctx *fiber.Ctx) error {
 // @Security    BearerAuth
 func (r *V1) getAllArticles(ctx *fiber.Ctx) error {
 	isAuth := ctx.Locals(middleware.CtxIsAuthKey).(bool)
-	userId := ctx.Locals(middleware.CtxUserIdKey).(string)
-	if userId == "" && isAuth {
+
+	userID := ctx.Locals(middleware.CtxUserIDKey).(string)
+	if userID == "" && isAuth {
 		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
 	}
 
-	tag, author, favorited, limit, offset := util.SearchQueries(ctx)
+	tag, author, favorited, limit, offset := utils.SearchQueries(ctx)
 
 	articles, total, err := r.a.List(
 		ctx.UserContext(),
 		false,
-		userId,
+		userID,
 		tag,
 		author,
 		favorited,
@@ -138,17 +143,17 @@ func (r *V1) getAllArticles(ctx *fiber.Ctx) error {
 // @Router      /articles/feed [get]
 // @Security    BearerAuth
 func (r *V1) getFeedArticles(ctx *fiber.Ctx) error {
-	userId := ctx.Locals(middleware.CtxUserIdKey).(string)
-	if userId == "" {
+	userID := ctx.Locals(middleware.CtxUserIDKey).(string)
+	if userID == "" {
 		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
 	}
 
-	_, _, _, limit, offset := util.SearchQueries(ctx)
+	_, _, _, limit, offset := utils.SearchQueries(ctx)
 
 	articles, total, err := r.a.List(
 		ctx.UserContext(),
 		true,
-		userId,
+		userID,
 		"",
 		"",
 		"",
@@ -184,8 +189,9 @@ func (r *V1) getFeedArticles(ctx *fiber.Ctx) error {
 // @Security    BearerAuth
 func (r *V1) getArticle(ctx *fiber.Ctx) error {
 	isAuth := ctx.Locals(middleware.CtxIsAuthKey).(bool)
-	userId := ctx.Locals(middleware.CtxUserIdKey).(string)
-	if userId == "" && isAuth {
+
+	userID := ctx.Locals(middleware.CtxUserIDKey).(string)
+	if userID == "" && isAuth {
 		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
 	}
 
@@ -194,7 +200,7 @@ func (r *V1) getArticle(ctx *fiber.Ctx) error {
 		return errorResponse(ctx, http.StatusBadRequest, "slug is required")
 	}
 
-	article, err := r.a.Detail(ctx.UserContext(), userId, slug)
+	a, err := r.a.Detail(ctx.UserContext(), userID, slug)
 	if err != nil {
 		if errors.Is(err, entity.ErrNoRows) {
 			return errorResponse(ctx, http.StatusNotFound, "Article not found")
@@ -206,7 +212,7 @@ func (r *V1) getArticle(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.Status(http.StatusOK).JSON(response.ArticleDetailResponse{
-		Article: article,
+		Article: a,
 	})
 }
 
@@ -238,23 +244,27 @@ func (r *V1) putArticle(ctx *fiber.Ctx) error {
 
 	if err := r.v.Struct(body.Article); err != nil {
 		r.l.Error(err, "http - v1 - putArticle - r.v.Struct")
-		if verrs, ok := err.(validator.ValidationErrors); ok {
-			errors := make([]string, 0, len(verrs))
+
+		var verrs validator.ValidationErrors
+		if errors.As(err, &verrs) {
+			errs := make([]string, 0, len(verrs))
 			for _, e := range verrs {
 				switch e.Tag() {
 				case "required":
-					errors = append(errors, e.Field()+" is required")
+					errs = append(errs, e.Field()+" is required")
 				default:
-					errors = append(errors, e.Field()+" is invalid")
+					errs = append(errs, e.Field()+" is invalid")
 				}
 			}
-			return errorResponse(ctx, http.StatusBadRequest, strings.Join(errors, "; "))
+
+			return errorResponse(ctx, http.StatusBadRequest, strings.Join(errs, "; "))
 		}
+
 		return errorResponse(ctx, http.StatusInternalServerError, "validation error")
 	}
 
-	userId := ctx.Locals(middleware.CtxUserIdKey).(string)
-	if userId == "" {
+	userID := ctx.Locals(middleware.CtxUserIDKey).(string)
+	if userID == "" {
 		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
 	}
 
@@ -263,7 +273,7 @@ func (r *V1) putArticle(ctx *fiber.Ctx) error {
 		return errorResponse(ctx, http.StatusBadRequest, "slug is required")
 	}
 
-	article, err := r.a.Update(ctx.UserContext(), userId, slug, entity.Article{
+	a, err := r.a.Update(ctx.UserContext(), userID, slug, &entity.Article{
 		Title:       body.Article.Title,
 		Description: body.Article.Description,
 		Body:        body.Article.Body,
@@ -283,7 +293,7 @@ func (r *V1) putArticle(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.Status(http.StatusOK).JSON(response.ArticleDetailResponse{
-		Article: article,
+		Article: a,
 	})
 }
 
@@ -301,8 +311,8 @@ func (r *V1) putArticle(ctx *fiber.Ctx) error {
 // @Router      /articles/{slug} [delete]
 // @Security    BearerAuth
 func (r *V1) deleteArticle(ctx *fiber.Ctx) error {
-	userId := ctx.Locals(middleware.CtxUserIdKey).(string)
-	if userId == "" {
+	userID := ctx.Locals(middleware.CtxUserIDKey).(string)
+	if userID == "" {
 		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
 	}
 
@@ -311,9 +321,9 @@ func (r *V1) deleteArticle(ctx *fiber.Ctx) error {
 		return errorResponse(ctx, http.StatusBadRequest, "slug is required")
 	}
 
-	err := r.a.Delete(ctx.UserContext(), userId, slug)
+	err := r.a.Delete(ctx.UserContext(), userID, slug)
 	if err != nil {
-		if errors.Is(err, entity.ZeroRowsAffected) {
+		if errors.Is(err, entity.ErrNoEffect) {
 			return errorResponse(ctx, http.StatusNotFound, "Article not found")
 		}
 

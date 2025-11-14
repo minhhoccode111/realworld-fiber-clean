@@ -65,6 +65,8 @@ definitions:
     properties:
       bio:
         type: string
+      followersCount:
+        type: integer
       following:
         type: boolean
       image:
@@ -287,14 +289,15 @@ definitions:
           $ref: '#/definitions/entity.ArticlePreview'
         type: array
       articlesCount:
-        description: should be "total" but RealWorld API Specs expect "articlesCount"
-        example: 18
         type: integer
       limit:
         example: 10
         type: integer
       offset:
         example: 0
+        type: integer
+      total:
+        example: 18
         type: integer
     type: object
   response.CommentDetailResponse:
@@ -305,8 +308,6 @@ definitions:
   response.CommentDetailsResponse:
     properties:
       articlesCount:
-        description: should be "total" but RealWorld API Specs expect "articlesCount"
-        example: 18
         type: integer
       comments:
         items:
@@ -317,6 +318,9 @@ definitions:
         type: integer
       offset:
         example: 0
+        type: integer
+      total:
+        example: 18
         type: integer
     type: object
   response.Error:
@@ -333,8 +337,6 @@ definitions:
   response.TagsResponse:
     properties:
       articlesCount:
-        description: should be "total" but RealWorld API Specs expect "articlesCount"
-        example: 18
         type: integer
       limit:
         example: 10
@@ -346,12 +348,13 @@ definitions:
         items:
           type: string
         type: array
+      total:
+        example: 18
+        type: integer
     type: object
   response.TranslationHistory:
     properties:
       articlesCount:
-        description: should be "total" but RealWorld API Specs expect "articlesCount"
-        example: 18
         type: integer
       history:
         items:
@@ -362,6 +365,9 @@ definitions:
         type: integer
       offset:
         example: 0
+        type: integer
+      total:
+        example: 18
         type: integer
     type: object
   response.UserAuth:
@@ -659,7 +665,7 @@ paths:
       summary: Create Comment
       tags:
       - comments
-  /articles/{slug}/comments/{commentId}:
+  /articles/{slug}/comments/{commentID}:
     delete:
       description: Delete comment by id
       operationId: comment-delete-by-id
@@ -669,9 +675,9 @@ paths:
         name: slug
         required: true
         type: string
-      - description: Comment Id
+      - description: Comment ID
         in: path
-        name: commentId
+        name: commentID
         required: true
         type: string
       produces:

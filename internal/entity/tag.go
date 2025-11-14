@@ -1,8 +1,8 @@
 package entity
 
-// Tag - Database Shape
+// Tag - Database Shape.
 type Tag struct {
-	Id   string
+	ID   string
 	Name string
 }
 

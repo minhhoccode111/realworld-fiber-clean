@@ -1483,7 +1483,7 @@
                   "var comment = responseJSON.comment || {};",
                   "",
                   "tests['Comment has \"id\" property'] = comment.hasOwnProperty('id');",
-                  "pm.globals.set('commentId', comment.id);",
+                  "pm.globals.set('commentID', comment.id);",
                   "",
                   "tests['Comment has \"body\" property'] = comment.hasOwnProperty('body');",
                   "tests['Comment has \"createdAt\" property'] = comment.hasOwnProperty('createdAt');",
@@ -1667,9 +1667,9 @@
               "raw": ""
             },
             "url": {
-              "raw": "{{APIURL}}/articles/{{slug}}/comments/{{commentId}}",
+              "raw": "{{APIURL}}/articles/{{slug}}/comments/{{commentID}}",
               "host": ["{{APIURL}}"],
-              "path": ["articles", "{{slug}}", "comments", "{{commentId}}"]
+              "path": ["articles", "{{slug}}", "comments", "{{commentID}}"]
             }
           },
           "response": []

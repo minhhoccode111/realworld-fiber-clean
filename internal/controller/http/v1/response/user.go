@@ -13,7 +13,7 @@ type UserAuth struct {
 	Token    string `json:"token"`
 }
 
-func NewUserAuth(u entity.User, token string) UserAuth {
+func NewUserAuth(u *entity.User, token string) UserAuth {
 	return UserAuth{
 		Email:    u.Email,
 		Username: u.Username,

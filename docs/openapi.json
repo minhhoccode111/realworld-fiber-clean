@@ -588,7 +588,7 @@
                 ]
             }
         },
-        "/articles/{slug}/comments/{commentId}": {
+        "/articles/{slug}/comments/{commentID}": {
             "delete": {
                 "description": "Delete comment by id",
                 "tags": [
@@ -608,7 +608,7 @@
                     },
                     {
                         "description": "Comment Id",
-                        "name": "commentId",
+                        "name": "commentID",
                         "in": "path",
                         "required": true,
                         "schema": {

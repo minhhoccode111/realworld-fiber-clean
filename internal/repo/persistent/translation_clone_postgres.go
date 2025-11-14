@@ -42,6 +42,7 @@ func (r *TranslationCloneRepo) GetHistoryClone(
 	entities := make([]entity.TranslationClone, 0)
 	for rows.Next() {
 		e := entity.TranslationClone{}
+
 		err := rows.Scan(&e.Source, &e.Destination, &e.Original, &e.Translation, &total)
 		if err != nil {
 			return nil, 0, fmt.Errorf("TranslationCloneRepo - GetHistoryClone - rows.Scan: %w", err)
@@ -71,5 +72,6 @@ func (r *TranslationCloneRepo) StoreTranslation(
 	if err != nil {
 		return fmt.Errorf("TranslationCloneRepo - StoreTranslation - r.Pool.Exec: %w", err)
 	}
+
 	return nil
 }

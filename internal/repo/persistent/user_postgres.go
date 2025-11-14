@@ -17,7 +17,7 @@ func NewUserRepo(pg *postgres.Postgres) *UserRepo {
 	return &UserRepo{pg}
 }
 
-func (r *UserRepo) StoreRegister(ctx context.Context, user entity.User) (entity.User, error) {
+func (r *UserRepo) StoreRegister(ctx context.Context, user *entity.User) error {
 	sql, args, err := r.Builder.
 		Insert("users").
 		Columns("email, username, password").
@@ -25,32 +25,35 @@ func (r *UserRepo) StoreRegister(ctx context.Context, user entity.User) (entity.
 		Suffix("returning id, image, bio").
 		ToSql()
 	if err != nil {
-		return entity.User{}, fmt.Errorf("UserRepo - StoreRegister - r.Builder: %w", err)
+		return fmt.Errorf("UserRepo - StoreRegister - r.Builder: %w", err)
 	}
 
 	row := r.Pool.QueryRow(ctx, sql, args...)
-	err = row.Scan(&user.Id, &user.Image, &user.Bio)
+
+	err = row.Scan(&user.ID, &user.Image, &user.Bio)
 	if err != nil {
-		return entity.User{}, fmt.Errorf("UserRepo - StoreRegister - row.Scan: %w", err)
+		return fmt.Errorf("UserRepo - StoreRegister - row.Scan: %w", err)
 	}
 
-	return user, nil
+	return nil
 }
 
-func (r *UserRepo) GetUserByEmail(ctx context.Context, email string) (entity.User, error) {
+func (r *UserRepo) GetUserByEmail(ctx context.Context, email string) (*entity.User, error) {
 	sql, args, err := r.Builder.
 		Select("id, email, username, password, bio, image").
 		From("users").
 		Where(squirrel.Eq{"email": email}).
 		ToSql()
 	if err != nil {
-		return entity.User{}, fmt.Errorf("UserRepo - GetUserByEmail - r.Builder: %w", err)
+		return nil, fmt.Errorf("UserRepo - GetUserByEmail - r.Builder: %w", err)
 	}
 
 	var user entity.User
+
 	row := r.Pool.QueryRow(ctx, sql, args...)
+
 	err = row.Scan(
-		&user.Id,
+		&user.ID,
 		&user.Email,
 		&user.Username,
 		&user.Password,
@@ -58,26 +61,28 @@ func (r *UserRepo) GetUserByEmail(ctx context.Context, email string) (entity.Use
 		&user.Image,
 	)
 	if err != nil {
-		return entity.User{}, fmt.Errorf("UserRepo - GetUserByEmail - row.Scan: %w", err)
+		return nil, fmt.Errorf("UserRepo - GetUserByEmail - row.Scan: %w", err)
 	}
 
-	return user, nil
+	return &user, nil
 }
 
-func (r *UserRepo) GetUserById(ctx context.Context, userId string) (entity.User, error) {
+func (r *UserRepo) GetUserByID(ctx context.Context, userID string) (*entity.User, error) {
 	sql, args, err := r.Builder.
 		Select("id, email, username, password, bio, image").
 		From("users").
-		Where(squirrel.Eq{"id": userId}).
+		Where(squirrel.Eq{"id": userID}).
 		ToSql()
 	if err != nil {
-		return entity.User{}, fmt.Errorf("UserRepo - GetUserById - r.Builder: %w", err)
+		return nil, fmt.Errorf("UserRepo - GetUserByID - r.Builder: %w", err)
 	}
 
 	var user entity.User
+
 	row := r.Pool.QueryRow(ctx, sql, args...)
+
 	err = row.Scan(
-		&user.Id,
+		&user.ID,
 		&user.Email,
 		&user.Username,
 		&user.Password,
@@ -85,13 +90,13 @@ func (r *UserRepo) GetUserById(ctx context.Context, userId string) (entity.User,
 		&user.Image,
 	)
 	if err != nil {
-		return entity.User{}, fmt.Errorf("UserRepo - GetUserById - row.Scan: %w", err)
+		return nil, fmt.Errorf("UserRepo - GetUserByID - row.Scan: %w", err)
 	}
 
-	return user, nil
+	return &user, nil
 }
 
-func (r *UserRepo) StoreUpdate(ctx context.Context, user entity.User) error {
+func (r *UserRepo) StoreUpdate(ctx context.Context, user *entity.User) error {
 	sql, args, err := r.Builder.
 		Update("users").
 		Set("email", user.Email).
@@ -99,7 +104,7 @@ func (r *UserRepo) StoreUpdate(ctx context.Context, user entity.User) error {
 		Set("password", user.Password).
 		Set("bio", user.Bio).
 		Set("image", user.Image).
-		Where(squirrel.Eq{"id": user.Id}).
+		Where(squirrel.Eq{"id": user.ID}).
 		ToSql()
 	if err != nil {
 		return fmt.Errorf("UserRepo - StoreUpdate - r.Builder: %w", err)

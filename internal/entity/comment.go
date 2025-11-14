@@ -1,17 +1,17 @@
 package entity
 
-// Comment -. Database Shape
+// Comment -. Database Shape.
 type Comment struct {
-	Id        string
-	ArticleId string
-	AuthorId  string
+	ID        string
+	ArticleID string
+	AuthorID  string
 	Body      string
 
 	Timestamps
 }
 
 type CommentDetail struct {
-	Id     string         `json:"id"`
+	ID     string         `json:"id"`
 	Body   string         `json:"body"`
 	Author ProfilePreview `json:"author"`
 

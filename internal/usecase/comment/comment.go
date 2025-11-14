@@ -22,33 +22,33 @@ func New(r repo.CommentRepo) *UseCase {
 func (uc *UseCase) Create(
 	ctx context.Context,
 	slug string,
-	dto entity.Comment,
-) (entity.CommentDetail, error) {
+	dto *entity.Comment,
+) (*entity.CommentDetail, error) {
 	id, err := uc.repo.StoreCreate(ctx, slug, dto)
 	if err != nil {
-		return entity.CommentDetail{}, fmt.Errorf(
+		return nil, fmt.Errorf(
 			"CommentUseCase - Create - uc.repo.StoreCreate: %w",
 			err,
 		)
 	}
 
-	comment, err := uc.repo.GetDetailById(ctx, dto.AuthorId, id)
+	c, err := uc.repo.GetDetailByID(ctx, dto.AuthorID, id)
 	if err != nil {
-		return entity.CommentDetail{}, fmt.Errorf(
-			"CommentUseCase - Create - uc.repo.GetDetailById: %w",
+		return nil, fmt.Errorf(
+			"CommentUseCase - Create - uc.repo.GetDetailByID: %w",
 			err,
 		)
 	}
 
-	return comment, nil
+	return c, nil
 }
 
 func (uc *UseCase) List(
 	ctx context.Context,
-	userId, slug string,
+	userID, slug string,
 	limit, offset uint64,
 ) ([]entity.CommentDetail, uint64, error) {
-	comments, total, err := uc.repo.GetList(ctx, userId, slug, limit, offset)
+	comments, total, err := uc.repo.GetList(ctx, userID, slug, limit, offset)
 	if err != nil {
 		return nil, 0, fmt.Errorf(
 			"CommentUseCase - List - uc.repo.GetList: %w",
@@ -59,8 +59,8 @@ func (uc *UseCase) List(
 	return comments, total, nil
 }
 
-func (uc *UseCase) Delete(ctx context.Context, userId, slug, commentId string) error {
-	err := uc.repo.StoreDelete(ctx, userId, slug, commentId)
+func (uc *UseCase) Delete(ctx context.Context, userID, slug, commentID string) error {
+	err := uc.repo.StoreDelete(ctx, userID, slug, commentID)
 	if err != nil {
 		return fmt.Errorf(
 			"CommentUseCase - Delete - uc.repo.StoreDelete: %w",

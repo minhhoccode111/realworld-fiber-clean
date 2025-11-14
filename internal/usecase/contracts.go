@@ -17,7 +17,7 @@ type (
 	}
 
 	// TranslationClone -.
-	// Try to extend the Translation example with pagination
+	// Try to extend the Translation example with pagination.
 	TranslationClone interface {
 		PostTranslate(context.Context, entity.TranslationClone) (entity.TranslationClone, error)
 		GetHistory(
@@ -28,49 +28,49 @@ type (
 
 	// User -.
 	User interface {
-		Register(context.Context, entity.User) (entity.User, error)
-		Login(context.Context, entity.User) (entity.User, error)
-		Current(context.Context, string) (entity.User, error)
-		Update(context.Context, entity.User) (entity.User, error)
+		Register(context.Context, *entity.User) error
+		Login(context.Context, *entity.User) (*entity.User, error)
+		Current(context.Context, string) (*entity.User, error)
+		Update(context.Context, *entity.User) (*entity.User, error)
 	}
 
 	// Article -.
 	Article interface {
-		Create(context.Context, entity.Article, []string) (entity.ArticleDetail, error)
+		Create(context.Context, *entity.Article, []string) (*entity.ArticleDetail, error)
 		List(
 			ctx context.Context,
 			isFeed bool,
-			userId, tag, author, favorited string,
+			userID, tag, author, favorited string,
 			limit, offset uint64,
 		) ([]entity.ArticlePreview, uint64, error)
-		Detail(ctx context.Context, userId, slug string) (entity.ArticleDetail, error)
+		Detail(ctx context.Context, userID, slug string) (*entity.ArticleDetail, error)
 		Update(
 			ctx context.Context,
-			userId, oldSlug string,
-			dto entity.Article,
-		) (entity.ArticleDetail, error)
-		Delete(ctx context.Context, userId, slug string) error
+			userID, oldSlug string,
+			dto *entity.Article,
+		) (*entity.ArticleDetail, error)
+		Delete(ctx context.Context, userID, slug string) error
 	}
 
 	Favorite interface {
-		Create(ctx context.Context, userId, slug string) error
-		Delete(ctx context.Context, userId, slug string) error
+		Create(ctx context.Context, userID, slug string) error
+		Delete(ctx context.Context, userID, slug string) error
 	}
 
 	Comment interface {
-		Create(ctx context.Context, slug string, dto entity.Comment) (entity.CommentDetail, error)
+		Create(ctx context.Context, slug string, dto *entity.Comment) (*entity.CommentDetail, error)
 		List(
 			ctx context.Context,
-			userId, slug string,
+			userID, slug string,
 			limit, offset uint64,
 		) ([]entity.CommentDetail, uint64, error)
-		Delete(ctx context.Context, userId, slug, commentId string) error
+		Delete(ctx context.Context, userID, slug, commentID string) error
 	}
 
 	Profile interface {
-		Detail(ctx context.Context, userId, username string) (entity.ProfilePreview, error)
-		Follow(ctx context.Context, userId, username string) error
-		Unfollow(ctx context.Context, userId, username string) error
+		Detail(ctx context.Context, userID, username string) (*entity.ProfilePreview, error)
+		Follow(ctx context.Context, userID, username string) error
+		Unfollow(ctx context.Context, userID, username string) error
 	}
 
 	// Tag -.

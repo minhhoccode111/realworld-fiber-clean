@@ -100,7 +100,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/articles/{slug}/comments/{commentId}": {
+    "/articles/{slug}/comments/{commentID}": {
         parameters: {
             query?: never;
             header?: never;
@@ -999,7 +999,7 @@ export interface operations {
                 /** @description Article slug */
                 slug: string;
                 /** @description Comment Id */
-                commentId: string;
+                commentID: string;
             };
             cookie?: never;
         };

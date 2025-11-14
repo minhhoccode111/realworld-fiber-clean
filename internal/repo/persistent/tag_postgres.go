@@ -37,10 +37,12 @@ func (r *TagRepo) GetList(ctx context.Context, limit, offset uint64,
 	defer rows.Close()
 
 	tags := make([]entity.TagName, 0)
+
 	var total uint64
 
 	for rows.Next() {
 		var name entity.TagName
+
 		err = rows.Scan(&name, &total)
 		if err != nil {
 			return nil, 0, fmt.Errorf("TagRepo - GetTags - rows.Scan: %w", err)

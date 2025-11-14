@@ -47,9 +47,9 @@ type UserUpdate struct {
 }
 
 // NewUser -.
-func (uu *UserUpdate) NewUser(userId string) entity.User {
-	return entity.User{
-		Id:       userId,
+func (uu *UserUpdate) NewUser(userID string) *entity.User {
+	return &entity.User{
+		ID:       userID,
 		Email:    uu.Email,
 		Username: uu.Username,
 		Image:    uu.Image,
@@ -71,6 +71,7 @@ func (uu *UserUpdate) IsAllEmpty() bool {
 	i := uu.Image == ""
 	u := uu.Username == ""
 	p := uu.Password == ""
+
 	return e && u && b && i && p
 }
 

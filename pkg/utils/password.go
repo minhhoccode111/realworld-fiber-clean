@@ -1,8 +1,8 @@
-package util
+package utils
 
 import "golang.org/x/crypto/bcrypt"
 
-func IsValidPassword(hashedPassword string, password string) bool {
+func IsValidPassword(hashedPassword, password string) bool {
 	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password)) == nil
 }
 
@@ -11,5 +11,6 @@ func HashPassword(password string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	return string(hashedPassword), nil
 }

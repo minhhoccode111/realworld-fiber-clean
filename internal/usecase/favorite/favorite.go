@@ -15,8 +15,8 @@ func New(r repo.FavoriteRepo) *UseCase {
 	return &UseCase{r}
 }
 
-func (uc *UseCase) Create(ctx context.Context, userId, slug string) error {
-	err := uc.repo.StoreCreate(ctx, userId, slug)
+func (uc *UseCase) Create(ctx context.Context, userID, slug string) error {
+	err := uc.repo.StoreCreate(ctx, userID, slug)
 	if err != nil {
 		return fmt.Errorf("UseCase - Create - uc.repo.StoreCreate: %w", err)
 	}
@@ -24,8 +24,8 @@ func (uc *UseCase) Create(ctx context.Context, userId, slug string) error {
 	return nil
 }
 
-func (uc *UseCase) Delete(ctx context.Context, userId, slug string) error {
-	err := uc.repo.StoreDelete(ctx, userId, slug)
+func (uc *UseCase) Delete(ctx context.Context, userID, slug string) error {
+	err := uc.repo.StoreDelete(ctx, userID, slug)
 	if err != nil {
 		return fmt.Errorf("UseCase - Delete - uc.repo.StoreDelete: %w", err)
 	}

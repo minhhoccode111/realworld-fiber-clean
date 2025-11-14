@@ -17,13 +17,13 @@ func NewFavoriteRepo(pg *postgres.Postgres) *FavoriteRepo {
 	return &FavoriteRepo{pg}
 }
 
-func (r *FavoriteRepo) StoreCreate(ctx context.Context, userId, slug string) error {
+func (r *FavoriteRepo) StoreCreate(ctx context.Context, userID, slug string) error {
 	sql, args, err := r.Builder.
 		Insert("favorites").
 		Columns("user_id", "article_id").
 		Values(squirrel.Expr(
 			`?, (select id from articles where slug = ? and deleted_at is null)`,
-			userId, slug,
+			userID, slug,
 		)).
 		Suffix("on conflict do nothing").
 		ToSql()
@@ -35,18 +35,22 @@ func (r *FavoriteRepo) StoreCreate(ctx context.Context, userId, slug string) err
 	if err != nil {
 		return fmt.Errorf("FavoriteRepo - StoreCreate - r.Pool.Exec: %w", err)
 	}
+
 	if result.RowsAffected() == 0 {
-		return fmt.Errorf("FavoriteRepo - StoreCreate - r.Pool.Exec: %w", entity.ZeroRowsAffected)
+		return fmt.Errorf(
+			"FavoriteRepo - StoreCreate - r.Pool.Exec: %w",
+			entity.ErrNoEffect,
+		)
 	}
 
 	return nil
 }
 
-func (r *FavoriteRepo) StoreDelete(ctx context.Context, userId, slug string) error {
+func (r *FavoriteRepo) StoreDelete(ctx context.Context, userID, slug string) error {
 	sql, args, err := r.Builder.
 		Delete("favorites").
 		Where(squirrel.Expr("article_id = (select id from articles where slug = ? and deleted_at is null)", slug)).
-		Where(squirrel.Eq{"user_id": userId}).
+		Where(squirrel.Eq{"user_id": userID}).
 		ToSql()
 	if err != nil {
 		return fmt.Errorf("FavoriteRepo - StoreDelete - r.Builder: %w", err)
@@ -56,8 +60,12 @@ func (r *FavoriteRepo) StoreDelete(ctx context.Context, userId, slug string) err
 	if err != nil {
 		return fmt.Errorf("FavoriteRepo - StoreDelete - r.Pool.Exec: %w", err)
 	}
+
 	if result.RowsAffected() == 0 {
-		return fmt.Errorf("FavoriteRepo - StoreDelete - r.Pool.Exec: %w", entity.ZeroRowsAffected)
+		return fmt.Errorf(
+			"FavoriteRepo - StoreDelete - r.Pool.Exec: %w",
+			entity.ErrNoEffect,
+		)
 	}
 
 	return nil

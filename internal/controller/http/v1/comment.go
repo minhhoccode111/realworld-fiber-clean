@@ -11,7 +11,7 @@ import (
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/request"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/response"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/entity"
-	"github.com/minhhoccode111/realworld-fiber-clean/pkg/util"
+	"github.com/minhhoccode111/realworld-fiber-clean/pkg/utils"
 )
 
 // @Summary     Create Comment
@@ -41,23 +41,27 @@ func (r *V1) postComment(ctx *fiber.Ctx) error {
 
 	if err := r.v.Struct(body.Comment); err != nil {
 		r.l.Error(err, "http - v1 - postCreateComment - r.v.Struct")
-		if verrs, ok := err.(validator.ValidationErrors); ok {
-			errors := make([]string, 0, len(verrs))
+
+		var verrs validator.ValidationErrors
+		if errors.As(err, &verrs) {
+			errs := make([]string, 0, len(verrs))
 			for _, e := range verrs {
 				switch e.Tag() {
 				case "required":
-					errors = append(errors, e.Field()+" is required")
+					errs = append(errs, e.Field()+" is required")
 				default:
-					errors = append(errors, e.Field()+" is invalid")
+					errs = append(errs, e.Field()+" is invalid")
 				}
 			}
-			return errorResponse(ctx, http.StatusBadRequest, strings.Join(errors, "; "))
+
+			return errorResponse(ctx, http.StatusBadRequest, strings.Join(errs, "; "))
 		}
+
 		return errorResponse(ctx, http.StatusInternalServerError, "validation error")
 	}
 
-	userId := ctx.Locals(middleware.CtxUserIdKey).(string)
-	if userId == "" {
+	userID := ctx.Locals(middleware.CtxUserIDKey).(string)
+	if userID == "" {
 		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
 	}
 
@@ -66,10 +70,13 @@ func (r *V1) postComment(ctx *fiber.Ctx) error {
 		return errorResponse(ctx, http.StatusBadRequest, "slug is required")
 	}
 
-	comment, err := r.c.Create(
+	c, err := r.c.Create(
 		ctx.UserContext(),
 		slug,
-		entity.Comment{AuthorId: userId, Body: body.Comment.Body},
+		&entity.Comment{
+			AuthorID: userID,
+			Body:     body.Comment.Body,
+		},
 	)
 	if err != nil {
 		if errors.Is(err, entity.ErrNoRows) {
@@ -82,7 +89,7 @@ func (r *V1) postComment(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.Status(http.StatusCreated).JSON(response.CommentDetailResponse{
-		Comment: comment,
+		Comment: c,
 	})
 }
 
@@ -101,8 +108,9 @@ func (r *V1) postComment(ctx *fiber.Ctx) error {
 // @Security    BearerAuth
 func (r *V1) getAllComments(ctx *fiber.Ctx) error {
 	isAuth := ctx.Locals(middleware.CtxIsAuthKey).(bool)
-	userId := ctx.Locals(middleware.CtxUserIdKey).(string)
-	if userId == "" && isAuth {
+
+	userID := ctx.Locals(middleware.CtxUserIDKey).(string)
+	if userID == "" && isAuth {
 		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
 	}
 
@@ -111,11 +119,11 @@ func (r *V1) getAllComments(ctx *fiber.Ctx) error {
 		return errorResponse(ctx, http.StatusBadRequest, "slug is required")
 	}
 
-	_, _, _, limit, offset := util.SearchQueries(ctx)
+	_, _, _, limit, offset := utils.SearchQueries(ctx)
 
 	comments, total, err := r.c.List(
 		ctx.UserContext(),
-		userId,
+		userID,
 		slug,
 		limit,
 		offset,
@@ -142,17 +150,17 @@ func (r *V1) getAllComments(ctx *fiber.Ctx) error {
 // @Tags        comments
 // @Produce     json
 // @Param       slug path string true "Article slug"
-// @Param       commentId path string true "Comment Id"
+// @Param       commentID path string true "Comment ID"
 // @Success     204 "No Content"
 // @Failure     400 {object} response.Error
 // @Failure     401 {object} response.Error
 // @Failure     404 {object} response.Error
 // @Failure     500 {object} response.Error
-// @Router      /articles/{slug}/comments/{commentId} [delete]
+// @Router      /articles/{slug}/comments/{commentID} [delete]
 // @Security    BearerAuth
 func (r *V1) deleteComment(ctx *fiber.Ctx) error {
-	userId := ctx.Locals(middleware.CtxUserIdKey).(string)
-	if userId == "" {
+	userID := ctx.Locals(middleware.CtxUserIDKey).(string)
+	if userID == "" {
 		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
 	}
 
@@ -161,14 +169,14 @@ func (r *V1) deleteComment(ctx *fiber.Ctx) error {
 		return errorResponse(ctx, http.StatusBadRequest, "slug is required")
 	}
 
-	commentId := ctx.Params("commentId")
-	if commentId == "" {
-		return errorResponse(ctx, http.StatusBadRequest, "commentId is required")
+	id := ctx.Params("commentID")
+	if id == "" {
+		return errorResponse(ctx, http.StatusBadRequest, "commentID is required")
 	}
 
-	err := r.c.Delete(ctx.UserContext(), userId, slug, commentId)
+	err := r.c.Delete(ctx.UserContext(), userID, slug, id)
 	if err != nil {
-		if errors.Is(err, entity.ZeroRowsAffected) {
+		if errors.Is(err, entity.ErrNoEffect) {
 			return errorResponse(ctx, http.StatusNotFound, "Article/comment not found")
 		}
 

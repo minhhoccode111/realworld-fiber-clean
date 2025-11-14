@@ -22,12 +22,12 @@ func NewCommentRepo(pg *postgres.Postgres) *CommentRepo {
 func (r *CommentRepo) StoreCreate(
 	ctx context.Context,
 	slug string,
-	dto entity.Comment,
+	dto *entity.Comment,
 ) (string, error) {
 	sql, args, err := r.Builder.
 		Insert("comments").
 		Columns("author_id", "article_id", "body").
-		Values(dto.AuthorId, squirrel.Expr("(select id from articles where slug = ?)", slug), dto.Body).
+		Values(dto.AuthorID, squirrel.Expr("(select id from articles where slug = ?)", slug), dto.Body).
 		Suffix("returning id").
 		ToSql()
 	if err != nil {
@@ -35,11 +35,14 @@ func (r *CommentRepo) StoreCreate(
 	}
 
 	var id string
+
 	row := r.Pool.QueryRow(ctx, sql, args...)
+
 	err = row.Scan(&id)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return "", fmt.Errorf("CommentRepo - StoreCreate - r.Pool.QueryRow: %w", entity.ErrNoRows)
 	}
+
 	if err != nil {
 		return "", fmt.Errorf("CommentRepo - StoreCreate - r.Pool.QueryRow: %w", err)
 	}
@@ -47,10 +50,10 @@ func (r *CommentRepo) StoreCreate(
 	return id, nil
 }
 
-func (r *CommentRepo) GetDetailById(
+func (r *CommentRepo) GetDetailByID(
 	ctx context.Context,
-	userId, commentId string,
-) (entity.CommentDetail, error) {
+	userID, commentID string,
+) (*entity.CommentDetail, error) {
 	query := `
 		select c.id, c.body, c.created_at, c.updated_at,
 		  u.username, u.bio, u.image,
@@ -68,7 +71,7 @@ func (r *CommentRepo) GetDetailById(
 		and a.deleted_at is null
 		and c.id = $2;
 	`
-	var args = []any{userId, commentId}
+	args := []any{userID, commentID}
 
 	/*
 		example query output:
@@ -78,8 +81,9 @@ func (r *CommentRepo) GetDetailById(
 	*/
 
 	c := entity.CommentDetail{}
+
 	err := r.Pool.QueryRow(ctx, query, args...).Scan(
-		&c.Id,
+		&c.ID,
 		&c.Body,
 		&c.CreatedAt,
 		&c.UpdatedAt,
@@ -90,18 +94,18 @@ func (r *CommentRepo) GetDetailById(
 		&c.Author.FollowersCount,
 	)
 	if err != nil {
-		return entity.CommentDetail{}, fmt.Errorf(
-			"CommentRepo - GetDetailById - r.Pool.QueryRow: %w",
+		return nil, fmt.Errorf(
+			"CommentRepo - GetDetailByID - r.Pool.QueryRow: %w",
 			err,
 		)
 	}
 
-	return c, nil
+	return &c, nil
 }
 
 func (r *CommentRepo) GetList(
 	ctx context.Context,
-	userId, slug string,
+	userID, slug string,
 	limit, offset uint64,
 ) (comments []entity.CommentDetail, total uint64, err error) {
 	query := `
@@ -126,7 +130,7 @@ func (r *CommentRepo) GetList(
 		limit $3
 		offset $4;
 	`
-	args := []any{userId, slug, limit, offset}
+	args := []any{userID, slug, limit, offset}
 
 	rows, err := r.Pool.Query(ctx, query, args...)
 	if err != nil {
@@ -137,8 +141,9 @@ func (r *CommentRepo) GetList(
 	comments = []entity.CommentDetail{}
 	for rows.Next() {
 		var c entity.CommentDetail
+
 		err := rows.Scan(
-			&c.Id,
+			&c.ID,
 			&c.Body,
 			&c.CreatedAt,
 			&c.UpdatedAt,
@@ -152,6 +157,7 @@ func (r *CommentRepo) GetList(
 		if err != nil {
 			return nil, 0, fmt.Errorf("CommentRepo - GetList - rows.Scan: %w", err)
 		}
+
 		comments = append(comments, c)
 	}
 
@@ -163,17 +169,17 @@ func (r *CommentRepo) GetList(
 	return comments, total, nil
 }
 
-func (r *CommentRepo) StoreDelete(ctx context.Context, userId, slug, commentId string) (err error) {
+func (r *CommentRepo) StoreDelete(ctx context.Context, userID, slug, commentID string) (err error) {
 	sql, args, err := r.Builder.
 		Update("comments").
 		Set("deleted_at", squirrel.Expr("NOW()")).
-		Where(squirrel.Eq{"author_id": userId}).
+		Where(squirrel.Eq{"author_id": userID}).
 		Where(squirrel.Expr(`exists (
 			select 1 from articles
 			where id = article_id
 			and slug = ?
 			and deleted_at is null)`, slug)).
-		Where(squirrel.Eq{"id": commentId}).
+		Where(squirrel.Eq{"id": commentID}).
 		ToSql()
 	if err != nil {
 		return fmt.Errorf("CommentRepo - StoreDelete - r.Builder: %w", err)
@@ -183,8 +189,9 @@ func (r *CommentRepo) StoreDelete(ctx context.Context, userId, slug, commentId s
 	if err != nil {
 		return fmt.Errorf("CommentRepo - StoreDelete - r.Pool.Exec: %w", err)
 	}
+
 	if result.RowsAffected() == 0 {
-		return fmt.Errorf("CommentRepo - StoreDelete - r.Pool.Exec: %w", entity.ZeroRowsAffected)
+		return fmt.Errorf("CommentRepo - StoreDelete - r.Pool.Exec: %w", entity.ErrNoEffect)
 	}
 
 	return nil

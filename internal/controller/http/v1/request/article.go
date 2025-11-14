@@ -16,12 +16,14 @@ func (a *ArticleCreate) Trim() {
 	a.Description = strings.TrimSpace(a.Description)
 	a.Body = strings.TrimSpace(a.Body)
 	cleaned := []string{}
+
 	for _, v := range a.TagList {
 		v = strings.TrimSpace(v)
 		if v != "" {
 			cleaned = append(cleaned, v)
 		}
 	}
+
 	a.TagList = cleaned
 }
 

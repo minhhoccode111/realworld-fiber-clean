@@ -474,7 +474,7 @@
                 ]
             }
         },
-        "/articles/{slug}/comments/{commentId}": {
+        "/articles/{slug}/comments/{commentID}": {
             "delete": {
                 "description": "Delete comment by id",
                 "produces": [
@@ -495,8 +495,8 @@
                     },
                     {
                         "type": "string",
-                        "description": "Comment Id",
-                        "name": "commentId",
+                        "description": "Comment ID",
+                        "name": "commentID",
                         "in": "path",
                         "required": true
                     }
@@ -1331,6 +1331,9 @@
                 "bio": {
                     "type": "string"
                 },
+                "followersCount": {
+                    "type": "integer"
+                },
                 "following": {
                     "type": "boolean"
                 },
@@ -1641,9 +1644,7 @@
                     }
                 },
                 "articlesCount": {
-                    "description": "should be \"total\" but RealWorld API Specs expect \"articlesCount\"",
-                    "type": "integer",
-                    "example": 18
+                    "type": "integer"
                 },
                 "limit": {
                     "type": "integer",
@@ -1652,6 +1653,10 @@
                 "offset": {
                     "type": "integer",
                     "example": 0
+                },
+                "total": {
+                    "type": "integer",
+                    "example": 18
                 }
             }
         },
@@ -1667,9 +1672,7 @@
             "type": "object",
             "properties": {
                 "articlesCount": {
-                    "description": "should be \"total\" but RealWorld API Specs expect \"articlesCount\"",
-                    "type": "integer",
-                    "example": 18
+                    "type": "integer"
                 },
                 "comments": {
                     "type": "array",
@@ -1684,6 +1687,10 @@
                 "offset": {
                     "type": "integer",
                     "example": 0
+                },
+                "total": {
+                    "type": "integer",
+                    "example": 18
                 }
             }
         },
@@ -1708,9 +1715,7 @@
             "type": "object",
             "properties": {
                 "articlesCount": {
-                    "description": "should be \"total\" but RealWorld API Specs expect \"articlesCount\"",
-                    "type": "integer",
-                    "example": 18
+                    "type": "integer"
                 },
                 "limit": {
                     "type": "integer",
@@ -1725,6 +1730,10 @@
                     "items": {
                         "type": "string"
                     }
+                },
+                "total": {
+                    "type": "integer",
+                    "example": 18
                 }
             }
         },
@@ -1732,9 +1741,7 @@
             "type": "object",
             "properties": {
                 "articlesCount": {
-                    "description": "should be \"total\" but RealWorld API Specs expect \"articlesCount\"",
-                    "type": "integer",
-                    "example": 18
+                    "type": "integer"
                 },
                 "history": {
                     "type": "array",
@@ -1749,6 +1756,10 @@
                 "offset": {
                     "type": "integer",
                     "example": 0
+                },
+                "total": {
+                    "type": "integer",
+                    "example": 18
                 }
             }
         },

@@ -77,7 +77,7 @@ POST   /articles/{slug}/favorite
 DELETE /articles/{slug}/favorite
 POST   /articles/{slug}/comments
 GET    /articles/{slug}/comments
-DELETE /articles/{slug}/comments/{commentId}
+DELETE /articles/{slug}/comments/{commentID}
 
        # Profiles
 GET    /profiles/{username}
@@ -136,6 +136,38 @@ idx    - name      - unique
 - Article vs. Tag: Many-to-Many
 - Follow User vs. User: Many-to-Many
 - Favorite User vs. Article: Many-to-Many
+
+## Test
+
+Run the test script
+
+```bash
+./docs/api-test/run-api-tests.sh
+```
+
+Expected output
+
+```bash
+┌─────────────────────────┬──────────────────┬─────────────────┐
+│                         │         executed │          failed │
+├─────────────────────────┼──────────────────┼─────────────────┤
+│              iterations │                1 │               0 │
+├─────────────────────────┼──────────────────┼─────────────────┤
+│                requests │               32 │               0 │
+├─────────────────────────┼──────────────────┼─────────────────┤
+│            test-scripts │               48 │               0 │
+├─────────────────────────┼──────────────────┼─────────────────┤
+│      prerequest-scripts │               18 │               0 │
+├─────────────────────────┼──────────────────┼─────────────────┤
+│              assertions │              335 │               0 │
+├─────────────────────────┴──────────────────┴─────────────────┤
+│ total run duration: 16.8s                                    │
+├──────────────────────────────────────────────────────────────┤
+│ total data received: 23kB (approx)                           │
+├──────────────────────────────────────────────────────────────┤
+│ average response time: 9ms [min: 1ms, max: 62ms, s.d.: 16ms] │
+└──────────────────────────────────────────────────────────────┘
+```
 
 ## Todo
 

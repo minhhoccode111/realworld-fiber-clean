@@ -22,7 +22,7 @@ func New(r repo.TranslationCloneRepo, w repo.TranslationCloneWebAPI) *UseCase {
 	}
 }
 
-// GetHistory - getting translate history from store
+// GetHistory - getting translate history from store.
 func (uc *UseCase) GetHistory(
 	ctx context.Context,
 	limit, offset uint64,
