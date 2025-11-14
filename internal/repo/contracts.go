@@ -21,20 +21,6 @@ type (
 		Translate(entity.Translation) (entity.Translation, error)
 	}
 
-	// TranslationCloneRepo -.
-	TranslationCloneRepo interface {
-		StoreTranslation(context.Context, entity.TranslationClone) error
-		GetHistoryClone(
-			ctx context.Context,
-			limit, offset uint64,
-		) (translations []entity.TranslationClone, total uint64, err error)
-	}
-
-	// TranslationCloneWebAPI -.
-	TranslationCloneWebAPI interface {
-		DoTranslate(entity.TranslationClone) (entity.TranslationClone, error)
-	}
-
 	// UserRepo -.
 	UserRepo interface {
 		StoreRegister(context.Context, *entity.User) error

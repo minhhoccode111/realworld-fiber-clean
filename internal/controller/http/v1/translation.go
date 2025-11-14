@@ -14,7 +14,7 @@ import (
 // @Tags  	    translation
 // @Accept      json
 // @Produce     json
-// @Success     200 {object} response.TranslationHistory
+// @Success     200 {object} entity.TranslationHistory
 // @Failure     500 {object} response.Error
 // @Router      /translation/history [get]
 func (r *V1) history(ctx *fiber.Ctx) error {

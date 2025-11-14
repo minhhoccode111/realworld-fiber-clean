@@ -16,7 +16,6 @@ func NewV1Routes(
 	l logger.Interface,
 
 	t usecase.Translation,
-	tc usecase.TranslationClone,
 	u usecase.User,
 	a usecase.Article,
 	f usecase.Favorite,
@@ -30,7 +29,6 @@ func NewV1Routes(
 		v:   validatorx.New(),
 
 		t:   t,
-		tc:  tc,
 		u:   u,
 		a:   a,
 		f:   f,
@@ -47,12 +45,6 @@ func NewV1Routes(
 	{
 		translation.Get("/history", r.history)
 		translation.Post("/do-translate", r.doTranslate)
-	}
-
-	translationClone := apiV1Group.Group("/translation-clone")
-	{
-		translationClone.Get("/history", r.getHistory)
-		translationClone.Post("/translate", r.postTranslate)
 	}
 
 	users := apiV1Group.Group("/users")

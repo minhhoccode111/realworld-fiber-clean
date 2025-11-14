@@ -71,61 +71,6 @@ func (mr *MockTranslationMockRecorder) Translate(arg0, arg1 any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Translate", reflect.TypeOf((*MockTranslation)(nil).Translate), arg0, arg1)
 }
 
-// MockTranslationClone is a mock of TranslationClone interface.
-type MockTranslationClone struct {
-	ctrl     *gomock.Controller
-	recorder *MockTranslationCloneMockRecorder
-	isgomock struct{}
-}
-
-// MockTranslationCloneMockRecorder is the mock recorder for MockTranslationClone.
-type MockTranslationCloneMockRecorder struct {
-	mock *MockTranslationClone
-}
-
-// NewMockTranslationClone creates a new mock instance.
-func NewMockTranslationClone(ctrl *gomock.Controller) *MockTranslationClone {
-	mock := &MockTranslationClone{ctrl: ctrl}
-	mock.recorder = &MockTranslationCloneMockRecorder{mock}
-	return mock
-}
-
-// EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockTranslationClone) EXPECT() *MockTranslationCloneMockRecorder {
-	return m.recorder
-}
-
-// GetHistory mocks base method.
-func (m *MockTranslationClone) GetHistory(ctx context.Context, limit, offset uint64) ([]entity.TranslationClone, uint64, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetHistory", ctx, limit, offset)
-	ret0, _ := ret[0].([]entity.TranslationClone)
-	ret1, _ := ret[1].(uint64)
-	ret2, _ := ret[2].(error)
-	return ret0, ret1, ret2
-}
-
-// GetHistory indicates an expected call of GetHistory.
-func (mr *MockTranslationCloneMockRecorder) GetHistory(ctx, limit, offset any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetHistory", reflect.TypeOf((*MockTranslationClone)(nil).GetHistory), ctx, limit, offset)
-}
-
-// PostTranslate mocks base method.
-func (m *MockTranslationClone) PostTranslate(arg0 context.Context, arg1 entity.TranslationClone) (entity.TranslationClone, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "PostTranslate", arg0, arg1)
-	ret0, _ := ret[0].(entity.TranslationClone)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// PostTranslate indicates an expected call of PostTranslate.
-func (mr *MockTranslationCloneMockRecorder) PostTranslate(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PostTranslate", reflect.TypeOf((*MockTranslationClone)(nil).PostTranslate), arg0, arg1)
-}
-
 // MockUser is a mock of User interface.
 type MockUser struct {
 	ctrl     *gomock.Controller

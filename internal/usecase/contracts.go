@@ -16,16 +16,6 @@ type (
 		History(context.Context) (entity.TranslationHistory, error)
 	}
 
-	// TranslationClone -.
-	// Try to extend the Translation example with pagination.
-	TranslationClone interface {
-		PostTranslate(context.Context, entity.TranslationClone) (entity.TranslationClone, error)
-		GetHistory(
-			ctx context.Context,
-			limit, offset uint64,
-		) (translations []entity.TranslationClone, total uint64, err error)
-	}
-
 	// User -.
 	User interface {
 		Register(context.Context, *entity.User) error

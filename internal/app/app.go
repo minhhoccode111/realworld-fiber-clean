@@ -20,7 +20,6 @@ import (
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/usecase/profile"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/usecase/tag"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/usecase/translation"
-	translationClone "github.com/minhhoccode111/realworld-fiber-clean/internal/usecase/translation_clone"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/usecase/user"
 	"github.com/minhhoccode111/realworld-fiber-clean/pkg/grpcserver"
 	"github.com/minhhoccode111/realworld-fiber-clean/pkg/httpserver"
@@ -43,7 +42,6 @@ func Run(cfg *config.Config) { //nolint: gocyclo,cyclop,funlen,gocritic,nolintli
 
 	// Use-Case
 	translationUseCase := translation.New(persistent.New(pg), webapi.New())
-	translationCloneUseCase := translationClone.New(persistent.NewClone(pg), webapi.NewClone())
 	userUseCase := user.New(persistent.NewUserRepo(pg))
 	articleUseCase := article.New(persistent.NewArticleRepo(pg))
 	favoriteUseCase := favorite.New(persistent.NewFavoriteRepo(pg))
@@ -83,7 +81,6 @@ func Run(cfg *config.Config) { //nolint: gocyclo,cyclop,funlen,gocritic,nolintli
 		l,
 
 		translationUseCase,
-		translationCloneUseCase,
 		userUseCase,
 		articleUseCase,
 		favoriteUseCase,

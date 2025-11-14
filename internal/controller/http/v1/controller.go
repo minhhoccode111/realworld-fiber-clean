@@ -14,7 +14,6 @@ type V1 struct {
 	cfg *config.Config
 
 	t   usecase.Translation
-	tc  usecase.TranslationClone
 	u   usecase.User
 	a   usecase.Article
 	f   usecase.Favorite
