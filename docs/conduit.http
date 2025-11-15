@@ -136,7 +136,7 @@ Authorization: Token {{token0}}
 
 ### Create Article
 POST {{api}}/articles
-Authorization: Token {{token2}}
+Authorization: Token {{token0}}
 
 {
     "article": {

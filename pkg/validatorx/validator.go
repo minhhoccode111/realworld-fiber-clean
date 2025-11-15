@@ -9,6 +9,10 @@ import (
 func New() *validator.Validate {
 	v := validator.New(validator.WithRequiredStructEnabled())
 
+	_ = v.RegisterValidation("tag", func(fl validator.FieldLevel) bool {
+		return regexp.MustCompile(`^[a-zA-Z0-9_ -]+$`).MatchString(fl.Field().String())
+	})
+
 	_ = v.RegisterValidation("username", func(fl validator.FieldLevel) bool {
 		return regexp.MustCompile(`^[a-zA-Z0-9_]+$`).MatchString(fl.Field().String())
 	})
