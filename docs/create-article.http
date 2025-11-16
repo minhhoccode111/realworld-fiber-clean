@@ -1,0 +1,72 @@
+@url = http://localhost:8080
+@api = {{url}}/api/v1
+
+@password = P@ssw0rd
+@bio = Trust the process
+@image = https://www.w3schools.com/howto/img_avatar.png
+
+@email0 = minhhoccode111@gmail.com
+@email1 = minhdh.swe@gmail.com
+@email2 = asd0@gmail.com
+@username0 = minhhoccode111
+@username1 = minhdh
+@username2 = asd0
+@token0 = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzE5MjY0MjcsImlhdCI6MTc2MzI4NjQyNywiaXNzIjoicmVhbHdvcmxkZmliZXJjbGVhbiIsInN1YiI6ImY5ZTU3MGE4LTk4MzAtNDgwYS1hMWQwLTNlMTVjY2YyYzMzYiJ9.8J3qCJyq4YuobIWY4MRXNsCuon5t1h0O2VTiD93eQQQ
+@token1 = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzE5MjY0NDgsImlhdCI6MTc2MzI4NjQ0OCwiaXNzIjoicmVhbHdvcmxkZmliZXJjbGVhbiIsInN1YiI6IjE2NWYyNmQ1LTQwZTktNDM5MC1iZTQxLWExYzhlZTBlMWIxOCJ9.Zy_9DVmExoyp6jk5s3XXLtQXyVHdh6WR899PJ1tv0nI
+@token2 = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzE5MjY0NTksImlhdCI6MTc2MzI4NjQ1OSwiaXNzIjoicmVhbHdvcmxkZmliZXJjbGVhbiIsInN1YiI6IjI4MGQzMTYyLWVmZDUtNDA5My04NDZlLWViYmQzNTc5YzhlNiJ9.1fJbaEzxLMNmw64ZzDbpsLH-zxTdXP5OZnLGk-pp-5A
+
+# @slug = slug
+# @title = title
+# @description = description
+# @body = body
+# @tagList = ["tai", "vi", "sao"]
+
+### Create Article
+POST {{api}}/articles
+Authorization: Token {{token0}}
+
+# @lang=lua
+> {%
+local function random_string(len)
+    local chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+    local s = ''
+    for i = 1, len do
+        local idx = math.random(#chars)
+        s = s .. chars:sub(idx, idx)
+    end
+    return s
+end
+
+local function random_tag()
+    local tags = { "go", "fiber", "clean-arch", "realworld", "backend", "devops", "fullstack", "tai", "vi", "sao", "wait", "but", "why" }
+    return tags[math.random(#tags)]
+end
+
+-- generate a few random tags
+local tagList = {}
+local n_tags = math.random(2, 4)
+local used = {}
+while #tagList < n_tags do
+    local t = random_tag()
+    if not used[t] then
+        table.insert(tagList, t)
+        used[t] = true
+    end
+end
+
+-- set global variables for rest.nvim
+client.global.set("title", random_string(10))
+client.global.set("slug", random_string(8))
+client.global.set("description", random_string(20))
+client.global.set("body", random_string(50))
+client.global.set("tagList", vim.fn.json_encode(tagList))
+%}
+
+{
+    "article": {
+        "title": "{{title}}",
+        "description": "{{description}}",
+        "body": "{{body}}",
+        "tagList": {{tagList}}
+    }
+}
