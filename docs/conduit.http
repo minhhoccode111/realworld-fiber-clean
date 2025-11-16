@@ -11,9 +11,9 @@
 @username0 = minhhoccode111
 @username1 = minhdh
 @username2 = asd0
-@token0 = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzExNjEyMjgsImlhdCI6MTc2MjUyMTIyOCwiaXNzIjoicmVhbHdvcmxkZmliZXJjbGVhbiIsInN1YiI6IjM2Mzc5NzljLWYwNDUtNDhmZS04NTliLTE1YzQyMTM3ZTZiMiJ9.MDDGdHROuVx5TWKlhhcbcjI8_2eC5b1K5_mESxRPYx8
-@token1 = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NjIwOTM5MTEsImlhdCI6MTc2MTIyOTkxMSwiaXNzIjoicmVhbHdvcmxkZmliZXJjbGVhbiIsInN1YiI6Ijg0M2UxNjViLTIzMDktNDlmMy1iNmUwLTgyNTM1ZjUzZjg4NSJ9.mRoxP_bfm-h63GFkyUrkeegZwDPhscoLTAZu1R8U8JA
-@token2 = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NjIwOTM5ODksImlhdCI6MTc2MTIyOTk4OSwiaXNzIjoicmVhbHdvcmxkZmliZXJjbGVhbiIsInN1YiI6IjhhMDRiNTU4LTgyMjAtNDY0OC1hMjExLTE3Y2E1Yzc2ZDQwZiJ9.JbIO00OvZdncJHjUYgom2LumBRyhSsPfuYoX7AE9v8Y
+@token0 = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzE5MjY0MjcsImlhdCI6MTc2MzI4NjQyNywiaXNzIjoicmVhbHdvcmxkZmliZXJjbGVhbiIsInN1YiI6ImY5ZTU3MGE4LTk4MzAtNDgwYS1hMWQwLTNlMTVjY2YyYzMzYiJ9.8J3qCJyq4YuobIWY4MRXNsCuon5t1h0O2VTiD93eQQQ
+@token1 = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzE5MjY0NDgsImlhdCI6MTc2MzI4NjQ0OCwiaXNzIjoicmVhbHdvcmxkZmliZXJjbGVhbiIsInN1YiI6IjE2NWYyNmQ1LTQwZTktNDM5MC1iZTQxLWExYzhlZTBlMWIxOCJ9.Zy_9DVmExoyp6jk5s3XXLtQXyVHdh6WR899PJ1tv0nI
+@token2 = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzE5MjY0NTksImlhdCI6MTc2MzI4NjQ1OSwiaXNzIjoicmVhbHdvcmxkZmliZXJjbGVhbiIsInN1YiI6IjI4MGQzMTYyLWVmZDUtNDA5My04NDZlLWViYmQzNTc5YzhlNiJ9.1fJbaEzxLMNmw64ZzDbpsLH-zxTdXP5OZnLGk-pp-5A
 
 @slug = slug
 @title = title
@@ -25,9 +25,9 @@ POST {{api}}/users
 
 {
     "user": {
-        "email": "{{email2}}",
+        "email": "{{email0}}",
         "password": "{{password}}",
-        "username": "{{username2}}"
+        "username": "{{username0}}"
     }
 }
 
@@ -36,7 +36,7 @@ POST {{api}}/users/login
 
 {
     "user": {
-        "email": "{{email0}}",
+        "email": "{{email2}}",
         "password": "{{password}}"
     }
 }
@@ -53,20 +53,6 @@ Authorization: Token {{token0}}
     "user": {
         "email": "{{email0}}",
         "username": "{{username0}}",
-        "password": "{{password}}",
-        "image": "{{image}}",
-        "bio": "{{bio}}"
-    }
-}
-
-### Update User
-PUT {{api}}/user
-Authorization: Token {{token0}}
-
-{
-    "user": {
-        "email": "{{email0}}",
-        "username0": "{{username0}}",
         "password": "{{password}}",
         "image": "{{image}}",
         "bio": "{{bio}}"
@@ -143,13 +129,18 @@ Authorization: Token {{token0}}
         "title": "{{slug}}",
         "description": "{{description}}",
         "body": "{{body}}",
-        "tagList": ["fiber", "go", "clean-arch"]
+        "tagList": [
+            "fiber",
+            "go",
+            "clean-arch",
+            "realworld"
+        ]
     }
 }
 
 ### Get Feed Articles
 GET {{api}}/articles/feed
-Authorization: Token {{token2}}
+Authorization: Token {{token0}}
 
 ### Single Article by slug, without auth
 GET {{api}}/articles/{{slug}}
@@ -184,7 +175,7 @@ Authorization: Token {{token0}}
 
 ### Create Comment for Article
 POST {{api}}/articles/{{slug}}/comments
-Authorization: Token {{token2}}
+Authorization: Token {{token0}}
 
 {
     "comment": {
@@ -210,7 +201,7 @@ GET {{api}}/articles/{{slug}}/comments
 @commentID = 4dbee433-249a-4a04-9f95-34dc99bb067f
 ###
 DELETE {{api}}/articles/{{slug}}/comments/{{commentID}}
-Authorization: Token {{token2}}
+Authorization: Token {{token0}}
 
 ### Get Profile
 GET {{api}}/profiles/{{username0}}

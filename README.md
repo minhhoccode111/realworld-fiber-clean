@@ -21,7 +21,6 @@
   because it will make the router layer depend on postgresql implementation,
   instead we return our custom not found error `entity.ErrNoRows`
 - Generate TypeScript API types
-- Regex to validate tag is `^[a-zA-Z0-9_ -]+$`, not `^[a-zA-Z0-9 -_]+$` because it means range ` ` to `_`
 
 ## How to start developing
 

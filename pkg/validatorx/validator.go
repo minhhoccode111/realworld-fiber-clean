@@ -2,12 +2,31 @@ package validatorx
 
 import (
 	"regexp"
+	"strings"
 
 	"github.com/go-playground/validator/v10"
 )
 
 func New() *validator.Validate {
 	v := validator.New(validator.WithRequiredStructEnabled())
+
+	_ = v.RegisterValidation("no_dups_str", func(fl validator.FieldLevel) bool {
+		slices, ok := fl.Field().Interface().([]string)
+		if !ok {
+			return false
+		}
+
+		seen := make(map[string]struct{})
+		for _, t := range slices {
+			t = strings.TrimSpace(t)
+			if _, exists := seen[t]; exists {
+				return false
+			}
+			seen[t] = struct{}{}
+		}
+
+		return true
+	})
 
 	_ = v.RegisterValidation("tag", func(fl validator.FieldLevel) bool {
 		return regexp.MustCompile(`^[a-zA-Z0-9_ -]+$`).MatchString(fl.Field().String())

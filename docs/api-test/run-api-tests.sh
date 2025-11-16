@@ -5,7 +5,7 @@ SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
 APIURL=http://localhost:8080/api/v1
 USERNAME=u`date +%s`
-EMAIL=$USERNAME@mail.com
+EMAIL=$USERNAME@gmail.com
 PASSWORD='Bruh0!0!'
 
 DELAY_REQUEST=${DELAY_REQUEST:-"500"}

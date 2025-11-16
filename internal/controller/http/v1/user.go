@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -14,6 +13,7 @@ import (
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/response"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/entity"
 	"github.com/minhhoccode111/realworld-fiber-clean/pkg/utils"
+	"github.com/minhhoccode111/realworld-fiber-clean/pkg/validatorx"
 )
 
 // @Summary     Register User
@@ -41,34 +41,8 @@ func (r *V1) postRegisterUser(ctx *fiber.Ctx) error {
 	if err := r.v.Struct(body.User); err != nil {
 		r.l.Error(err, "http - v1 - postRegisterUser - r.v.Struct")
 
-		var verrs validator.ValidationErrors
-		if errors.As(err, &verrs) {
-			errs := make([]string, 0, len(verrs))
-			for _, e := range verrs {
-				switch e.Tag() {
-				case "required":
-					errs = append(errs, e.Field()+" is required")
-				case "email":
-					errs = append(errs, "invalid email format")
-				case "password":
-					errs = append(
-						errs,
-						"password must include upper, lower, digit, and special char",
-					)
-				case "username":
-					errs = append(
-						errs,
-						"username can only contain letters, numbers, and underscore",
-					)
-				default:
-					errs = append(errs, e.Field()+" is invalid")
-				}
-			}
-
-			return errorResponse(ctx, http.StatusBadRequest, strings.Join(errs, "; "))
-		}
-
-		return errorResponse(ctx, http.StatusInternalServerError, "validation error")
+		errs := validatorx.ExtractErrors(err)
+		return errorResponse(ctx, http.StatusBadRequest, strings.Join(errs, "; "))
 	}
 
 	u := &entity.User{
@@ -134,7 +108,8 @@ func (r *V1) postLoginUser(ctx *fiber.Ctx) error {
 	if err := r.v.Struct(body.User); err != nil {
 		r.l.Error(err, "http - v1 - postLoginUser - r.v.Struct")
 
-		return errorResponse(ctx, http.StatusBadRequest, "invalid request body")
+		errs := validatorx.ExtractErrors(err)
+		return errorResponse(ctx, http.StatusBadRequest, strings.Join(errs, "; "))
 	}
 
 	u, err := r.u.Login(ctx.UserContext(), &entity.User{
@@ -249,32 +224,8 @@ func (r *V1) putUpdateUser(ctx *fiber.Ctx) error {
 	if err := r.v.Struct(body.User); err != nil {
 		r.l.Error(err, "http - v1 - putUpdateUser - r.v.Struct")
 
-		var verrs validator.ValidationErrors
-		if errors.As(err, &verrs) {
-			errs := make([]string, 0, len(verrs))
-			for _, e := range verrs {
-				switch e.Tag() {
-				case "email":
-					errs = append(errs, "invalid email format")
-				case "password":
-					errs = append(
-						errs,
-						"password must include upper, lower, digit, and special char",
-					)
-				case "username":
-					errs = append(
-						errs,
-						"username can only contain letters, numbers, and underscore",
-					)
-				default:
-					errs = append(errs, e.Field()+" is invalid")
-				}
-			}
-
-			return errorResponse(ctx, http.StatusBadRequest, strings.Join(errs, "; "))
-		}
-
-		return errorResponse(ctx, http.StatusInternalServerError, "validation error")
+		errs := validatorx.ExtractErrors(err)
+		return errorResponse(ctx, http.StatusBadRequest, strings.Join(errs, "; "))
 	}
 
 	userID := ctx.Locals(middleware.CtxUserIDKey).(string)

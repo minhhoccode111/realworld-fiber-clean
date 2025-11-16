@@ -5,13 +5,13 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/middleware"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/request"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/response"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/entity"
 	"github.com/minhhoccode111/realworld-fiber-clean/pkg/utils"
+	"github.com/minhhoccode111/realworld-fiber-clean/pkg/validatorx"
 )
 
 // @Summary     Create Comment
@@ -42,22 +42,8 @@ func (r *V1) postComment(ctx *fiber.Ctx) error {
 	if err := r.v.Struct(body.Comment); err != nil {
 		r.l.Error(err, "http - v1 - postCreateComment - r.v.Struct")
 
-		var verrs validator.ValidationErrors
-		if errors.As(err, &verrs) {
-			errs := make([]string, 0, len(verrs))
-			for _, e := range verrs {
-				switch e.Tag() {
-				case "required":
-					errs = append(errs, e.Field()+" is required")
-				default:
-					errs = append(errs, e.Field()+" is invalid")
-				}
-			}
-
-			return errorResponse(ctx, http.StatusBadRequest, strings.Join(errs, "; "))
-		}
-
-		return errorResponse(ctx, http.StatusInternalServerError, "validation error")
+		errs := validatorx.ExtractErrors(err)
+		return errorResponse(ctx, http.StatusBadRequest, strings.Join(errs, "; "))
 	}
 
 	userID := ctx.Locals(middleware.CtxUserIDKey).(string)
