@@ -21,6 +21,8 @@
   because it will make the router layer depend on postgresql implementation,
   instead we return our custom not found error `entity.ErrNoRows`
 - Generate TypeScript API types
+- A response struct with pointer fields, shouldn't use `omitempty` because
+  handling `profile?: ProfilePreview | null;` is harder than `profile: ProfilePreview | null;` in TypeScript
 
 ## How to start developing
 
@@ -171,6 +173,7 @@ Expected output
 
 ## Todo
 
+- [ ] Add update article `tagList`
 - [ ] Add admin/user roles to manage users' content
 - [ ] Add mocks, unit testing, integration testing
 - [ ] Add caching Redis

@@ -5,7 +5,7 @@ import (
 )
 
 type ArticleCreate struct {
-	Title       string   `json:"title"       validate:"required,max=255"                            example:"This is title - to generate slug"`
+	Title       string   `json:"title"       validate:"required,min=2,max=255"                      example:"This is title - to generate slug"`
 	Description string   `json:"description" validate:"required,max=255"                            example:"This is description"`
 	Body        string   `json:"body"        validate:"required,max=50000"                          example:"this is article content"`
 	TagList     []string `json:"tagList"     validate:"no_dups_str,max=10,dive,required,max=50,tag" example:"go,fiber,api,clean-arch"`
