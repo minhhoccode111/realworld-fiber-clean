@@ -171,13 +171,18 @@ Expected output
 
 ## Todo
 
+- [ ] Add admin/user roles to manage users' content
 - [ ] Add mocks, unit testing, integration testing
 - [ ] Add caching Redis
+- [ ] add GraphQL
+- [ ] add gRPC
+- [ ] add NATS_RPC
+- [ ] add AMQP_RPC
 
 ## Resources
 
 - My first Realworld implementation using Golang:
-  [gorealworld](github.com/minhhoccode111/realworldgo)
+  [gorealworld](https://github.com/minhhoccode111/realworldgo)
 - Starter Template using [Golang Clean
   Architecture](https://github.com/evrone/go-clean-template)
 
