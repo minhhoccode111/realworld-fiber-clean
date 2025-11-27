@@ -311,10 +311,11 @@ func (r *ArticleRepo) GetList(
 		left join article_tags at on at.article_id = a.id
 		left join tags t on t.id = at.tag_id
 		left join favorites f on f.article_id = a.id
-		left join users uf on f.user_id = uf.id
 		where a.deleted_at is null
 		  and ('' = $2 or u.username = $2) -- author, skip if empty
-		  and ('' = $3 or uf.username = $3) -- favorited, skip if empty
+		  and ('' = $3 or exists (select 1 from favorites fav
+			left join users uf on fav.user_id = uf.id
+			where fav.article_id = a.id and uf.username = $3)) -- favorited, skip if empty
 		  and ('' = $4 or exists (select 1 from article_tags at2
 			  left join tags t2 on at2.tag_id = t2.id
 			  where at2.article_id = a.id and t2.name = $4)) -- tag, skip if empty
