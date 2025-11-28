@@ -173,8 +173,8 @@ Expected output
 
 ## Todo
 
-- [ ] Add update article `tagList`
 - [ ] Add admin/user roles to manage users' content
+- [ ] Add update article `tagList`
 - [ ] Add mocks, unit testing, integration testing
 - [ ] Add caching Redis
 - [ ] add GraphQL

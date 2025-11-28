@@ -67,6 +67,7 @@ func (r *V1) postRegisterUser(ctx *fiber.Ctx) error {
 
 	token, err := utils.GenerateJWT(
 		u.ID,
+		u.Role.String(),
 		r.cfg.JWT.Secret,
 		r.cfg.JWT.Issuer,
 		r.cfg.JWT.Expiration,
@@ -132,6 +133,7 @@ func (r *V1) postLoginUser(ctx *fiber.Ctx) error {
 
 	token, err := utils.GenerateJWT(
 		u.ID,
+		u.Role.String(),
 		r.cfg.JWT.Secret,
 		r.cfg.JWT.Issuer,
 		r.cfg.JWT.Expiration,
@@ -178,7 +180,8 @@ func (r *V1) getCurrentUser(ctx *fiber.Ctx) error {
 	}
 
 	token, err := utils.GenerateJWT(
-		userID,
+		u.ID,
+		u.Role.String(),
 		r.cfg.JWT.Secret,
 		r.cfg.JWT.Issuer,
 		r.cfg.JWT.Expiration,
@@ -248,7 +251,8 @@ func (r *V1) putUpdateUser(ctx *fiber.Ctx) error {
 	}
 
 	token, err := utils.GenerateJWT(
-		userID,
+		u.ID,
+		u.Role.String(),
 		r.cfg.JWT.Secret,
 		r.cfg.JWT.Issuer,
 		r.cfg.JWT.Expiration,

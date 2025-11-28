@@ -6,11 +6,12 @@ import (
 
 // UserAuth -.
 type UserAuth struct {
-	Email    string `json:"email"`
-	Username string `json:"username"`
-	Bio      string `json:"bio"`
-	Image    string `json:"image"`
-	Token    string `json:"token"`
+	Email    string      `json:"email"`
+	Username string      `json:"username"`
+	Bio      string      `json:"bio"`
+	Image    string      `json:"image"`
+	Token    string      `json:"token"`
+	Role     entity.Role `json:"role"`
 }
 
 func NewUserAuth(u *entity.User, token string) UserAuth {
@@ -19,6 +20,7 @@ func NewUserAuth(u *entity.User, token string) UserAuth {
 		Username: u.Username,
 		Bio:      u.Bio,
 		Image:    u.Image,
+		Role:     u.Role,
 		Token:    token,
 	}
 }

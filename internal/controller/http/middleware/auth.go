@@ -7,14 +7,16 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/minhhoccode111/realworld-fiber-clean/internal/entity"
 	"github.com/minhhoccode111/realworld-fiber-clean/pkg/logger"
 )
 
 type ctxKey string
 
 const (
-	CtxUserIDKey ctxKey = "userID"
-	CtxIsAuthKey ctxKey = "isAuth"
+	CtxUserIDKey   ctxKey = "userID"
+	CtxUserRoleKey ctxKey = "userRole"
+	CtxIsAuthKey   ctxKey = "isAuth"
 )
 
 func errorResponse(ctx *fiber.Ctx, code int, msg string) error {
@@ -26,6 +28,7 @@ func AuthMiddleware(l logger.Interface, jwtSecret string, isOptional bool) func(
 	return func(c *fiber.Ctx) error {
 		c.Locals(CtxIsAuthKey, false)
 		c.Locals(CtxUserIDKey, "")
+		c.Locals(CtxUserRoleKey, "")
 
 		authHeader := c.Get("Authorization")
 		if authHeader == "" {
@@ -96,8 +99,14 @@ func AuthMiddleware(l logger.Interface, jwtSecret string, isOptional bool) func(
 			return errorResponse(c, http.StatusUnauthorized, "missing user id in token")
 		}
 
+		userRole, ok := claims["role"].(string)
+		if !ok || userRole == "" {
+			userRole = entity.UserRole.String()
+		}
+
 		c.Locals(CtxIsAuthKey, true)
 		c.Locals(CtxUserIDKey, userID)
+		c.Locals(CtxUserRoleKey, userRole)
 
 		return c.Next()
 	}

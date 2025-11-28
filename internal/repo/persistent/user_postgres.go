@@ -22,7 +22,7 @@ func (r *UserRepo) StoreRegister(ctx context.Context, user *entity.User) error {
 		Insert("users").
 		Columns("email, username, password").
 		Values(user.Email, user.Username, user.Password).
-		Suffix("returning id, image, bio").
+		Suffix("returning id, image, bio, role").
 		ToSql()
 	if err != nil {
 		return fmt.Errorf("UserRepo - StoreRegister - r.Builder: %w", err)
@@ -30,7 +30,7 @@ func (r *UserRepo) StoreRegister(ctx context.Context, user *entity.User) error {
 
 	row := r.Pool.QueryRow(ctx, sql, args...)
 
-	err = row.Scan(&user.ID, &user.Image, &user.Bio)
+	err = row.Scan(&user.ID, &user.Image, &user.Bio, &user.Role)
 	if err != nil {
 		return fmt.Errorf("UserRepo - StoreRegister - row.Scan: %w", err)
 	}
@@ -40,7 +40,7 @@ func (r *UserRepo) StoreRegister(ctx context.Context, user *entity.User) error {
 
 func (r *UserRepo) GetUserByEmail(ctx context.Context, email string) (*entity.User, error) {
 	sql, args, err := r.Builder.
-		Select("id, email, username, password, bio, image").
+		Select("id, email, username, password, bio, image, role").
 		From("users").
 		Where(squirrel.Eq{"email": email}).
 		ToSql()
@@ -59,6 +59,7 @@ func (r *UserRepo) GetUserByEmail(ctx context.Context, email string) (*entity.Us
 		&user.Password,
 		&user.Bio,
 		&user.Image,
+		&user.Role,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("UserRepo - GetUserByEmail - row.Scan: %w", err)
@@ -69,7 +70,7 @@ func (r *UserRepo) GetUserByEmail(ctx context.Context, email string) (*entity.Us
 
 func (r *UserRepo) GetUserByID(ctx context.Context, userID string) (*entity.User, error) {
 	sql, args, err := r.Builder.
-		Select("id, email, username, password, bio, image").
+		Select("id, email, username, password, bio, image, role").
 		From("users").
 		Where(squirrel.Eq{"id": userID}).
 		ToSql()
@@ -88,6 +89,7 @@ func (r *UserRepo) GetUserByID(ctx context.Context, userID string) (*entity.User
 		&user.Password,
 		&user.Bio,
 		&user.Image,
+		&user.Role,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("UserRepo - GetUserByID - row.Scan: %w", err)
