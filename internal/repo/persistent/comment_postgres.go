@@ -169,11 +169,40 @@ func (r *CommentRepo) GetList(
 	return comments, total, nil
 }
 
+func (r *CommentRepo) GetBasicByID(ctx context.Context, commentID string) (*entity.Comment, error) {
+	sql, args, err := r.Builder.
+		Select("id, author_id, article_id, body, created_at, updated_at").
+		From("comments").
+		Where("deleted_at is null").
+		ToSql()
+	if err != nil {
+		return nil, fmt.Errorf("CommentRepo - GetBasicByID - r.Builder: %w", err)
+	}
+
+	c := entity.Comment{}
+
+	err = r.Pool.QueryRow(ctx, sql, args...).Scan(
+		&c.ID,
+		&c.AuthorID,
+		&c.ArticleID,
+		&c.Body,
+		&c.CreatedAt,
+		&c.UpdatedAt,
+	)
+	if err != nil {
+		return nil, fmt.Errorf(
+			"CommentRepo - GetBasicByID - r.Pool.QueryRow: %w",
+			err,
+		)
+	}
+
+	return &c, nil
+}
+
 func (r *CommentRepo) StoreDelete(ctx context.Context, userID, slug, commentID string) (err error) {
 	sql, args, err := r.Builder.
 		Update("comments").
 		Set("deleted_at", squirrel.Expr("NOW()")).
-		Where(squirrel.Eq{"author_id": userID}).
 		Where(squirrel.Expr(`exists (
 			select 1 from articles
 			where id = article_id

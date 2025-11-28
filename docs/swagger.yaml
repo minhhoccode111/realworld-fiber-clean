@@ -74,6 +74,14 @@ definitions:
       username:
         type: string
     type: object
+  entity.Role:
+    enum:
+    - admin
+    - user
+    type: string
+    x-enum-varnames:
+    - AdminRole
+    - UserRole
   entity.Translation:
     properties:
       destination:
@@ -114,10 +122,12 @@ definitions:
         - clean-arch
         items:
           type: string
+        maxItems: 10
         type: array
       title:
         example: This is title - to generate slug
         maxLength: 255
+        minLength: 2
         type: string
     required:
     - body
@@ -336,6 +346,8 @@ definitions:
         type: string
       image:
         type: string
+      role:
+        $ref: '#/definitions/entity.Role'
       token:
         type: string
       username:
@@ -453,6 +465,10 @@ paths:
             $ref: '#/definitions/response.Error'
         "401":
           description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Error'
+        "403":
+          description: Forbidden
           schema:
             $ref: '#/definitions/response.Error'
         "404":
@@ -649,6 +665,10 @@ paths:
             $ref: '#/definitions/response.Error'
         "401":
           description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Error'
+        "403":
+          description: Forbidden
           schema:
             $ref: '#/definitions/response.Error'
         "404":

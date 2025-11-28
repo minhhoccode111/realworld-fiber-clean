@@ -39,7 +39,7 @@ type (
 			userID, oldSlug string,
 			dto *entity.Article,
 		) (*entity.ArticleDetail, error)
-		Delete(ctx context.Context, userID, slug string) error
+		Delete(ctx context.Context, userID, slug string, userRole entity.Role) error
 	}
 
 	Favorite interface {
@@ -54,7 +54,7 @@ type (
 			userID, slug string,
 			limit, offset uint64,
 		) ([]entity.CommentDetail, uint64, error)
-		Delete(ctx context.Context, userID, slug, commentID string) error
+		Delete(ctx context.Context, userID, slug, commentID string, userRole entity.Role) error
 	}
 
 	Profile interface {

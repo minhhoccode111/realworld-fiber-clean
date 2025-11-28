@@ -173,7 +173,7 @@ Expected output
 
 ## Todo
 
-- [ ] Add admin/user roles to manage users' content
+- [x] Add admin/user roles to manage users' content
 - [ ] Add update article `tagList`
 - [ ] Add mocks, unit testing, integration testing
 - [ ] Add caching Redis

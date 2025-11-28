@@ -140,6 +140,7 @@ func (r *V1) getAllComments(ctx *fiber.Ctx) error {
 // @Success     204 "No Content"
 // @Failure     400 {object} response.Error
 // @Failure     401 {object} response.Error
+// @Failure     403 {object} response.Error
 // @Failure     404 {object} response.Error
 // @Failure     500 {object} response.Error
 // @Router      /articles/{slug}/comments/{commentID} [delete]
@@ -150,18 +151,31 @@ func (r *V1) deleteComment(ctx *fiber.Ctx) error {
 		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
 	}
 
+	userRole, ok := ctx.Locals(middleware.CtxUserRoleKey).(entity.Role)
+	if !ok {
+		userRole = entity.UserRole
+	}
+
 	slug := ctx.Params("slug")
 	if slug == "" {
 		return errorResponse(ctx, http.StatusBadRequest, "slug is required")
 	}
 
-	id := ctx.Params("commentID")
-	if id == "" {
+	commentID := ctx.Params("commentID")
+	if commentID == "" {
 		return errorResponse(ctx, http.StatusBadRequest, "commentID is required")
 	}
 
-	err := r.c.Delete(ctx.UserContext(), userID, slug, id)
+	err := r.c.Delete(ctx.UserContext(), userID, slug, commentID, userRole)
 	if err != nil {
+		if errors.Is(err, entity.ErrForbidden) {
+			return errorResponse(
+				ctx,
+				http.StatusForbidden,
+				"Only admin/author can delete this comment",
+			)
+		}
+
 		if errors.Is(err, entity.ErrNoEffect) {
 			return errorResponse(ctx, http.StatusNotFound, "Article/comment not found")
 		}

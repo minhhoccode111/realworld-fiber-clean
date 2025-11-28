@@ -99,9 +99,10 @@ func AuthMiddleware(l logger.Interface, jwtSecret string, isOptional bool) func(
 			return errorResponse(c, http.StatusUnauthorized, "missing user id in token")
 		}
 
-		userRole, ok := claims["role"].(string)
-		if !ok || userRole == "" {
-			userRole = entity.UserRole.String()
+		roleStr, ok := claims["role"].(string)
+		userRole := entity.Role(roleStr)
+		if !userRole.IsValid() {
+			userRole = entity.UserRole
 		}
 
 		c.Locals(CtxIsAuthKey, true)

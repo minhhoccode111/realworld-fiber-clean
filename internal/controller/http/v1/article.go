@@ -278,6 +278,7 @@ func (r *V1) putArticle(ctx *fiber.Ctx) error {
 // @Success     204 "No Content"
 // @Failure     400 {object} response.Error
 // @Failure     401 {object} response.Error
+// @Failure     403 {object} response.Error
 // @Failure     404 {object} response.Error
 // @Failure     500 {object} response.Error
 // @Router      /articles/{slug} [delete]
@@ -288,13 +289,26 @@ func (r *V1) deleteArticle(ctx *fiber.Ctx) error {
 		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
 	}
 
+	userRole, ok := ctx.Locals(middleware.CtxUserRoleKey).(entity.Role)
+	if !ok {
+		userRole = entity.UserRole
+	}
+
 	slug := ctx.Params("slug")
 	if slug == "" {
 		return errorResponse(ctx, http.StatusBadRequest, "slug is required")
 	}
 
-	err := r.a.Delete(ctx.UserContext(), userID, slug)
+	err := r.a.Delete(ctx.UserContext(), userID, slug, userRole)
 	if err != nil {
+		if errors.Is(err, entity.ErrForbidden) {
+			return errorResponse(
+				ctx,
+				http.StatusForbidden,
+				"Only admin/author can delete this article",
+			)
+		}
+
 		if errors.Is(err, entity.ErrNoEffect) {
 			return errorResponse(ctx, http.StatusNotFound, "Article not found")
 		}

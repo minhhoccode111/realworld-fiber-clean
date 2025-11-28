@@ -166,8 +166,27 @@ func (uc *UseCase) Update(
 	return ad, nil
 }
 
-func (uc *UseCase) Delete(ctx context.Context, userID, slug string) error {
-	err := uc.repo.StoreDelete(ctx, userID, slug)
+func (uc *UseCase) Delete(ctx context.Context, userID, slug string, userRole entity.Role) error {
+	a, err := uc.repo.GetBasicBySlug(ctx, slug)
+	if err != nil {
+		return fmt.Errorf(
+			"ArticleUseCase - Delete - uc.repo.GetBasicBySlug: %w",
+			err,
+		)
+	}
+
+	fmt.Println("userRole", userRole)
+	fmt.Println("a.AuthorID", a.AuthorID)
+	fmt.Println("userID", userID)
+
+	if userRole != entity.AdminRole && a.AuthorID != userID {
+		return fmt.Errorf(
+			"ArticleUseCase - Delete - uc.repo.GetBasicBySlug: %w",
+			entity.ErrForbidden,
+		)
+	}
+
+	err = uc.repo.StoreDelete(ctx, userID, slug)
 	if err != nil {
 		return fmt.Errorf(
 			"ArticleUseCase - Delete - uc.repo.StoreDelete: %w",

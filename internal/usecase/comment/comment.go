@@ -59,8 +59,27 @@ func (uc *UseCase) List(
 	return comments, total, nil
 }
 
-func (uc *UseCase) Delete(ctx context.Context, userID, slug, commentID string) error {
-	err := uc.repo.StoreDelete(ctx, userID, slug, commentID)
+func (uc *UseCase) Delete(
+	ctx context.Context,
+	userID, slug, commentID string,
+	userRole entity.Role,
+) error {
+	c, err := uc.repo.GetBasicByID(ctx, commentID)
+	if err != nil {
+		return fmt.Errorf(
+			"CommentUseCase - Delete - uc.repo.GetBasicByID: %w",
+			err,
+		)
+	}
+
+	if userRole != entity.AdminRole && c.AuthorID != userID {
+		return fmt.Errorf(
+			"CommentUseCase - Delete - uc.repo.GetBasicByID: %w",
+			entity.ErrForbidden,
+		)
+	}
+
+	err = uc.repo.StoreDelete(ctx, userID, slug, commentID)
 	if err != nil {
 		return fmt.Errorf(
 			"CommentUseCase - Delete - uc.repo.StoreDelete: %w",

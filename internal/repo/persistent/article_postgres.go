@@ -441,7 +441,6 @@ func (r *ArticleRepo) StoreDelete(ctx context.Context, userID, slug string) erro
 	sql, args, err := r.Builder.
 		Update("articles").
 		Set("deleted_at", squirrel.Expr("NOW()")).
-		Where(squirrel.Eq{"author_id": userID}).
 		Where(squirrel.Eq{"slug": slug}).
 		Where("deleted_at is null").
 		ToSql()

@@ -60,6 +60,7 @@ type (
 			userID, slug string,
 			limit, offset uint64,
 		) ([]entity.CommentDetail, uint64, error)
+		GetBasicByID(ctx context.Context, commentID string) (*entity.Comment, error)
 		StoreDelete(ctx context.Context, userID, slug, commentID string) (err error)
 	}
 

@@ -12,9 +12,9 @@
 @username1 = minhdh
 @username2 = asd0
 
-@token0 = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzIwMjA3MTksImlhdCI6MTc2MzM4MDcxOSwiaXNzIjoicmVhbHdvcmxkZmliZXJjbGVhbiIsInN1YiI6IjM2Mzc5NzljLWYwNDUtNDhmZS04NTliLTE1YzQyMTM3ZTZiMiJ9.4IBnPiOhx6N2zV5wmaSTvLutXWgVIurGmSzHPn2PpmQ
-@token1 = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzIwMjA3MzIsImlhdCI6MTc2MzM4MDczMiwiaXNzIjoicmVhbHdvcmxkZmliZXJjbGVhbiIsInN1YiI6Ijg0M2UxNjViLTIzMDktNDlmMy1iNmUwLTgyNTM1ZjUzZjg4NSJ9.HQVoUVa7Bw-hnYYbu_0cVNAjq2HKXyRNtYyYWkOS4NE
-@token2 = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzIwMjA3NDEsImlhdCI6MTc2MzM4MDc0MSwiaXNzIjoicmVhbHdvcmxkZmliZXJjbGVhbiIsInN1YiI6IjhhMDRiNTU4LTgyMjAtNDY0OC1hMjExLTE3Y2E1Yzc2ZDQwZiJ9.xfgCd2Vv4z0hMiPbiaEEHlfB8mMyCxa46seF6AymOv4
+@token0 = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzI5NzkyMTgsImlhdCI6MTc2NDMzOTIxOCwiaXNzIjoicmVhbHdvcmxkZmliZXJjbGVhbiIsInJvbGUiOiJhZG1pbiIsInN1YiI6ImY5ZTU3MGE4LTk4MzAtNDgwYS1hMWQwLTNlMTVjY2YyYzMzYiJ9.iOcme28Zanl_k_s2qhY80JXucfOqO5ndORw8WxKRdtI
+@token1 = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzI4ODY2MzIsImlhdCI6MTc2NDI0NjYzMiwiaXNzIjoicmVhbHdvcmxkZmliZXJjbGVhbiIsInN1YiI6IjE2NWYyNmQ1LTQwZTktNDM5MC1iZTQxLWExYzhlZTBlMWIxOCJ9.xKlY_2iMPbKl-C-3xWAqNLdeMMagyEt1BuHXIqAfpDI
+@token2 = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzI4ODY2NDEsImlhdCI6MTc2NDI0NjY0MSwiaXNzIjoicmVhbHdvcmxkZmliZXJjbGVhbiIsInN1YiI6IjI4MGQzMTYyLWVmZDUtNDA5My04NDZlLWViYmQzNTc5YzhlNiJ9.QRemTZZFEhf6Noaqk3m75jhkp0_1v5U8fPerhvgihjA
 
 @slug = slug
 @title = title
@@ -37,7 +37,7 @@ POST {{api}}/users/login
 
 {
     "user": {
-        "email": "{{email2}}",
+        "email": "{{email0}}",
         "password": "{{password}}"
     }
 }
