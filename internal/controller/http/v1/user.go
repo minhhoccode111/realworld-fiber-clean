@@ -7,7 +7,6 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/middleware"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/request"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/response"
@@ -53,11 +52,8 @@ func (r *V1) postRegisterUser(ctx *fiber.Ctx) error {
 	// user.ID generated, user.Password hashed
 	err := r.u.Register(ctx.UserContext(), u)
 	if err != nil {
-		var pgErr *pgconn.PgError
-		if errors.As(err, &pgErr) {
-			if pgErr.Code == "23505" {
-				return errorResponse(ctx, http.StatusConflict, "email/username already existed")
-			}
+		if errors.Is(err, entity.ErrConflict) {
+			return errorResponse(ctx, http.StatusConflict, "email/username already existed")
 		}
 
 		r.l.Error(err, "http - v1 - postRegisterUser - r.u.Register")
@@ -118,11 +114,11 @@ func (r *V1) postLoginUser(ctx *fiber.Ctx) error {
 		Password: body.User.Password,
 	})
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
+		if errors.Is(err, entity.ErrNoRows) {
 			return errorResponse(ctx, http.StatusUnauthorized, "incorrect email")
 		}
 
-		if strings.Contains(err.Error(), "incorrect password") {
+		if errors.Is(err, entity.ErrInvalidCredentials) {
 			return errorResponse(ctx, http.StatusUnauthorized, "incorrect password")
 		}
 
@@ -238,11 +234,8 @@ func (r *V1) putUpdateUser(ctx *fiber.Ctx) error {
 
 	u, err := r.u.Update(ctx.UserContext(), body.User.NewUser(userID))
 	if err != nil {
-		var pgErr *pgconn.PgError
-		if errors.As(err, &pgErr) {
-			if pgErr.Code == "23505" {
-				return errorResponse(ctx, http.StatusConflict, "email/username alread existed")
-			}
+		if errors.Is(err, entity.ErrConflict) {
+			return errorResponse(ctx, http.StatusConflict, "email/username alread existed")
 		}
 
 		r.l.Error(err, "http - v1 - putUpdateUser - r.u.Update")

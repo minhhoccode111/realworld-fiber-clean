@@ -2,9 +2,11 @@ package persistent
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/Masterminds/squirrel"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/entity"
 	"github.com/minhhoccode111/realworld-fiber-clean/pkg/postgres"
 )
@@ -33,6 +35,11 @@ func (r *FavoriteRepo) StoreCreate(ctx context.Context, userID, slug string) err
 
 	result, err := r.Pool.Exec(ctx, sql, args...)
 	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == "23502" {
+			return fmt.Errorf("FavoriteRepo - StoreCreate - r.Pool.Exec: %w", entity.ErrNoRows)
+		}
+
 		return fmt.Errorf("FavoriteRepo - StoreCreate - r.Pool.Exec: %w", err)
 	}
 

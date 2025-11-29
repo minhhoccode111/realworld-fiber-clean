@@ -174,6 +174,7 @@ Expected output
 ## Todo
 
 - [x] Add admin/user roles to manage users' content
+- [x] Add custom errors instead of leaking `pgx` errors to outer layer
 - [ ] Add update article `tagList`
 - [ ] Add mocks, unit testing, integration testing
 - [ ] Add caching Redis

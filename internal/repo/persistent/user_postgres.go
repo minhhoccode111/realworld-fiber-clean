@@ -2,9 +2,12 @@ package persistent
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/Masterminds/squirrel"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/entity"
 	"github.com/minhhoccode111/realworld-fiber-clean/pkg/postgres"
 )
@@ -32,6 +35,13 @@ func (r *UserRepo) StoreRegister(ctx context.Context, user *entity.User) error {
 
 	err = row.Scan(&user.ID, &user.Image, &user.Bio, &user.Role)
 	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) {
+			if pgErr.Code == "23505" {
+				return fmt.Errorf("UserRepo - StoreRegister - row.Scan: %w", entity.ErrConflict)
+			}
+		}
+
 		return fmt.Errorf("UserRepo - StoreRegister - row.Scan: %w", err)
 	}
 
@@ -62,6 +72,10 @@ func (r *UserRepo) GetUserByEmail(ctx context.Context, email string) (*entity.Us
 		&user.Role,
 	)
 	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, fmt.Errorf("UserRepo - GetUserByEmail - row.Scan: %w", entity.ErrNoRows)
+		}
+
 		return nil, fmt.Errorf("UserRepo - GetUserByEmail - row.Scan: %w", err)
 	}
 
@@ -114,6 +128,13 @@ func (r *UserRepo) StoreUpdate(ctx context.Context, user *entity.User) error {
 
 	_, err = r.Pool.Exec(ctx, sql, args...)
 	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) {
+			if pgErr.Code == "23505" {
+				return fmt.Errorf("UserRepo - StoreUpdate - r.Pool.Exec: %w", entity.ErrConflict)
+			}
+		}
+
 		return fmt.Errorf("UserRepo - StoreUpdate - r.Pool.Exec: %w", err)
 	}
 

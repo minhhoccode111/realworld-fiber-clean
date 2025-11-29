@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/middleware"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/response"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/entity"
@@ -38,13 +37,12 @@ func (r *V1) createFavorite(ctx *fiber.Ctx) error {
 
 	err := r.f.Create(ctx.UserContext(), userID, slug)
 	if err != nil {
-		if errors.Is(err, entity.ErrNoEffect) {
-			return errorResponse(ctx, http.StatusBadRequest, "Article is already favorited")
+		if errors.Is(err, entity.ErrNoRows) {
+			return errorResponse(ctx, http.StatusNotFound, "Article not found")
 		}
 
-		var pgErr *pgconn.PgError
-		if errors.As(err, &pgErr) && pgErr.Code == "23502" { // not null constraint
-			return errorResponse(ctx, http.StatusNotFound, "Article not found")
+		if errors.Is(err, entity.ErrNoEffect) {
+			return errorResponse(ctx, http.StatusBadRequest, "Article is already favorited")
 		}
 
 		r.l.Error(err, "http - v1 - createFavorite - r.f.Create")

@@ -54,7 +54,8 @@ func (uc *UseCase) Login(ctx context.Context, dto *entity.User) (*entity.User, e
 
 	if !utils.IsValidPassword(u.Password, dto.Password) {
 		return nil, fmt.Errorf(
-			"UserUseCase - Login - utils.IsValidPassword: incorrect password",
+			"UserUseCase - Login - utils.IsValidPassword: %w",
+			entity.ErrInvalidCredentials,
 		)
 	}
 
