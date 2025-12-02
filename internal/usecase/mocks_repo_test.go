@@ -423,6 +423,21 @@ func (m *MockCommentRepo) EXPECT() *MockCommentRepoMockRecorder {
 	return m.recorder
 }
 
+// GetBasicByID mocks base method.
+func (m *MockCommentRepo) GetBasicByID(ctx context.Context, commentID string) (*entity.Comment, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetBasicByID", ctx, commentID)
+	ret0, _ := ret[0].(*entity.Comment)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetBasicByID indicates an expected call of GetBasicByID.
+func (mr *MockCommentRepoMockRecorder) GetBasicByID(ctx, commentID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBasicByID", reflect.TypeOf((*MockCommentRepo)(nil).GetBasicByID), ctx, commentID)
+}
+
 // GetDetailByID mocks base method.
 func (m *MockCommentRepo) GetDetailByID(ctx context.Context, userID, commentID string) (*entity.CommentDetail, error) {
 	m.ctrl.T.Helper()

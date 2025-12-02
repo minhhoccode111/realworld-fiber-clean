@@ -173,6 +173,7 @@ func (r *CommentRepo) GetBasicByID(ctx context.Context, commentID string) (*enti
 	sql, args, err := r.Builder.
 		Select("id, author_id, article_id, body, created_at, updated_at").
 		From("comments").
+		Where(squirrel.Eq{"id": commentID}).
 		Where("deleted_at is null").
 		ToSql()
 	if err != nil {

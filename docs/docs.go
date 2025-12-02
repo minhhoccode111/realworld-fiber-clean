@@ -17,11 +17,6 @@ const docTemplate = `{
     "paths": {
         "/articles": {
             "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
                 "description": "Get all articles (filter by author, favorited, tag)",
                 "produces": [
                     "application/json"
@@ -78,14 +73,14 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.Error"
                         }
                     }
-                }
-            },
-            "post": {
+                },
                 "security": [
                     {
                         "BearerAuth": []
                     }
-                ],
+                ]
+            },
+            "post": {
                 "description": "Create Article",
                 "consumes": [
                     "application/json"
@@ -134,16 +129,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.Error"
                         }
                     }
-                }
-            }
-        },
-        "/articles/feed": {
-            "get": {
+                },
                 "security": [
                     {
                         "BearerAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/articles/feed": {
+            "get": {
                 "description": "Get feed articles (from followed authors)",
                 "produces": [
                     "application/json"
@@ -182,16 +177,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.Error"
                         }
                     }
-                }
-            }
-        },
-        "/articles/{slug}": {
-            "get": {
+                },
                 "security": [
                     {
                         "BearerAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/articles/{slug}": {
+            "get": {
                 "description": "Get article by slug",
                 "produces": [
                     "application/json"
@@ -229,14 +224,14 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.Error"
                         }
                     }
-                }
-            },
-            "put": {
+                },
                 "security": [
                     {
                         "BearerAuth": []
                     }
-                ],
+                ]
+            },
+            "put": {
                 "description": "Put article by slug",
                 "produces": [
                     "application/json"
@@ -301,14 +296,14 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.Error"
                         }
                     }
-                }
-            },
-            "delete": {
+                },
                 "security": [
                     {
                         "BearerAuth": []
                     }
-                ],
+                ]
+            },
+            "delete": {
                 "description": "Delete article by slug",
                 "produces": [
                     "application/json"
@@ -361,16 +356,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.Error"
                         }
                     }
-                }
-            }
-        },
-        "/articles/{slug}/comments": {
-            "get": {
+                },
                 "security": [
                     {
                         "BearerAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/articles/{slug}/comments": {
+            "get": {
                 "description": "Get all comments of an article",
                 "produces": [
                     "application/json"
@@ -421,14 +416,14 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.Error"
                         }
                     }
-                }
-            },
-            "post": {
+                },
                 "security": [
                     {
                         "BearerAuth": []
                     }
-                ],
+                ]
+            },
+            "post": {
                 "description": "Create Comment",
                 "consumes": [
                     "application/json"
@@ -483,16 +478,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.Error"
                         }
                     }
-                }
-            }
-        },
-        "/articles/{slug}/comments/{commentID}": {
-            "delete": {
+                },
                 "security": [
                     {
                         "BearerAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/articles/{slug}/comments/{commentID}": {
+            "delete": {
                 "description": "Delete comment by id",
                 "produces": [
                     "application/json"
@@ -552,16 +547,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.Error"
                         }
                     }
-                }
-            }
-        },
-        "/articles/{slug}/favorite": {
-            "post": {
+                },
                 "security": [
                     {
                         "BearerAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/articles/{slug}/favorite": {
+            "post": {
                 "description": "Favorite an article",
                 "consumes": [
                     "application/json"
@@ -614,14 +609,14 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.Error"
                         }
                     }
-                }
-            },
-            "delete": {
+                },
                 "security": [
                     {
                         "BearerAuth": []
                     }
-                ],
+                ]
+            },
+            "delete": {
                 "description": "Unfavorite an article",
                 "produces": [
                     "application/json"
@@ -671,16 +666,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.Error"
                         }
                     }
-                }
-            }
-        },
-        "/profiles/{username}": {
-            "get": {
+                },
                 "security": [
                     {
                         "BearerAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/profiles/{username}": {
+            "get": {
                 "description": "Get profile by username",
                 "produces": [
                     "application/json"
@@ -730,16 +725,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.Error"
                         }
                     }
-                }
-            }
-        },
-        "/profiles/{username}/follow": {
-            "post": {
+                },
                 "security": [
                     {
                         "BearerAuth": []
                     }
-                ],
+                ]
+            }
+        },
+        "/profiles/{username}/follow": {
+            "post": {
                 "description": "Follow user by username",
                 "produces": [
                     "application/json"
@@ -789,14 +784,14 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.Error"
                         }
                     }
-                }
-            },
-            "delete": {
+                },
                 "security": [
                     {
                         "BearerAuth": []
                     }
-                ],
+                ]
+            },
+            "delete": {
                 "description": "Unfollow user by username",
                 "produces": [
                     "application/json"
@@ -846,7 +841,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.Error"
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
             }
         },
         "/tags": {
@@ -973,11 +973,6 @@ const docTemplate = `{
         },
         "/user": {
             "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
                 "description": "Get current User",
                 "produces": [
                     "application/json"
@@ -1000,14 +995,14 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.Error"
                         }
                     }
-                }
-            },
-            "put": {
+                },
                 "security": [
                     {
                         "BearerAuth": []
                     }
-                ],
+                ]
+            },
+            "put": {
                 "description": "Update User",
                 "consumes": [
                     "application/json"
@@ -1050,7 +1045,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.Error"
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
             }
         },
         "/users": {

@@ -194,17 +194,17 @@ func (mr *MockArticleMockRecorder) Create(arg0, arg1, arg2 any) *gomock.Call {
 }
 
 // Delete mocks base method.
-func (m *MockArticle) Delete(ctx context.Context, userID, slug string) error {
+func (m *MockArticle) Delete(ctx context.Context, userID, slug string, userRole entity.Role) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Delete", ctx, userID, slug)
+	ret := m.ctrl.Call(m, "Delete", ctx, userID, slug, userRole)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Delete indicates an expected call of Delete.
-func (mr *MockArticleMockRecorder) Delete(ctx, userID, slug any) *gomock.Call {
+func (mr *MockArticleMockRecorder) Delete(ctx, userID, slug, userRole any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockArticle)(nil).Delete), ctx, userID, slug)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockArticle)(nil).Delete), ctx, userID, slug, userRole)
 }
 
 // Detail mocks base method.
@@ -345,17 +345,17 @@ func (mr *MockCommentMockRecorder) Create(ctx, slug, dto any) *gomock.Call {
 }
 
 // Delete mocks base method.
-func (m *MockComment) Delete(ctx context.Context, userID, slug, commentID string) error {
+func (m *MockComment) Delete(ctx context.Context, userID, slug, commentID string, userRole entity.Role) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Delete", ctx, userID, slug, commentID)
+	ret := m.ctrl.Call(m, "Delete", ctx, userID, slug, commentID, userRole)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Delete indicates an expected call of Delete.
-func (mr *MockCommentMockRecorder) Delete(ctx, userID, slug, commentID any) *gomock.Call {
+func (mr *MockCommentMockRecorder) Delete(ctx, userID, slug, commentID, userRole any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockComment)(nil).Delete), ctx, userID, slug, commentID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockComment)(nil).Delete), ctx, userID, slug, commentID, userRole)
 }
 
 // List mocks base method.
