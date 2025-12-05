@@ -3,7 +3,7 @@ package v1
 import (
 	"net/http"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/gin-gonic/gin"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/response"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/entity"
 	"github.com/minhhoccode111/realworld-fiber-clean/pkg/utils"
@@ -19,17 +19,18 @@ import (
 // @Success     200 {object} response.TagsResponse
 // @Failure     500 {object} response.Error
 // @Router      /tags [get]
-func (r *V1) getTags(ctx *fiber.Ctx) error {
-	_, _, _, limit, offset := utils.SearchQueries(ctx)
+func (r *V1) getTags(c *gin.Context) {
+	_, _, _, limit, offset := utils.SearchQueries(c)
 
-	tags, total, err := r.tag.List(ctx.UserContext(), limit, offset)
+	tags, total, err := r.tag.List(c.Request.Context(), limit, offset)
 	if err != nil {
 		r.l.Error(err, "http - v1 - getTags")
 
-		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
+		errorResponse(c, http.StatusInternalServerError, "database problems")
+		return
 	}
 
-	return ctx.Status(http.StatusOK).JSON(response.TagsResponse{
+	c.JSON(http.StatusOK, response.TagsResponse{
 		Tags: tags,
 		Pagination: entity.Pagination{
 			Limit:  limit,

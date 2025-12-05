@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/middleware"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/request"
@@ -26,13 +26,14 @@ import (
 // @Failure     400 {object} response.Error
 // @Failure     500 {object} response.Error
 // @Router      /users [post]
-func (r *V1) postRegisterUser(ctx *fiber.Ctx) error {
+func (r *V1) postRegisterUser(c *gin.Context) {
 	var body request.UserRegisterRequest
 
-	if err := ctx.BodyParser(&body); err != nil {
-		r.l.Error(err, "http - v1 - postRegisterUser - ctx.BodyParser")
+	if err := c.ShouldBindJSON(&body); err != nil {
+		r.l.Error(err, "http - v1 - postRegisterUser - c.ShouldBindJSON")
 
-		return errorResponse(ctx, http.StatusBadRequest, "invalid request body")
+		errorResponse(c, http.StatusBadRequest, "invalid request body")
+		return
 	}
 
 	body.User.Trim()
@@ -41,7 +42,8 @@ func (r *V1) postRegisterUser(ctx *fiber.Ctx) error {
 		r.l.Error(err, "http - v1 - postRegisterUser - r.v.Struct")
 
 		errs := validatorx.ExtractErrors(err)
-		return errorResponse(ctx, http.StatusBadRequest, strings.Join(errs, "; "))
+		errorResponse(c, http.StatusBadRequest, strings.Join(errs, "; "))
+		return
 	}
 
 	u := &entity.User{
@@ -50,15 +52,17 @@ func (r *V1) postRegisterUser(ctx *fiber.Ctx) error {
 		Password: body.User.Password,
 	}
 	// user.ID generated, user.Password hashed
-	err := r.u.Register(ctx.UserContext(), u)
+	err := r.u.Register(c.Request.Context(), u)
 	if err != nil {
 		if errors.Is(err, entity.ErrConflict) {
-			return errorResponse(ctx, http.StatusConflict, "email/username already existed")
+			errorResponse(c, http.StatusConflict, "email/username already existed")
+			return
 		}
 
 		r.l.Error(err, "http - v1 - postRegisterUser - r.u.Register")
 
-		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
+		errorResponse(c, http.StatusInternalServerError, "database problems")
+		return
 	}
 
 	token, err := utils.GenerateJWT(
@@ -71,10 +75,11 @@ func (r *V1) postRegisterUser(ctx *fiber.Ctx) error {
 	if err != nil {
 		r.l.Error(err, "http - v1 - postRegisterUser - utils.GenerateJWT")
 
-		return errorResponse(ctx, http.StatusInternalServerError, "generate jwt error")
+		errorResponse(c, http.StatusInternalServerError, "generate jwt error")
+		return
 	}
 
-	return ctx.Status(http.StatusCreated).JSON(response.UserAuthResponse{
+	c.JSON(http.StatusCreated, response.UserAuthResponse{
 		User: response.NewUserAuth(u, token),
 	})
 }
@@ -91,13 +96,14 @@ func (r *V1) postRegisterUser(ctx *fiber.Ctx) error {
 // @Failure     401 {object} response.Error
 // @Failure     500 {object} response.Error
 // @Router      /users/login [post]
-func (r *V1) postLoginUser(ctx *fiber.Ctx) error {
+func (r *V1) postLoginUser(c *gin.Context) {
 	var body request.UserLoginRequest
 
-	if err := ctx.BodyParser(&body); err != nil {
-		r.l.Error(err, "http - v1 - postLoginUser - ctx.BodyParser")
+	if err := c.ShouldBindJSON(&body); err != nil {
+		r.l.Error(err, "http - v1 - postLoginUser - c.ShouldBindJSON")
 
-		return errorResponse(ctx, http.StatusBadRequest, "invalid request body")
+		errorResponse(c, http.StatusBadRequest, "invalid request body")
+		return
 	}
 
 	body.User.Trim()
@@ -106,25 +112,29 @@ func (r *V1) postLoginUser(ctx *fiber.Ctx) error {
 		r.l.Error(err, "http - v1 - postLoginUser - r.v.Struct")
 
 		errs := validatorx.ExtractErrors(err)
-		return errorResponse(ctx, http.StatusBadRequest, strings.Join(errs, "; "))
+		errorResponse(c, http.StatusBadRequest, strings.Join(errs, "; "))
+		return
 	}
 
-	u, err := r.u.Login(ctx.UserContext(), &entity.User{
+	u, err := r.u.Login(c.Request.Context(), &entity.User{
 		Email:    body.User.Email,
 		Password: body.User.Password,
 	})
 	if err != nil {
 		if errors.Is(err, entity.ErrNoRows) {
-			return errorResponse(ctx, http.StatusUnauthorized, "incorrect email")
+			errorResponse(c, http.StatusUnauthorized, "incorrect email")
+			return
 		}
 
 		if errors.Is(err, entity.ErrInvalidCredentials) {
-			return errorResponse(ctx, http.StatusUnauthorized, "incorrect password")
+			errorResponse(c, http.StatusUnauthorized, "incorrect password")
+			return
 		}
 
 		r.l.Error(err, "http - v1 - postLoginUser - r.u.Login")
 
-		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
+		errorResponse(c, http.StatusInternalServerError, "database problems")
+		return
 	}
 
 	token, err := utils.GenerateJWT(
@@ -137,16 +147,17 @@ func (r *V1) postLoginUser(ctx *fiber.Ctx) error {
 	if err != nil {
 		r.l.Error(err, "http - v1 - postLoginUser - utils.GenerateJWT")
 
-		return errorResponse(ctx, http.StatusInternalServerError, "jwt problems")
+		errorResponse(c, http.StatusInternalServerError, "jwt problems")
+		return
 	}
 
-	return ctx.Status(http.StatusOK).JSON(response.UserAuthResponse{
+	c.JSON(http.StatusOK, response.UserAuthResponse{
 		User: response.NewUserAuth(u, token),
 	})
 }
 
-// func (r *V1) postLogoutUser(ctx *fiber.Ctx) error {
-// 	return ctx.SendStatus(200)
+// func (r *V1) postLogoutUser(c *gin.Context) {
+// 	c.Status(200) // Gin equivalent for ctx.SendStatus(200)
 // }
 
 // @Summary     Get current User
@@ -158,21 +169,24 @@ func (r *V1) postLoginUser(ctx *fiber.Ctx) error {
 // @Failure     500 {object} response.Error
 // @Router      /user [get]
 // @Security    BearerAuth
-func (r *V1) getCurrentUser(ctx *fiber.Ctx) error {
-	userID := ctx.Locals(middleware.CtxUserIDKey).(string)
+func (r *V1) getCurrentUser(c *gin.Context) {
+	userID := c.MustGet(string(middleware.CtxUserIDKey)).(string)
 	if userID == "" {
-		return errorResponse(ctx, http.StatusInternalServerError, "cannot authorize user in jwt")
+		errorResponse(c, http.StatusInternalServerError, "cannot authorize user in jwt")
+		return
 	}
 
-	u, err := r.u.Current(ctx.UserContext(), userID)
+	u, err := r.u.Current(c.Request.Context(), userID)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return errorResponse(ctx, http.StatusNotFound, "userID in token not found")
+			errorResponse(c, http.StatusNotFound, "userID in token not found")
+			return
 		}
 
 		r.l.Error(err, "http - v1 - getCurrentUser - r.u.Current")
 
-		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
+		errorResponse(c, http.StatusInternalServerError, "database problems")
+		return
 	}
 
 	token, err := utils.GenerateJWT(
@@ -185,10 +199,11 @@ func (r *V1) getCurrentUser(ctx *fiber.Ctx) error {
 	if err != nil {
 		r.l.Error(err, "http - v1 - getCurrentUser - utils.GenerateJWT")
 
-		return errorResponse(ctx, http.StatusInternalServerError, "jwt problems")
+		errorResponse(c, http.StatusInternalServerError, "jwt problems")
+		return
 	}
 
-	return ctx.Status(http.StatusOK).JSON(response.UserAuthResponse{
+	c.JSON(http.StatusOK, response.UserAuthResponse{
 		User: response.NewUserAuth(u, token),
 	})
 }
@@ -205,42 +220,48 @@ func (r *V1) getCurrentUser(ctx *fiber.Ctx) error {
 // @Failure     500 {object} response.Error
 // @Router      /user [put]
 // @Security    BearerAuth
-func (r *V1) putUpdateUser(ctx *fiber.Ctx) error {
+func (r *V1) putUpdateUser(c *gin.Context) {
 	var body request.UserUpdateRequest
 
-	if err := ctx.BodyParser(&body); err != nil {
-		r.l.Error(err, "http - v1 - putUpdateUser - ctx.BodyParser")
+	if err := c.ShouldBindJSON(&body); err != nil {
+		r.l.Error(err, "http - v1 - putUpdateUser - c.ShouldBindJSON")
 
-		return errorResponse(ctx, http.StatusBadRequest, "invalid request body")
+		errorResponse(c, http.StatusBadRequest, "invalid request body")
+		return
 	}
 
 	body.User.Trim()
 
 	if body.User.IsAllEmpty() {
-		return errorResponse(ctx, http.StatusBadRequest, "no field provided")
+		errorResponse(c, http.StatusBadRequest, "no field provided")
+		return
 	}
 
 	if err := r.v.Struct(body.User); err != nil {
 		r.l.Error(err, "http - v1 - putUpdateUser - r.v.Struct")
 
 		errs := validatorx.ExtractErrors(err)
-		return errorResponse(ctx, http.StatusBadRequest, strings.Join(errs, "; "))
+		errorResponse(c, http.StatusBadRequest, strings.Join(errs, "; "))
+		return
 	}
 
-	userID := ctx.Locals(middleware.CtxUserIDKey).(string)
+	userID := c.MustGet(string(middleware.CtxUserIDKey)).(string)
 	if userID == "" {
-		return errorResponse(ctx, http.StatusInternalServerError, "cannot authorize user in jwt")
+		errorResponse(c, http.StatusInternalServerError, "cannot authorize user in jwt")
+		return
 	}
 
-	u, err := r.u.Update(ctx.UserContext(), body.User.NewUser(userID))
+	u, err := r.u.Update(c.Request.Context(), body.User.NewUser(userID))
 	if err != nil {
 		if errors.Is(err, entity.ErrConflict) {
-			return errorResponse(ctx, http.StatusConflict, "email/username alread existed")
+			errorResponse(c, http.StatusConflict, "email/username alread existed")
+			return
 		}
 
 		r.l.Error(err, "http - v1 - putUpdateUser - r.u.Update")
 
-		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
+		errorResponse(c, http.StatusInternalServerError, "database problems")
+		return
 	}
 
 	token, err := utils.GenerateJWT(
@@ -253,10 +274,11 @@ func (r *V1) putUpdateUser(ctx *fiber.Ctx) error {
 	if err != nil {
 		r.l.Error(err, "http - v1 - putUpdateUser - utils.GenerateJWT")
 
-		return errorResponse(ctx, http.StatusInternalServerError, "generate jwt error")
+		errorResponse(c, http.StatusInternalServerError, "generate jwt error")
+		return
 	}
 
-	return ctx.Status(http.StatusOK).JSON(response.UserAuthResponse{
+	c.JSON(http.StatusOK, response.UserAuthResponse{
 		User: response.NewUserAuth(u, token),
 	})
 }

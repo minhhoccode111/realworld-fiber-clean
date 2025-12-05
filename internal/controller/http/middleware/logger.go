@@ -4,32 +4,31 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/gin-gonic/gin"
 	"github.com/minhhoccode111/realworld-fiber-clean/pkg/logger"
 )
 
-func buildRequestMessage(ctx *fiber.Ctx) string {
+func buildRequestMessage(ctx *gin.Context) string {
 	var result strings.Builder
 
-	result.WriteString(ctx.IP())
+	result.WriteString(ctx.ClientIP())
 	result.WriteString(" - ")
-	result.WriteString(ctx.Method())
+	result.WriteString(ctx.Request.Method)
 	result.WriteString(" ")
-	result.WriteString(ctx.OriginalURL())
+	result.WriteString(ctx.Request.URL.Path)
 	result.WriteString(" - ")
-	result.WriteString(strconv.Itoa(ctx.Response().StatusCode()))
-	result.WriteString(" ")
-	result.WriteString(strconv.Itoa(len(ctx.Response().Body())))
+	result.WriteString(strconv.Itoa(ctx.Writer.Status()))
+	// Gin does not directly expose response body length in ctx.Writer
+	// result.WriteString(" ")
+	// result.WriteString(strconv.Itoa(len(ctx.Response().Body()))) // This was Fiber specific
 
 	return result.String()
 }
 
-func Logger(l logger.Interface) func(c *fiber.Ctx) error {
-	return func(ctx *fiber.Ctx) error {
-		err := ctx.Next()
+func Logger(l logger.Interface) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		ctx.Next()
 
 		l.Info(buildRequestMessage(ctx))
-
-		return err
 	}
 }

@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/gin-gonic/gin"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/middleware"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/request"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/response"
@@ -28,13 +28,14 @@ import (
 // @Failure     500 {object} response.Error
 // @Router      /articles/{slug}/comments [post]
 // @Security    BearerAuth
-func (r *V1) postComment(ctx *fiber.Ctx) error {
+func (r *V1) postComment(c *gin.Context) {
 	var body request.CommentCreateRequest
 
-	if err := ctx.BodyParser(&body); err != nil {
-		r.l.Error(err, "http - v1 - postCreateComment - ctx.BodyParser")
+	if err := c.ShouldBindJSON(&body); err != nil {
+		r.l.Error(err, "http - v1 - postCreateComment - c.ShouldBindJSON")
 
-		return errorResponse(ctx, http.StatusBadRequest, "invalid request body")
+		errorResponse(c, http.StatusBadRequest, "invalid request body")
+		return
 	}
 
 	body.Comment.Trim()
@@ -43,21 +44,24 @@ func (r *V1) postComment(ctx *fiber.Ctx) error {
 		r.l.Error(err, "http - v1 - postCreateComment - r.v.Struct")
 
 		errs := validatorx.ExtractErrors(err)
-		return errorResponse(ctx, http.StatusBadRequest, strings.Join(errs, "; "))
+		errorResponse(c, http.StatusBadRequest, strings.Join(errs, "; "))
+		return
 	}
 
-	userID := ctx.Locals(middleware.CtxUserIDKey).(string)
+	userID := c.MustGet(string(middleware.CtxUserIDKey)).(string)
 	if userID == "" {
-		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
+		errorResponse(c, http.StatusUnauthorized, "cannot authorize user in jwt")
+		return
 	}
 
-	slug := ctx.Params("slug")
+	slug := c.Param("slug")
 	if slug == "" {
-		return errorResponse(ctx, http.StatusBadRequest, "slug is required")
+		errorResponse(c, http.StatusBadRequest, "slug is required")
+		return
 	}
 
-	c, err := r.c.Create(
-		ctx.UserContext(),
+	comment, err := r.c.Create(
+		c.Request.Context(),
 		slug,
 		&entity.Comment{
 			AuthorID: userID,
@@ -66,16 +70,18 @@ func (r *V1) postComment(ctx *fiber.Ctx) error {
 	)
 	if err != nil {
 		if errors.Is(err, entity.ErrNoRows) {
-			return errorResponse(ctx, http.StatusNotFound, "Article not found")
+			errorResponse(c, http.StatusNotFound, "Article not found")
+			return
 		}
 
 		r.l.Error(err, "http - v1 - postCreateComment - r.c.Create")
 
-		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
+		errorResponse(c, http.StatusInternalServerError, "database problems")
+		return
 	}
 
-	return ctx.Status(http.StatusCreated).JSON(response.CommentDetailResponse{
-		Comment: c,
+	c.JSON(http.StatusCreated, response.CommentDetailResponse{
+		Comment: comment,
 	})
 }
 
@@ -92,23 +98,28 @@ func (r *V1) postComment(ctx *fiber.Ctx) error {
 // @Failure     500 {object} response.Error
 // @Router      /articles/{slug}/comments [get]
 // @Security    BearerAuth
-func (r *V1) getAllComments(ctx *fiber.Ctx) error {
-	isAuth := ctx.Locals(middleware.CtxIsAuthKey).(bool)
+func (r *V1) getAllComments(c *gin.Context) {
+	isAuth := c.MustGet(string(middleware.CtxIsAuthKey)).(bool)
 
-	userID := ctx.Locals(middleware.CtxUserIDKey).(string)
-	if userID == "" && isAuth {
-		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
+	userID := ""
+	if isAuth {
+		userID = c.MustGet(string(middleware.CtxUserIDKey)).(string)
+		if userID == "" {
+			errorResponse(c, http.StatusUnauthorized, "cannot authorize user in jwt")
+			return
+		}
 	}
 
-	slug := ctx.Params("slug")
+	slug := c.Param("slug")
 	if slug == "" {
-		return errorResponse(ctx, http.StatusBadRequest, "slug is required")
+		errorResponse(c, http.StatusBadRequest, "slug is required")
+		return
 	}
 
-	_, _, _, limit, offset := utils.SearchQueries(ctx)
+	_, _, _, limit, offset := utils.SearchQueries(c)
 
 	comments, total, err := r.c.List(
-		ctx.UserContext(),
+		c.Request.Context(),
 		userID,
 		slug,
 		limit,
@@ -117,10 +128,11 @@ func (r *V1) getAllComments(ctx *fiber.Ctx) error {
 	if err != nil {
 		r.l.Error(err, "http - v1 - getAllComments - r.c.List")
 
-		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
+		errorResponse(c, http.StatusInternalServerError, "database problems")
+		return
 	}
 
-	return ctx.Status(http.StatusOK).JSON(response.CommentDetailsResponse{
+	c.JSON(http.StatusOK, response.CommentDetailsResponse{
 		Comments: comments,
 		Pagination: entity.Pagination{
 			Total:  total,
@@ -145,45 +157,51 @@ func (r *V1) getAllComments(ctx *fiber.Ctx) error {
 // @Failure     500 {object} response.Error
 // @Router      /articles/{slug}/comments/{commentID} [delete]
 // @Security    BearerAuth
-func (r *V1) deleteComment(ctx *fiber.Ctx) error {
-	userID := ctx.Locals(middleware.CtxUserIDKey).(string)
+func (r *V1) deleteComment(c *gin.Context) {
+	userID := c.MustGet(string(middleware.CtxUserIDKey)).(string)
 	if userID == "" {
-		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
+		errorResponse(c, http.StatusUnauthorized, "cannot authorize user in jwt")
+		return
 	}
 
-	userRole, ok := ctx.Locals(middleware.CtxUserRoleKey).(entity.Role)
+	userRole, ok := c.Get(string(middleware.CtxUserRoleKey))
 	if !ok {
-		userRole = entity.UserRole
+		userRole = entity.UserRole // Default to UserRole if not found
 	}
 
-	slug := ctx.Params("slug")
+	slug := c.Param("slug")
 	if slug == "" {
-		return errorResponse(ctx, http.StatusBadRequest, "slug is required")
+		errorResponse(c, http.StatusBadRequest, "slug is required")
+		return
 	}
 
-	commentID := ctx.Params("commentID")
+	commentID := c.Param("commentID")
 	if commentID == "" {
-		return errorResponse(ctx, http.StatusBadRequest, "commentID is required")
+		errorResponse(c, http.StatusBadRequest, "commentID is required")
+		return
 	}
 
-	err := r.c.Delete(ctx.UserContext(), userID, slug, commentID, userRole)
+	err := r.c.Delete(c.Request.Context(), userID, slug, commentID, userRole.(entity.Role))
 	if err != nil {
 		if errors.Is(err, entity.ErrForbidden) {
-			return errorResponse(
-				ctx,
+			errorResponse(
+				c,
 				http.StatusForbidden,
 				"Only admin/author can delete this comment",
 			)
+			return
 		}
 
 		if errors.Is(err, entity.ErrNoEffect) {
-			return errorResponse(ctx, http.StatusNotFound, "Article/comment not found")
+			errorResponse(c, http.StatusNotFound, "Article/comment not found")
+			return
 		}
 
 		r.l.Error(err, "http - v1 - deleteComment - r.c.Delete")
 
-		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
+		errorResponse(c, http.StatusInternalServerError, "database problems")
+		return
 	}
 
-	return ctx.SendStatus(http.StatusNoContent)
+	c.Status(http.StatusNoContent)
 }

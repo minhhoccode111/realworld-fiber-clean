@@ -4,21 +4,22 @@ package http
 import (
 	"net/http"
 
-	"github.com/ansrivas/fiberprometheus/v2"
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/swagger"
+	"github.com/gin-gonic/gin"
 	"github.com/minhhoccode111/realworld-fiber-clean/config"
 	_ "github.com/minhhoccode111/realworld-fiber-clean/docs" // Swagger docs.
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/middleware"
 	v1 "github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/usecase"
 	"github.com/minhhoccode111/realworld-fiber-clean/pkg/logger"
+	"github.com/swaggo/files" // swagger embed files
+	ginSwagger "github.com/swaggo/gin-swagger"
+	"github.com/zsais/go-gin-prometheus"
 )
 
 // NewRouter -.
 // Swagger spec:
 // @title       Realworld Fiber Clean API
-// @description Realworld API using Golang + Fiber + Clean Architecture
+// @description Realworld API using Golang + Gin + Clean Architecture
 // @version     1.0
 // @host        localhost:8080
 // @BasePath    /api/v1
@@ -27,7 +28,7 @@ import (
 // @name Authorization
 // @description Type "Token" followed by a space and JWT token.
 func NewRouter(
-	app *fiber.App,
+	router *gin.Engine,
 	cfg *config.Config,
 	l logger.Interface,
 
@@ -40,27 +41,26 @@ func NewRouter(
 	tag usecase.Tag,
 ) {
 	// Options
-	app.Use(middleware.Logger(l))
-	app.Use(middleware.Recovery(l))
-	app.Use(middleware.CORS(cfg))
+	router.Use(middleware.Logger(l))
+	router.Use(middleware.Recovery(l))
+	router.Use(middleware.CORS(cfg))
 
 	// Prometheus metrics
 	if cfg.Metrics.Enabled {
-		prometheus := fiberprometheus.New(cfg.App.Name)
-		prometheus.RegisterAt(app, "/metrics")
-		app.Use(prometheus.Middleware)
+		p := ginprometheus.NewPrometheus("gin")
+		p.Use(router)
 	}
 
 	// Swagger
 	if cfg.Swagger.Enabled {
-		app.Get("/swagger/*", swagger.HandlerDefault)
+		router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	}
 
 	// K8s probe
-	app.Get("/healthz", func(ctx *fiber.Ctx) error { return ctx.SendStatus(http.StatusOK) })
+	router.GET("/healthz", func(c *gin.Context) { c.Status(http.StatusOK) })
 
 	// Routers
-	apiV1Group := app.Group("/api/v1")
+	apiV1Group := router.Group("/api/v1")
 	{
 		v1.NewV1Routes(apiV1Group, cfg, l, t, u, a, f, c, p, tag)
 	}

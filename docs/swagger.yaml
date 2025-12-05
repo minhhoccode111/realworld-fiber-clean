@@ -361,7 +361,7 @@ definitions:
 host: localhost:8080
 info:
   contact: {}
-  description: Realworld API using Golang + Fiber + Clean Architecture
+  description: Realworld API using Golang + Gin + Clean Architecture
   title: Realworld Fiber Clean API
   version: "1.0"
 paths:

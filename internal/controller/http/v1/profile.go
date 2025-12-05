@@ -4,7 +4,7 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/gin-gonic/gin"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/middleware"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/response"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/entity"
@@ -23,31 +23,38 @@ import (
 // @Failure     500 {object} response.Error
 // @Router      /profiles/{username} [get]
 // @Security    BearerAuth
-func (r *V1) getProfile(ctx *fiber.Ctx) error {
-	isAuth := ctx.Locals(middleware.CtxIsAuthKey).(bool)
+func (r *V1) getProfile(c *gin.Context) {
+	isAuth := c.MustGet(string(middleware.CtxIsAuthKey)).(bool)
 
-	userID := ctx.Locals(middleware.CtxUserIDKey).(string)
-	if userID == "" && isAuth {
-		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
+	userID := ""
+	if isAuth {
+		userID = c.MustGet(string(middleware.CtxUserIDKey)).(string)
+		if userID == "" {
+			errorResponse(c, http.StatusUnauthorized, "cannot authorize user in jwt")
+			return
+		}
 	}
 
-	username := ctx.Params("username")
+	username := c.Param("username")
 	if username == "" {
-		return errorResponse(ctx, http.StatusBadRequest, "username is required")
+		errorResponse(c, http.StatusBadRequest, "username is required")
+		return
 	}
 
-	p, err := r.p.Detail(ctx.UserContext(), userID, username)
+	p, err := r.p.Detail(c.Request.Context(), userID, username)
 	if err != nil {
 		if errors.Is(err, entity.ErrNoRows) {
-			return errorResponse(ctx, http.StatusNotFound, "Profile not found")
+			errorResponse(c, http.StatusNotFound, "Profile not found")
+			return
 		}
 
 		r.l.Error(err, "http - v1 - getProfile - r.p.Detail")
 
-		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
+		errorResponse(c, http.StatusInternalServerError, "database problems")
+		return
 	}
 
-	return ctx.Status(http.StatusOK).JSON(response.ProfilePreviewResponse{
+	c.JSON(http.StatusOK, response.ProfilePreviewResponse{
 		Profile: p,
 	})
 }
@@ -65,44 +72,51 @@ func (r *V1) getProfile(ctx *fiber.Ctx) error {
 // @Failure     500 {object} response.Error
 // @Router      /profiles/{username}/follow [post]
 // @Security    BearerAuth
-func (r *V1) postFollowProfile(ctx *fiber.Ctx) error {
-	userID := ctx.Locals(middleware.CtxUserIDKey).(string)
+func (r *V1) postFollowProfile(c *gin.Context) {
+	userID := c.MustGet(string(middleware.CtxUserIDKey)).(string)
 	if userID == "" {
-		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
+		errorResponse(c, http.StatusUnauthorized, "cannot authorize user in jwt")
+		return
 	}
 
-	username := ctx.Params("username")
+	username := c.Param("username")
 	if username == "" {
-		return errorResponse(ctx, http.StatusBadRequest, "username is required")
+		errorResponse(c, http.StatusBadRequest, "username is required")
+		return
 	}
 
-	err := r.p.Follow(ctx.UserContext(), userID, username)
+	err := r.p.Follow(c.Request.Context(), userID, username)
 	if err != nil {
 		if errors.Is(err, entity.ErrNoRows) {
-			return errorResponse(ctx, http.StatusNotFound, "Profile not found")
+			errorResponse(c, http.StatusNotFound, "Profile not found")
+			return
 		}
 
 		if errors.Is(err, entity.ErrNoEffect) {
-			return errorResponse(ctx, http.StatusNotFound, "Profile is already followed")
+			errorResponse(c, http.StatusBadRequest, "Profile is already followed")
+			return
 		}
 
 		r.l.Error(err, "http - v1 - postFollowProfile - r.p.Follow")
 
-		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
+		errorResponse(c, http.StatusInternalServerError, "database problems")
+		return
 	}
 
-	p, err := r.p.Detail(ctx.UserContext(), userID, username)
+	p, err := r.p.Detail(c.Request.Context(), userID, username)
 	if err != nil {
 		if errors.Is(err, entity.ErrNoRows) {
-			return errorResponse(ctx, http.StatusNotFound, "Profile not found")
+			errorResponse(c, http.StatusNotFound, "Profile not found")
+			return
 		}
 
 		r.l.Error(err, "http - v1 - postFollowProfile - r.p.Detail")
 
-		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
+		errorResponse(c, http.StatusInternalServerError, "database problems")
+		return
 	}
 
-	return ctx.Status(http.StatusOK).JSON(response.ProfilePreviewResponse{
+	c.JSON(http.StatusOK, response.ProfilePreviewResponse{
 		Profile: p,
 	})
 }
@@ -120,44 +134,51 @@ func (r *V1) postFollowProfile(ctx *fiber.Ctx) error {
 // @Failure     500 {object} response.Error
 // @Router      /profiles/{username}/follow [delete]
 // @Security    BearerAuth
-func (r *V1) deleteFollowProfile(ctx *fiber.Ctx) error {
-	userID := ctx.Locals(middleware.CtxUserIDKey).(string)
+func (r *V1) deleteFollowProfile(c *gin.Context) {
+	userID := c.MustGet(string(middleware.CtxUserIDKey)).(string)
 	if userID == "" {
-		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
+		errorResponse(c, http.StatusUnauthorized, "cannot authorize user in jwt")
+		return
 	}
 
-	username := ctx.Params("username")
+	username := c.Param("username")
 	if username == "" {
-		return errorResponse(ctx, http.StatusBadRequest, "username is required")
+		errorResponse(c, http.StatusBadRequest, "username is required")
+		return
 	}
 
-	err := r.p.Unfollow(ctx.UserContext(), userID, username)
+	err := r.p.Unfollow(c.Request.Context(), userID, username)
 	if err != nil {
 		if errors.Is(err, entity.ErrNoRows) {
-			return errorResponse(ctx, http.StatusNotFound, "Profile not found")
+			errorResponse(c, http.StatusNotFound, "Profile not found")
+			return
 		}
 
 		if errors.Is(err, entity.ErrNoEffect) {
-			return errorResponse(ctx, http.StatusNotFound, "Profile is already unfollowed")
+			errorResponse(c, http.StatusBadRequest, "Profile is already unfollowed")
+			return
 		}
 
 		r.l.Error(err, "http - v1 - postFollowProfile - r.p.Follow")
 
-		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
+		errorResponse(c, http.StatusInternalServerError, "database problems")
+		return
 	}
 
-	p, err := r.p.Detail(ctx.UserContext(), userID, username)
+	p, err := r.p.Detail(c.Request.Context(), userID, username)
 	if err != nil {
 		if errors.Is(err, entity.ErrNoRows) {
-			return errorResponse(ctx, http.StatusNotFound, "Profile not found")
+			errorResponse(c, http.StatusNotFound, "Profile not found")
+			return
 		}
 
 		r.l.Error(err, "http - v1 - postFollowProfile - r.p.Detail")
 
-		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
+		errorResponse(c, http.StatusInternalServerError, "database problems")
+		return
 	}
 
-	return ctx.Status(http.StatusOK).JSON(response.ProfilePreviewResponse{
+	c.JSON(http.StatusOK, response.ProfilePreviewResponse{
 		Profile: p,
 	})
 }

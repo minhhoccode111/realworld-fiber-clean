@@ -1,10 +1,10 @@
 package v1
 
 import (
-	"github.com/gofiber/fiber/v2"
+	"github.com/gin-gonic/gin"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/response"
 )
 
-func errorResponse(ctx *fiber.Ctx, code int, msg string) error {
-	return ctx.Status(code).JSON(response.Error{Error: msg})
+func errorResponse(c *gin.Context, code int, msg string) {
+	c.AbortWithStatusJSON(code, response.Error{Error: msg})
 }

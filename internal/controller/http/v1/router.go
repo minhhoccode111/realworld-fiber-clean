@@ -1,7 +1,7 @@
 package v1
 
 import (
-	"github.com/gofiber/fiber/v2"
+	"github.com/gin-gonic/gin"
 	"github.com/minhhoccode111/realworld-fiber-clean/config"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/middleware"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/usecase"
@@ -11,7 +11,7 @@ import (
 
 // NewV1Routes -.
 func NewV1Routes(
-	apiV1Group fiber.Router,
+	apiV1Group *gin.RouterGroup,
 	cfg *config.Config,
 	l logger.Interface,
 
@@ -43,55 +43,55 @@ func NewV1Routes(
 
 	translation := apiV1Group.Group("/translation")
 	{
-		translation.Get("/history", r.history)
-		translation.Post("/do-translate", r.doTranslate)
+		translation.GET("/history", r.history)
+		translation.POST("/do-translate", r.doTranslate)
 	}
 
 	users := apiV1Group.Group("/users")
 	{
-		users.Post("/", r.postRegisterUser)
-		users.Post("/login", r.postLoginUser)
+		users.POST("/", r.postRegisterUser)
+		users.POST("/login", r.postLoginUser)
 		// users.Post("/logout", r.postLogoutUser)
 	}
 
 	user := apiV1Group.Group("/user")
 	{
-		user.Get("/", auth, r.getCurrentUser)
-		user.Put("/", auth, r.putUpdateUser)
+		user.GET("/", auth, r.getCurrentUser)
+		user.PUT("/", auth, r.putUpdateUser)
 	}
 
 	articles := apiV1Group.Group("/articles")
 	{
-		articles.Post("/", auth, r.postArticle)
-		articles.Get("/", optionalAuth, r.getAllArticles)
-		articles.Get("/feed", auth, r.getFeedArticles)
-		articles.Get("/:slug", optionalAuth, r.getArticle)
-		articles.Put("/:slug", auth, r.putArticle)
-		articles.Delete("/:slug", auth, r.deleteArticle)
+		articles.POST("/", auth, r.postArticle)
+		articles.GET("/", optionalAuth, r.getAllArticles)
+		articles.GET("/feed", auth, r.getFeedArticles)
+		articles.GET("/:slug", optionalAuth, r.getArticle)
+		articles.PUT("/:slug", auth, r.putArticle)
+		articles.DELETE("/:slug", auth, r.deleteArticle)
 	}
 
 	favorites := apiV1Group.Group("/articles/:slug/favorite")
 	{
-		favorites.Post("/", auth, r.createFavorite)
-		favorites.Delete("/", auth, r.deleteFavorite)
+		favorites.POST("/", auth, r.createFavorite)
+		favorites.DELETE("/", auth, r.deleteFavorite)
 	}
 
 	comments := apiV1Group.Group("/articles/:slug/comments")
 	{
-		comments.Post("/", auth, r.postComment)
-		comments.Get("/", optionalAuth, r.getAllComments)
-		comments.Delete("/:commentID", auth, r.deleteComment)
+		comments.POST("/", auth, r.postComment)
+		comments.GET("/", optionalAuth, r.getAllComments)
+		comments.DELETE("/:commentID", auth, r.deleteComment)
 	}
 
 	profiles := apiV1Group.Group("/profiles/:username")
 	{
-		profiles.Get("/", optionalAuth, r.getProfile)
-		profiles.Post("/follow", auth, r.postFollowProfile)
-		profiles.Delete("/follow", auth, r.deleteFollowProfile)
+		profiles.GET("/", optionalAuth, r.getProfile)
+		profiles.POST("/follow", auth, r.postFollowProfile)
+		profiles.DELETE("/follow", auth, r.deleteFollowProfile)
 	}
 
 	tags := apiV1Group.Group("/tags")
 	{
-		tags.Get("/", r.getTags)
+		tags.GET("/", r.getTags)
 	}
 }

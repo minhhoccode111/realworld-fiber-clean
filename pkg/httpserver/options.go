@@ -15,12 +15,12 @@ func Port(port string) Option {
 	}
 }
 
-// Prefork -.
-func Prefork(prefork bool) Option {
-	return func(s *Server) {
-		s.prefork = prefork
-	}
-}
+// // Prefork -.
+// func Prefork(prefork bool) Option {
+// 	return func(s *Server) {
+// 		s.prefork = prefork
+// 	}
+// }
 
 // ReadTimeout -.
 func ReadTimeout(timeout time.Duration) Option {

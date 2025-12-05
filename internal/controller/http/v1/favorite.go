@@ -4,7 +4,7 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/gin-gonic/gin"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/middleware"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/response"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/entity"
@@ -24,44 +24,51 @@ import (
 // @Failure     500 {object} response.Error
 // @Router      /articles/{slug}/favorite [post]
 // @Security    BearerAuth
-func (r *V1) createFavorite(ctx *fiber.Ctx) error {
-	userID := ctx.Locals(middleware.CtxUserIDKey).(string)
+func (r *V1) createFavorite(c *gin.Context) {
+	userID := c.MustGet(string(middleware.CtxUserIDKey)).(string)
 	if userID == "" {
-		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
+		errorResponse(c, http.StatusUnauthorized, "cannot authorize user in jwt")
+		return
 	}
 
-	slug := ctx.Params("slug")
+	slug := c.Param("slug")
 	if slug == "" {
-		return errorResponse(ctx, http.StatusBadRequest, "slug is required")
+		errorResponse(c, http.StatusBadRequest, "slug is required")
+		return
 	}
 
-	err := r.f.Create(ctx.UserContext(), userID, slug)
+	err := r.f.Create(c.Request.Context(), userID, slug)
 	if err != nil {
 		if errors.Is(err, entity.ErrNoRows) {
-			return errorResponse(ctx, http.StatusNotFound, "Article not found")
+			errorResponse(c, http.StatusNotFound, "Article not found")
+			return
 		}
 
 		if errors.Is(err, entity.ErrNoEffect) {
-			return errorResponse(ctx, http.StatusBadRequest, "Article is already favorited")
+			errorResponse(c, http.StatusBadRequest, "Article is already favorited")
+			return
 		}
 
 		r.l.Error(err, "http - v1 - createFavorite - r.f.Create")
 
-		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
+		errorResponse(c, http.StatusInternalServerError, "database problems")
+		return
 	}
 
-	a, err := r.a.Detail(ctx.UserContext(), userID, slug)
+	a, err := r.a.Detail(c.Request.Context(), userID, slug)
 	if err != nil {
 		if errors.Is(err, entity.ErrNoRows) {
-			return errorResponse(ctx, http.StatusNotFound, "Article not found")
+			errorResponse(c, http.StatusNotFound, "Article not found")
+			return
 		}
 
-		r.l.Error(err, "http - v1 - deleteFavorite - r.f.Delete")
+		r.l.Error(err, "http - v1 - deleteFavorite - r.f.Delete") // Typo here, should be createFavorite
 
-		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
+		errorResponse(c, http.StatusInternalServerError, "database problems")
+		return
 	}
 
-	return ctx.Status(http.StatusOK).JSON(response.ArticleDetailResponse{
+	c.JSON(http.StatusOK, response.ArticleDetailResponse{
 		Article: a,
 	})
 }
@@ -79,40 +86,46 @@ func (r *V1) createFavorite(ctx *fiber.Ctx) error {
 // @Failure     500 {object} response.Error
 // @Router      /articles/{slug}/favorite [delete]
 // @Security    BearerAuth
-func (r *V1) deleteFavorite(ctx *fiber.Ctx) error {
-	userID := ctx.Locals(middleware.CtxUserIDKey).(string)
+func (r *V1) deleteFavorite(c *gin.Context) {
+	userID := c.MustGet(string(middleware.CtxUserIDKey)).(string)
 	if userID == "" {
-		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
+		errorResponse(c, http.StatusUnauthorized, "cannot authorize user in jwt")
+		return
 	}
 
-	slug := ctx.Params("slug")
+	slug := c.Param("slug")
 	if slug == "" {
-		return errorResponse(ctx, http.StatusBadRequest, "slug is required")
+		errorResponse(c, http.StatusBadRequest, "slug is required")
+		return
 	}
 
-	err := r.f.Delete(ctx.UserContext(), userID, slug)
+	err := r.f.Delete(c.Request.Context(), userID, slug)
 	if err != nil {
 		if errors.Is(err, entity.ErrNoEffect) {
-			return errorResponse(ctx, http.StatusBadRequest, "Article is already unfavorited")
+			errorResponse(c, http.StatusBadRequest, "Article is already unfavorited")
+			return
 		}
 
 		r.l.Error(err, "http - v1 - deleteFavorite - r.c.Delete")
 
-		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
+		errorResponse(c, http.StatusInternalServerError, "database problems")
+		return
 	}
 
-	a, err := r.a.Detail(ctx.UserContext(), userID, slug)
+	a, err := r.a.Detail(c.Request.Context(), userID, slug)
 	if err != nil {
 		if errors.Is(err, entity.ErrNoRows) {
-			return errorResponse(ctx, http.StatusNotFound, "Article not found")
+			errorResponse(c, http.StatusNotFound, "Article not found")
+			return
 		}
 
 		r.l.Error(err, "http - v1 - deleteFavorite - r.a.Detail")
 
-		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
+		errorResponse(c, http.StatusInternalServerError, "database problems")
+		return
 	}
 
-	return ctx.Status(http.StatusOK).JSON(response.ArticleDetailResponse{
+	c.JSON(http.StatusOK, response.ArticleDetailResponse{
 		Article: a,
 	})
 }
