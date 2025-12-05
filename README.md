@@ -24,9 +24,15 @@
 - A response struct with pointer fields, shouldn't use `omitempty` because
   handling `profile?: ProfilePreview | null;` is harder than `profile: ProfilePreview | null;` in TypeScript
 
-## How to start developing
+## Getting started
 
-Start `db`, `rabbitmq`, `nats` services first
+Simple start all services
+
+```bash
+make compose-up-all
+```
+
+Or start `db`, `rabbitmq`, `nats` services separately to develop
 
 ```bash
 make compose-up

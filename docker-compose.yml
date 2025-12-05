@@ -25,7 +25,7 @@ x-backend-app-environment: &x-backend-app-environment
   LOG_LEVEL: "debug"
   # PG
   PG_POOL_MAX: "2"
-  PG_URL: "postgresql://mhc:Bruh0%210%21@localhost:5432/fibercleanrealworld"
+  PG_URL: "postgresql://mhc:Bruh0%210%21@db:5432/fibercleanrealworld"
   # gRPC
   GRPC_PORT: "8081"
   # RMQ
@@ -39,6 +39,15 @@ x-backend-app-environment: &x-backend-app-environment
   METRICS_ENABLED: "true"
   # Swagger
   SWAGGER_ENABLED: "true"
+  # JWT
+  JWT_ISSUER: "realworldfiberclean"
+  JWT_SECRET: "c993332e-1a4e-4de5-ac74-98074ff41ff0"
+  JWT_EXPIRATION: "240h"
+  # CORS
+  CORS_ALLOW_ORIGINS: "http://localhost:3000,https://myfrontend.com"
+  CORS_ALLOW_CREDENTIALS: "true"
+  CORS_ALLOW_HEADERS: "Origin,Content-Type,Accept,Authorization"
+  CORS_ALLOW_METHODS: "GET,POST,HEAD,PUT,DELETE,PATCH"
 
 
 services:
