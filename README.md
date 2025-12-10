@@ -180,19 +180,20 @@ Expected output
 ## Todo
 
 - [x] Add admin/user roles to manage users' content
-- [x] Add custom errors instead of leaking `pgx` errors to outer layer
-- [ ] Add update article `tagList`
-- [ ] Add mocks, unit testing, integration testing
-- [ ] Add caching Redis
-- [ ] add GraphQL
-- [ ] add gRPC
-- [ ] add NATS_RPC
-- [ ] add AMQP_RPC
+- [x] Add custom errors instead of leaking pgx errors to the outer layer
+- [ ] Fix all `make linter-...` errors
+- [ ] Add fallback to `HttpOnly cookies` if no `JWT` is found in the `Authorization header`
+- [ ] Add updating of an article's tags list
+- [ ] Add filtering of articles using multiple tags
+- [ ] Add mocks, unit tests, and integration tests
+- [ ] Add Redis caching
+- [ ] Add real-time notifications (for when followed authors post articles or someone comments on our articles)
+- [ ] Add GraphQL, gRPC, NATS_RPC, and AMQP_RPC
 
 ## Resources
 
 - My first Realworld implementation using Golang:
-  [gorealworld](https://github.com/minhhoccode111/realworldgo)
+  [realworldgo](https://github.com/minhhoccode111/realworldgo)
 - Starter Template using [Golang Clean
   Architecture](https://github.com/evrone/go-clean-template)
 
