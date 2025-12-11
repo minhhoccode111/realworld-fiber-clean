@@ -1,4 +1,4 @@
-package utils
+package utilities
 
 import (
 	"log"
@@ -7,7 +7,10 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-func GenerateJWT(userID, userRole, secret, issuer string, expiration time.Duration) (string, error) {
+func GenerateJWT(
+	userID, userRole, secret, issuer string,
+	expiration time.Duration,
+) (string, error) {
 	secretKey := []byte(secret)
 	expirationTime := time.Now().Add(expiration).Unix()
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{

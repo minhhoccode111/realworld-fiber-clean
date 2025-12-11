@@ -10,7 +10,7 @@ import (
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/request"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/response"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/entity"
-	"github.com/minhhoccode111/realworld-fiber-clean/pkg/utils"
+	"github.com/minhhoccode111/realworld-fiber-clean/pkg/utilities"
 	"github.com/minhhoccode111/realworld-fiber-clean/pkg/validatorx"
 )
 
@@ -105,7 +105,7 @@ func (r *V1) getAllComments(ctx *fiber.Ctx) error {
 		return errorResponse(ctx, http.StatusBadRequest, "slug is required")
 	}
 
-	_, _, _, limit, offset := utils.SearchQueries(ctx)
+	_, _, _, limit, offset := utilities.SearchQueries(ctx)
 
 	comments, total, err := r.c.List(
 		ctx.UserContext(),

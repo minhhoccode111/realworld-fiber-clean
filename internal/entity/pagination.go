@@ -7,7 +7,7 @@ type Pagination struct {
 	Dummy  uint64 `json:"articlesCount"`
 	/*
 		Realworld API test script need 'articlesCount' property, but I want
-		Pagination to be reusable accross Articles, Comments, Tags etc. So the
+		Pagination to be reusable across Articles, Comments, Tags etc. So the
 		real one is 'total' and 'articlesCount' is just dummy field
 	*/
 }

@@ -10,7 +10,7 @@ import (
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/request"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/response"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/entity"
-	"github.com/minhhoccode111/realworld-fiber-clean/pkg/utils"
+	"github.com/minhhoccode111/realworld-fiber-clean/pkg/utilities"
 	"github.com/minhhoccode111/realworld-fiber-clean/pkg/validatorx"
 )
 
@@ -42,11 +42,12 @@ func (r *V1) postArticle(ctx *fiber.Ctx) error {
 		r.l.Error(err, "http - v1 - postCreateArticle - r.v.Struct")
 
 		errs := validatorx.ExtractErrors(err)
+
 		return errorResponse(ctx, http.StatusBadRequest, strings.Join(errs, "; "))
 	}
 
-	userID := ctx.Locals(common.CtxUserIDKey).(string)
-	if userID == "" {
+	userID, ok := ctx.Locals(common.CtxUserIDKey).(string)
+	if !ok || userID == "" {
 		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
 	}
 
@@ -82,14 +83,21 @@ func (r *V1) postArticle(ctx *fiber.Ctx) error {
 // @Router      /articles [get]
 // @Security    BearerAuth
 func (r *V1) getAllArticles(ctx *fiber.Ctx) error {
-	isAuth := ctx.Locals(common.CtxIsAuthKey).(bool)
+	isAuth, ok := ctx.Locals(common.CtxIsAuthKey).(bool)
+	if !ok {
+		isAuth = false
+	}
 
-	userID := ctx.Locals(common.CtxUserIDKey).(string)
+	userID, ok := ctx.Locals(common.CtxUserIDKey).(string)
+	if !ok {
+		userID = ""
+	}
+
 	if userID == "" && isAuth {
 		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
 	}
 
-	tag, author, favorited, limit, offset := utils.SearchQueries(ctx)
+	tag, author, favorited, limit, offset := utilities.SearchQueries(ctx)
 
 	articles, total, err := r.a.List(
 		ctx.UserContext(),
@@ -134,7 +142,7 @@ func (r *V1) getFeedArticles(ctx *fiber.Ctx) error {
 		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
 	}
 
-	_, _, _, limit, offset := utils.SearchQueries(ctx)
+	_, _, _, limit, offset := utilities.SearchQueries(ctx)
 
 	articles, total, err := r.a.List(
 		ctx.UserContext(),

@@ -28,6 +28,7 @@ func AuthMiddleware(l logger.Interface, jwtSecret string, isOptional bool) func(
 			if isOptional {
 				return c.Next()
 			}
+
 			return errorResponse(c, http.StatusUnauthorized, msg)
 		}
 
@@ -36,6 +37,7 @@ func AuthMiddleware(l logger.Interface, jwtSecret string, isOptional bool) func(
 		c.Locals(common.CtxUserRoleKey, "")
 
 		var tokenStr string
+
 		authHeader := c.Get("Authorization")
 		if authHeader != "" {
 			// use jwt-in-header
@@ -43,9 +45,11 @@ func AuthMiddleware(l logger.Interface, jwtSecret string, isOptional bool) func(
 			if len(parts) < n {
 				return esc(s)
 			}
+
 			if !strings.EqualFold(parts[0], common.AuthorizationScheme) {
 				return esc(s)
 			}
+
 			tokenStr = parts[1]
 		} else {
 			// use jwt-in-cookie
@@ -57,13 +61,14 @@ func AuthMiddleware(l logger.Interface, jwtSecret string, isOptional bool) func(
 
 		token, err := jwt.Parse(tokenStr, func(t *jwt.Token) (any, error) {
 			if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, fmt.Errorf("Unexpected signing method: %v", t.Header["alg"])
+				return nil, fmt.Errorf("%w: %v", entity.ErrUnexpectedSigningMethod, t.Header["alg"])
 			}
 
 			return []byte(jwtSecret), nil
 		})
 		if err != nil {
 			l.Error(err, "http - middleware - AuthMiddleware - jwt.Parse")
+
 			return esc("Invalid or expired token")
 		}
 
@@ -78,6 +83,7 @@ func AuthMiddleware(l logger.Interface, jwtSecret string, isOptional bool) func(
 		}
 
 		roleStr, ok := claims["role"].(string)
+
 		userRole := entity.Role(roleStr)
 		if !userRole.IsValid() {
 			userRole = entity.UserRole

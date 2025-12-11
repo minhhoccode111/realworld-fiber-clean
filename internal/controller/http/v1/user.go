@@ -12,7 +12,7 @@ import (
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/request"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/response"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/entity"
-	"github.com/minhhoccode111/realworld-fiber-clean/pkg/utils"
+	"github.com/minhhoccode111/realworld-fiber-clean/pkg/utilities"
 	"github.com/minhhoccode111/realworld-fiber-clean/pkg/validatorx"
 )
 
@@ -62,7 +62,7 @@ func (r *V1) postRegisterUser(ctx *fiber.Ctx) error {
 		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
 	}
 
-	token, err := utils.GenerateJWT(
+	token, err := utilities.GenerateJWT(
 		u.ID,
 		u.Role.String(),
 		r.cfg.JWT.Secret,
@@ -130,7 +130,7 @@ func (r *V1) postLoginUser(ctx *fiber.Ctx) error {
 		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
 	}
 
-	token, err := utils.GenerateJWT(
+	token, err := utilities.GenerateJWT(
 		u.ID,
 		u.Role.String(),
 		r.cfg.JWT.Secret,
@@ -187,7 +187,7 @@ func (r *V1) getCurrentUser(ctx *fiber.Ctx) error {
 		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
 	}
 
-	token, err := utils.GenerateJWT(
+	token, err := utilities.GenerateJWT(
 		u.ID,
 		u.Role.String(),
 		r.cfg.JWT.Secret,
@@ -257,7 +257,7 @@ func (r *V1) putUpdateUser(ctx *fiber.Ctx) error {
 		return errorResponse(ctx, http.StatusInternalServerError, "database problems")
 	}
 
-	token, err := utils.GenerateJWT(
+	token, err := utilities.GenerateJWT(
 		u.ID,
 		u.Role.String(),
 		r.cfg.JWT.Secret,

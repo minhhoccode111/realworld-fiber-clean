@@ -17,11 +17,13 @@ func New() *validator.Validate {
 		}
 
 		seen := make(map[string]struct{})
+
 		for _, t := range slices {
 			t = strings.TrimSpace(t)
 			if _, exists := seen[t]; exists {
 				return false
 			}
+
 			seen[t] = struct{}{}
 		}
 

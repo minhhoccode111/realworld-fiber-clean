@@ -6,7 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/response"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/entity"
-	"github.com/minhhoccode111/realworld-fiber-clean/pkg/utils"
+	"github.com/minhhoccode111/realworld-fiber-clean/pkg/utilities"
 )
 
 // @Summary     Get tags
@@ -20,7 +20,7 @@ import (
 // @Failure     500 {object} response.Error
 // @Router      /tags [get]
 func (r *V1) getTags(ctx *fiber.Ctx) error {
-	_, _, _, limit, offset := utils.SearchQueries(ctx)
+	_, _, _, limit, offset := utilities.SearchQueries(ctx)
 
 	tags, total, err := r.tag.List(ctx.UserContext(), limit, offset)
 	if err != nil {

@@ -6,7 +6,7 @@ import (
 
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/entity"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/repo"
-	"github.com/minhhoccode111/realworld-fiber-clean/pkg/utils"
+	"github.com/minhhoccode111/realworld-fiber-clean/pkg/utilities"
 )
 
 // UseCase -.
@@ -21,7 +21,7 @@ func New(r repo.UserRepo) *UseCase {
 
 // Register -.
 func (uc *UseCase) Register(ctx context.Context, u *entity.User) error {
-	hashedPassword, err := utils.HashPassword(u.Password)
+	hashedPassword, err := utilities.HashPassword(u.Password)
 	if err != nil {
 		return fmt.Errorf(
 			"UserUseCase - Register - utils.HashPassword: %w",
@@ -52,7 +52,7 @@ func (uc *UseCase) Login(ctx context.Context, dto *entity.User) (*entity.User, e
 		)
 	}
 
-	if !utils.IsValidPassword(u.Password, dto.Password) {
+	if !utilities.IsValidPassword(u.Password, dto.Password) {
 		return nil, fmt.Errorf(
 			"UserUseCase - Login - utils.IsValidPassword: %w",
 			entity.ErrInvalidCredentials,
@@ -80,7 +80,7 @@ func (uc *UseCase) Update(ctx context.Context, dto *entity.User) (*entity.User, 
 	}
 
 	if dto.Password != "" {
-		hashedPassword, err := utils.HashPassword(dto.Password)
+		hashedPassword, err := utilities.HashPassword(dto.Password)
 		if err != nil {
 			return nil, fmt.Errorf("UserUseCase - Update - utils.HashPassword: %w", err)
 		}
