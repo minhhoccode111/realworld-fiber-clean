@@ -7,16 +7,9 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/common"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/entity"
 	"github.com/minhhoccode111/realworld-fiber-clean/pkg/logger"
-)
-
-type ctxKey string
-
-const (
-	CtxUserIDKey   ctxKey = "userID"
-	CtxUserRoleKey ctxKey = "userRole"
-	CtxIsAuthKey   ctxKey = "isAuth"
 )
 
 func errorResponse(ctx *fiber.Ctx, code int, msg string) error {
@@ -26,77 +19,62 @@ func errorResponse(ctx *fiber.Ctx, code int, msg string) error {
 // AuthMiddleware -.
 func AuthMiddleware(l logger.Interface, jwtSecret string, isOptional bool) func(*fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
-		c.Locals(CtxIsAuthKey, false)
-		c.Locals(CtxUserIDKey, "")
-		c.Locals(CtxUserRoleKey, "")
+		n := 2
+		s := fmt.Sprintf(
+			"Authorization header must be formatted: [%s <token>]",
+			common.AuthorizationScheme,
+		)
+		esc := func(msg string) error {
+			if isOptional {
+				return c.Next()
+			}
+			return errorResponse(c, http.StatusUnauthorized, msg)
+		}
 
+		c.Locals(common.CtxIsAuthKey, false)
+		c.Locals(common.CtxUserIDKey, "")
+		c.Locals(common.CtxUserRoleKey, "")
+
+		var tokenStr string
 		authHeader := c.Get("Authorization")
-		if authHeader == "" {
-			if isOptional {
-				return c.Next()
+		if authHeader != "" {
+			// use jwt-in-header
+			parts := strings.Fields(authHeader)
+			if len(parts) < n {
+				return esc(s)
 			}
-
-			return errorResponse(c, http.StatusUnauthorized, "missing authorization header")
-		}
-
-		parts := strings.Fields(authHeader)
-
-		const lenParts = 2
-		if len(parts) != lenParts {
-			if isOptional {
-				return c.Next()
+			if !strings.EqualFold(parts[0], common.AuthorizationScheme) {
+				return esc(s)
 			}
-
-			return errorResponse(c, http.StatusUnauthorized, "invalid authorization header format")
-		}
-
-		if !strings.EqualFold(parts[0], "Token") {
-			if isOptional {
-				return c.Next()
+			tokenStr = parts[1]
+		} else {
+			// use jwt-in-cookie
+			tokenStr = c.Cookies(common.CookieJWTName)
+			if tokenStr == "" {
+				return esc("No token provided")
 			}
-
-			return errorResponse(
-				c,
-				http.StatusUnauthorized,
-				"authorization header must use 'Token' scheme",
-			)
 		}
-
-		tokenStr := parts[1]
 
 		token, err := jwt.Parse(tokenStr, func(t *jwt.Token) (any, error) {
 			if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
+				return nil, fmt.Errorf("Unexpected signing method: %v", t.Header["alg"])
 			}
 
 			return []byte(jwtSecret), nil
 		})
 		if err != nil {
-			if isOptional {
-				return c.Next()
-			}
-
 			l.Error(err, "http - middleware - AuthMiddleware - jwt.Parse")
-
-			return errorResponse(c, http.StatusUnauthorized, "invalid or expired token")
+			return esc("Invalid or expired token")
 		}
 
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if !ok || !token.Valid {
-			if isOptional {
-				return c.Next()
-			}
-
-			return errorResponse(c, http.StatusUnauthorized, "invalid token claims")
+			return esc("Invalid token claims")
 		}
 
 		userID, ok := claims["sub"].(string)
 		if !ok || userID == "" {
-			if isOptional {
-				return c.Next()
-			}
-
-			return errorResponse(c, http.StatusUnauthorized, "missing user id in token")
+			return esc("Missing userID in token")
 		}
 
 		roleStr, ok := claims["role"].(string)
@@ -105,9 +83,9 @@ func AuthMiddleware(l logger.Interface, jwtSecret string, isOptional bool) func(
 			userRole = entity.UserRole
 		}
 
-		c.Locals(CtxIsAuthKey, true)
-		c.Locals(CtxUserIDKey, userID)
-		c.Locals(CtxUserRoleKey, userRole)
+		c.Locals(common.CtxIsAuthKey, true)
+		c.Locals(common.CtxUserIDKey, userID)
+		c.Locals(common.CtxUserRoleKey, userRole)
 
 		return c.Next()
 	}

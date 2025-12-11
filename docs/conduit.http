@@ -42,9 +42,15 @@ POST {{api}}/users/login
     }
 }
 
+### logout
+POST {{api}}/users/logout
+
 ### Current User
 GET {{api}}/user
-Authorization: Token {{token0}}
+
+### Current User with cookie
+GET {{api}}/user
+Cookie: realworld-jwt={{token1}}
 
 ### Update User
 PUT {{api}}/user

@@ -4,10 +4,11 @@ import (
 	"errors"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/jackc/pgx/v5"
-	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/middleware"
+	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/common"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/request"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/response"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/entity"
@@ -73,6 +74,8 @@ func (r *V1) postRegisterUser(ctx *fiber.Ctx) error {
 
 		return errorResponse(ctx, http.StatusInternalServerError, "generate jwt error")
 	}
+
+	ctx.Cookie(NewJWTCookie(token, r.cfg.JWT.Expiration))
 
 	return ctx.Status(http.StatusCreated).JSON(response.UserAuthResponse{
 		User: response.NewUserAuth(u, token),
@@ -140,14 +143,23 @@ func (r *V1) postLoginUser(ctx *fiber.Ctx) error {
 		return errorResponse(ctx, http.StatusInternalServerError, "jwt problems")
 	}
 
+	ctx.Cookie(NewJWTCookie(token, r.cfg.JWT.Expiration))
+
 	return ctx.Status(http.StatusOK).JSON(response.UserAuthResponse{
 		User: response.NewUserAuth(u, token),
 	})
 }
 
-// func (r *V1) postLogoutUser(ctx *fiber.Ctx) error {
-// 	return ctx.SendStatus(200)
-// }
+// @Summary     Logout User
+// @Description Logout User by clearing JWT cookie
+// @ID          users-logout
+// @Tags  	    users
+// @Success     204
+// @Router      /users/logout [post]
+func (r *V1) postLogoutUser(ctx *fiber.Ctx) error {
+	ctx.Cookie(NewJWTCookie("", -time.Hour))
+	return ctx.SendStatus(http.StatusNoContent)
+}
 
 // @Summary     Get current User
 // @Description Get current User
@@ -159,7 +171,7 @@ func (r *V1) postLoginUser(ctx *fiber.Ctx) error {
 // @Router      /user [get]
 // @Security    BearerAuth
 func (r *V1) getCurrentUser(ctx *fiber.Ctx) error {
-	userID := ctx.Locals(middleware.CtxUserIDKey).(string)
+	userID := ctx.Locals(common.CtxUserIDKey).(string)
 	if userID == "" {
 		return errorResponse(ctx, http.StatusInternalServerError, "cannot authorize user in jwt")
 	}
@@ -187,6 +199,8 @@ func (r *V1) getCurrentUser(ctx *fiber.Ctx) error {
 
 		return errorResponse(ctx, http.StatusInternalServerError, "jwt problems")
 	}
+
+	ctx.Cookie(NewJWTCookie(token, r.cfg.JWT.Expiration))
 
 	return ctx.Status(http.StatusOK).JSON(response.UserAuthResponse{
 		User: response.NewUserAuth(u, token),
@@ -227,7 +241,7 @@ func (r *V1) putUpdateUser(ctx *fiber.Ctx) error {
 		return errorResponse(ctx, http.StatusBadRequest, strings.Join(errs, "; "))
 	}
 
-	userID := ctx.Locals(middleware.CtxUserIDKey).(string)
+	userID := ctx.Locals(common.CtxUserIDKey).(string)
 	if userID == "" {
 		return errorResponse(ctx, http.StatusInternalServerError, "cannot authorize user in jwt")
 	}
@@ -255,6 +269,8 @@ func (r *V1) putUpdateUser(ctx *fiber.Ctx) error {
 
 		return errorResponse(ctx, http.StatusInternalServerError, "generate jwt error")
 	}
+
+	ctx.Cookie(NewJWTCookie(token, r.cfg.JWT.Expiration))
 
 	return ctx.Status(http.StatusOK).JSON(response.UserAuthResponse{
 		User: response.NewUserAuth(u, token),

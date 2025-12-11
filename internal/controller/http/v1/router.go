@@ -51,7 +51,7 @@ func NewV1Routes(
 	{
 		users.Post("/", r.postRegisterUser)
 		users.Post("/login", r.postLoginUser)
-		// users.Post("/logout", r.postLogoutUser)
+		users.Post("/logout", r.postLogoutUser)
 	}
 
 	user := apiV1Group.Group("/user")

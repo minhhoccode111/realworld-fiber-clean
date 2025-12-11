@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/middleware"
+	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/common"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/response"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/entity"
 )
@@ -25,7 +25,7 @@ import (
 // @Router      /articles/{slug}/favorite [post]
 // @Security    BearerAuth
 func (r *V1) createFavorite(ctx *fiber.Ctx) error {
-	userID := ctx.Locals(middleware.CtxUserIDKey).(string)
+	userID := ctx.Locals(common.CtxUserIDKey).(string)
 	if userID == "" {
 		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
 	}
@@ -80,7 +80,7 @@ func (r *V1) createFavorite(ctx *fiber.Ctx) error {
 // @Router      /articles/{slug}/favorite [delete]
 // @Security    BearerAuth
 func (r *V1) deleteFavorite(ctx *fiber.Ctx) error {
-	userID := ctx.Locals(middleware.CtxUserIDKey).(string)
+	userID := ctx.Locals(common.CtxUserIDKey).(string)
 	if userID == "" {
 		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
 	}

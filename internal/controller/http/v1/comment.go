@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/middleware"
+	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/common"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/request"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/response"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/entity"
@@ -46,7 +46,7 @@ func (r *V1) postComment(ctx *fiber.Ctx) error {
 		return errorResponse(ctx, http.StatusBadRequest, strings.Join(errs, "; "))
 	}
 
-	userID := ctx.Locals(middleware.CtxUserIDKey).(string)
+	userID := ctx.Locals(common.CtxUserIDKey).(string)
 	if userID == "" {
 		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
 	}
@@ -93,9 +93,9 @@ func (r *V1) postComment(ctx *fiber.Ctx) error {
 // @Router      /articles/{slug}/comments [get]
 // @Security    BearerAuth
 func (r *V1) getAllComments(ctx *fiber.Ctx) error {
-	isAuth := ctx.Locals(middleware.CtxIsAuthKey).(bool)
+	isAuth := ctx.Locals(common.CtxIsAuthKey).(bool)
 
-	userID := ctx.Locals(middleware.CtxUserIDKey).(string)
+	userID := ctx.Locals(common.CtxUserIDKey).(string)
 	if userID == "" && isAuth {
 		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
 	}
@@ -146,12 +146,12 @@ func (r *V1) getAllComments(ctx *fiber.Ctx) error {
 // @Router      /articles/{slug}/comments/{commentID} [delete]
 // @Security    BearerAuth
 func (r *V1) deleteComment(ctx *fiber.Ctx) error {
-	userID := ctx.Locals(middleware.CtxUserIDKey).(string)
+	userID := ctx.Locals(common.CtxUserIDKey).(string)
 	if userID == "" {
 		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
 	}
 
-	userRole, ok := ctx.Locals(middleware.CtxUserRoleKey).(entity.Role)
+	userRole, ok := ctx.Locals(common.CtxUserRoleKey).(entity.Role)
 	if !ok {
 		userRole = entity.UserRole
 	}

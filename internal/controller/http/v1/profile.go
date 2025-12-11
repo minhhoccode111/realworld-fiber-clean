@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/middleware"
+	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/common"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/response"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/entity"
 )
@@ -24,9 +24,9 @@ import (
 // @Router      /profiles/{username} [get]
 // @Security    BearerAuth
 func (r *V1) getProfile(ctx *fiber.Ctx) error {
-	isAuth := ctx.Locals(middleware.CtxIsAuthKey).(bool)
+	isAuth := ctx.Locals(common.CtxIsAuthKey).(bool)
 
-	userID := ctx.Locals(middleware.CtxUserIDKey).(string)
+	userID := ctx.Locals(common.CtxUserIDKey).(string)
 	if userID == "" && isAuth {
 		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
 	}
@@ -66,7 +66,7 @@ func (r *V1) getProfile(ctx *fiber.Ctx) error {
 // @Router      /profiles/{username}/follow [post]
 // @Security    BearerAuth
 func (r *V1) postFollowProfile(ctx *fiber.Ctx) error {
-	userID := ctx.Locals(middleware.CtxUserIDKey).(string)
+	userID := ctx.Locals(common.CtxUserIDKey).(string)
 	if userID == "" {
 		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
 	}
@@ -121,7 +121,7 @@ func (r *V1) postFollowProfile(ctx *fiber.Ctx) error {
 // @Router      /profiles/{username}/follow [delete]
 // @Security    BearerAuth
 func (r *V1) deleteFollowProfile(ctx *fiber.Ctx) error {
-	userID := ctx.Locals(middleware.CtxUserIDKey).(string)
+	userID := ctx.Locals(common.CtxUserIDKey).(string)
 	if userID == "" {
 		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
 	}

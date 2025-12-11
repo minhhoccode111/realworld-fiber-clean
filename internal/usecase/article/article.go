@@ -175,10 +175,6 @@ func (uc *UseCase) Delete(ctx context.Context, userID, slug string, userRole ent
 		)
 	}
 
-	fmt.Println("userRole", userRole)
-	fmt.Println("a.AuthorID", a.AuthorID)
-	fmt.Println("userID", userID)
-
 	if userRole != entity.AdminRole && a.AuthorID != userID {
 		return fmt.Errorf(
 			"ArticleUseCase - Delete - uc.repo.GetBasicBySlug: %w",

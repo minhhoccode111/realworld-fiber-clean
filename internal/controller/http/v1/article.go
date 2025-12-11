@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/middleware"
+	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/common"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/request"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/v1/response"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/entity"
@@ -45,7 +45,7 @@ func (r *V1) postArticle(ctx *fiber.Ctx) error {
 		return errorResponse(ctx, http.StatusBadRequest, strings.Join(errs, "; "))
 	}
 
-	userID := ctx.Locals(middleware.CtxUserIDKey).(string)
+	userID := ctx.Locals(common.CtxUserIDKey).(string)
 	if userID == "" {
 		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
 	}
@@ -82,9 +82,9 @@ func (r *V1) postArticle(ctx *fiber.Ctx) error {
 // @Router      /articles [get]
 // @Security    BearerAuth
 func (r *V1) getAllArticles(ctx *fiber.Ctx) error {
-	isAuth := ctx.Locals(middleware.CtxIsAuthKey).(bool)
+	isAuth := ctx.Locals(common.CtxIsAuthKey).(bool)
 
-	userID := ctx.Locals(middleware.CtxUserIDKey).(string)
+	userID := ctx.Locals(common.CtxUserIDKey).(string)
 	if userID == "" && isAuth {
 		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
 	}
@@ -129,7 +129,7 @@ func (r *V1) getAllArticles(ctx *fiber.Ctx) error {
 // @Router      /articles/feed [get]
 // @Security    BearerAuth
 func (r *V1) getFeedArticles(ctx *fiber.Ctx) error {
-	userID := ctx.Locals(middleware.CtxUserIDKey).(string)
+	userID := ctx.Locals(common.CtxUserIDKey).(string)
 	if userID == "" {
 		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
 	}
@@ -174,9 +174,9 @@ func (r *V1) getFeedArticles(ctx *fiber.Ctx) error {
 // @Router      /articles/{slug} [get]
 // @Security    BearerAuth
 func (r *V1) getArticle(ctx *fiber.Ctx) error {
-	isAuth := ctx.Locals(middleware.CtxIsAuthKey).(bool)
+	isAuth := ctx.Locals(common.CtxIsAuthKey).(bool)
 
-	userID := ctx.Locals(middleware.CtxUserIDKey).(string)
+	userID := ctx.Locals(common.CtxUserIDKey).(string)
 	if userID == "" && isAuth {
 		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
 	}
@@ -235,7 +235,7 @@ func (r *V1) putArticle(ctx *fiber.Ctx) error {
 		return errorResponse(ctx, http.StatusBadRequest, strings.Join(errs, "; "))
 	}
 
-	userID := ctx.Locals(middleware.CtxUserIDKey).(string)
+	userID := ctx.Locals(common.CtxUserIDKey).(string)
 	if userID == "" {
 		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
 	}
@@ -284,12 +284,12 @@ func (r *V1) putArticle(ctx *fiber.Ctx) error {
 // @Router      /articles/{slug} [delete]
 // @Security    BearerAuth
 func (r *V1) deleteArticle(ctx *fiber.Ctx) error {
-	userID := ctx.Locals(middleware.CtxUserIDKey).(string)
+	userID := ctx.Locals(common.CtxUserIDKey).(string)
 	if userID == "" {
 		return errorResponse(ctx, http.StatusUnauthorized, "cannot authorize user in jwt")
 	}
 
-	userRole, ok := ctx.Locals(middleware.CtxUserRoleKey).(entity.Role)
+	userRole, ok := ctx.Locals(common.CtxUserRoleKey).(entity.Role)
 	if !ok {
 		userRole = entity.UserRole
 	}

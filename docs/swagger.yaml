@@ -1105,6 +1105,16 @@ paths:
       summary: Login User
       tags:
       - users
+  /users/logout:
+    post:
+      description: Logout User by clearing JWT cookie
+      operationId: users-logout
+      responses:
+        "204":
+          description: No Content
+      summary: Logout User
+      tags:
+      - users
 securityDefinitions:
   BearerAuth:
     description: Type "Token" followed by a space and JWT token.
