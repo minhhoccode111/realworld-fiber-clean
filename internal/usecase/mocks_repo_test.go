@@ -305,17 +305,17 @@ func (mr *MockArticleRepoMockRecorder) StoreCreate(ctx, dto, tags any) *gomock.C
 }
 
 // StoreDelete mocks base method.
-func (m *MockArticleRepo) StoreDelete(ctx context.Context, userID, slug string) error {
+func (m *MockArticleRepo) StoreDelete(ctx context.Context, slug string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "StoreDelete", ctx, userID, slug)
+	ret := m.ctrl.Call(m, "StoreDelete", ctx, slug)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // StoreDelete indicates an expected call of StoreDelete.
-func (mr *MockArticleRepoMockRecorder) StoreDelete(ctx, userID, slug any) *gomock.Call {
+func (mr *MockArticleRepoMockRecorder) StoreDelete(ctx, slug any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StoreDelete", reflect.TypeOf((*MockArticleRepo)(nil).StoreDelete), ctx, userID, slug)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StoreDelete", reflect.TypeOf((*MockArticleRepo)(nil).StoreDelete), ctx, slug)
 }
 
 // StoreTagsList mocks base method.
@@ -485,17 +485,17 @@ func (mr *MockCommentRepoMockRecorder) StoreCreate(ctx, slug, dto any) *gomock.C
 }
 
 // StoreDelete mocks base method.
-func (m *MockCommentRepo) StoreDelete(ctx context.Context, userID, slug, commentID string) error {
+func (m *MockCommentRepo) StoreDelete(ctx context.Context, slug, commentID string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "StoreDelete", ctx, userID, slug, commentID)
+	ret := m.ctrl.Call(m, "StoreDelete", ctx, slug, commentID)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // StoreDelete indicates an expected call of StoreDelete.
-func (mr *MockCommentRepoMockRecorder) StoreDelete(ctx, userID, slug, commentID any) *gomock.Call {
+func (mr *MockCommentRepoMockRecorder) StoreDelete(ctx, slug, commentID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StoreDelete", reflect.TypeOf((*MockCommentRepo)(nil).StoreDelete), ctx, userID, slug, commentID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StoreDelete", reflect.TypeOf((*MockCommentRepo)(nil).StoreDelete), ctx, slug, commentID)
 }
 
 // MockProfileRepo is a mock of ProfileRepo interface.

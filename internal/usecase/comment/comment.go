@@ -79,7 +79,7 @@ func (uc *UseCase) Delete(
 		)
 	}
 
-	err = uc.repo.StoreDelete(ctx, userID, slug, commentID)
+	err = uc.repo.StoreDelete(ctx, slug, commentID)
 	if err != nil {
 		return fmt.Errorf(
 			"CommentUseCase - Delete - uc.repo.StoreDelete: %w",

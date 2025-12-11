@@ -182,7 +182,7 @@ func (uc *UseCase) Delete(ctx context.Context, userID, slug string, userRole ent
 		)
 	}
 
-	err = uc.repo.StoreDelete(ctx, userID, slug)
+	err = uc.repo.StoreDelete(ctx, slug)
 	if err != nil {
 		return fmt.Errorf(
 			"ArticleUseCase - Delete - uc.repo.StoreDelete: %w",

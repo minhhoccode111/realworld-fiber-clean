@@ -44,7 +44,7 @@ type (
 		) ([]entity.ArticlePreview, uint64, error)
 		GetBasicBySlug(ctx context.Context, slug string) (*entity.Article, error)
 		StoreUpdate(ctx context.Context, dto *entity.Article) (err error)
-		StoreDelete(ctx context.Context, userID, slug string) (err error)
+		StoreDelete(ctx context.Context, slug string) (err error)
 	}
 
 	FavoriteRepo interface {
@@ -61,7 +61,7 @@ type (
 			limit, offset uint64,
 		) ([]entity.CommentDetail, uint64, error)
 		GetBasicByID(ctx context.Context, commentID string) (*entity.Comment, error)
-		StoreDelete(ctx context.Context, userID, slug, commentID string) (err error)
+		StoreDelete(ctx context.Context, slug, commentID string) (err error)
 	}
 
 	ProfileRepo interface {

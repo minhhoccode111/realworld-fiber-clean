@@ -437,7 +437,7 @@ func (r *ArticleRepo) StoreUpdate(ctx context.Context, dto *entity.Article) erro
 	return nil
 }
 
-func (r *ArticleRepo) StoreDelete(ctx context.Context, userID, slug string) error {
+func (r *ArticleRepo) StoreDelete(ctx context.Context, slug string) error {
 	sql, args, err := r.Builder.
 		Update("articles").
 		Set("deleted_at", squirrel.Expr("NOW()")).

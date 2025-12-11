@@ -200,7 +200,7 @@ func (r *CommentRepo) GetBasicByID(ctx context.Context, commentID string) (*enti
 	return &c, nil
 }
 
-func (r *CommentRepo) StoreDelete(ctx context.Context, userID, slug, commentID string) (err error) {
+func (r *CommentRepo) StoreDelete(ctx context.Context, slug, commentID string) (err error) {
 	sql, args, err := r.Builder.
 		Update("comments").
 		Set("deleted_at", squirrel.Expr("NOW()")).
@@ -210,6 +210,7 @@ func (r *CommentRepo) StoreDelete(ctx context.Context, userID, slug, commentID s
 			and slug = ?
 			and deleted_at is null)`, slug)).
 		Where(squirrel.Eq{"id": commentID}).
+		Where("deleted_at is null").
 		ToSql()
 	if err != nil {
 		return fmt.Errorf("CommentRepo - StoreDelete - r.Builder: %w", err)
