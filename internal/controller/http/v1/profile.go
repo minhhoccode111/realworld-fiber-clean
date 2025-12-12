@@ -23,6 +23,8 @@ import (
 // @Failure     500 {object} response.Error
 // @Router      /profiles/{username} [get]
 // @Security    BearerAuth
+//
+//nolint:dupl // ignore
 func (r *V1) getProfile(ctx *fiber.Ctx) error {
 	isAuth, ok := ctx.Locals(httpmeta.CtxIsAuthKey).(bool)
 	if !ok {
@@ -68,6 +70,8 @@ func (r *V1) getProfile(ctx *fiber.Ctx) error {
 // @Failure     500 {object} response.Error
 // @Router      /profiles/{username}/follow [post]
 // @Security    BearerAuth
+//
+//nolint:dupl // ignore
 func (r *V1) postFollowProfile(ctx *fiber.Ctx) error {
 	userID, ok := ctx.Locals(httpmeta.CtxUserIDKey).(string)
 	if !ok || userID == "" {
@@ -123,6 +127,8 @@ func (r *V1) postFollowProfile(ctx *fiber.Ctx) error {
 // @Failure     500 {object} response.Error
 // @Router      /profiles/{username}/follow [delete]
 // @Security    BearerAuth
+//
+//nolint:dupl // ignore
 func (r *V1) deleteFollowProfile(ctx *fiber.Ctx) error {
 	userID, ok := ctx.Locals(httpmeta.CtxUserIDKey).(string)
 	if !ok || userID == "" {

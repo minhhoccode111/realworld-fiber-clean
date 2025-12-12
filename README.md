@@ -182,7 +182,7 @@ Expected output
 - [x] Add admin/user roles to manage users' content
 - [x] Add custom errors instead of leaking pgx errors to the outer layer
 - [x] Add support for both jwt-in-header and jwt-in-cookie authentication
-- [ ] Fix all `make linter-...` errors
+- [x] Fix all `make linter-...` errors
 - [ ] Add updating of an article's tags list
 - [ ] Add filtering of articles using multiple tags
 - [ ] Add mocks, unit tests, and integration tests

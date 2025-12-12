@@ -177,6 +177,8 @@ func (r *V1) getFeedArticles(ctx *fiber.Ctx) error {
 // @Failure     500 {object} response.Error
 // @Router      /articles/{slug} [get]
 // @Security    BearerAuth
+//
+//nolint:dupl // ignore
 func (r *V1) getArticle(ctx *fiber.Ctx) error {
 	isAuth, ok := ctx.Locals(httpmeta.CtxIsAuthKey).(bool)
 	if !ok {

@@ -24,6 +24,8 @@ import (
 // @Failure     500 {object} response.Error
 // @Router      /articles/{slug}/favorite [post]
 // @Security    BearerAuth
+//
+//nolint:dupl // ignore
 func (r *V1) createFavorite(ctx *fiber.Ctx) error {
 	userID, ok := ctx.Locals(httpmeta.CtxUserIDKey).(string)
 	if !ok || userID == "" {
