@@ -93,8 +93,11 @@ type (
 
 // NewConfig returns app config.
 func NewConfig() (*Config, error) {
-	// .env must be loaded manually for 'air' to work
-	_ = godotenv.Load()
+	// load .env file to make 'air' work for hot reload, without this the app
+	// still run normally with 'make run' etc. but not 'air'
+	if err := godotenv.Load(); err != nil {
+		return nil, fmt.Errorf("config error: %w", err)
+	}
 
 	cfg := &Config{}
 	if err := env.Parse(cfg); err != nil {

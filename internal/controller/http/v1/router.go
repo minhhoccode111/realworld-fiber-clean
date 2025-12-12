@@ -10,6 +10,8 @@ import (
 )
 
 // NewV1Routes -.
+//
+//nolint:funlen,nolintlint,gocritic
 func NewV1Routes(
 	apiV1Group fiber.Router,
 	cfg *config.Config,

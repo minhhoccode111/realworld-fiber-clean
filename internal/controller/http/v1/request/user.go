@@ -16,7 +16,6 @@ type UserRegister struct {
 func (u *UserRegister) Trim() {
 	u.Email = strings.TrimSpace(u.Email)
 	u.Username = strings.TrimSpace(u.Username)
-	// ur.Password = strings.TrimSpace(ur.Password) // WARN: don't trim password
 }
 
 type UserRegisterRequest struct {

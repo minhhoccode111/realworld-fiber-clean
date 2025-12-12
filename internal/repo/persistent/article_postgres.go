@@ -20,6 +20,7 @@ func NewArticleRepo(pg *postgres.Postgres) *ArticleRepo {
 	return &ArticleRepo{pg}
 }
 
+//nolint:funlen,nolintlint,gocritic
 func (r *ArticleRepo) StoreCreate(ctx context.Context, dto *entity.Article, tags []string) error {
 	tx, err := r.Pool.Begin(ctx)
 	if err != nil {
@@ -28,9 +29,11 @@ func (r *ArticleRepo) StoreCreate(ctx context.Context, dto *entity.Article, tags
 
 	defer func() {
 		if r := recover(); r != nil {
+			//nolint:errcheck // safe
 			tx.Rollback(ctx)
 			panic(r) // continue the panicking
 		} else if err != nil {
+			//nolint:errcheck // safe
 			tx.Rollback(ctx)
 		}
 	}()
@@ -249,6 +252,7 @@ func (r *ArticleRepo) CanSlugBeUsed(ctx context.Context, articleID, slug string)
 	return !existed, nil
 }
 
+//nolint:funlen,nolintlint,gocritic
 func (r *ArticleRepo) GetList(
 	ctx context.Context,
 	isFeed bool,

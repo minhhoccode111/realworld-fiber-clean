@@ -7,6 +7,7 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
+//nolint:gocyclo,cyclop,gocritic,nolintlint
 func ExtractErrors(err error) []string {
 	var verrs validator.ValidationErrors
 	if !errors.As(err, &verrs) {

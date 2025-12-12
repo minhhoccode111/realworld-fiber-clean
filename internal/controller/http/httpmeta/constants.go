@@ -1,5 +1,4 @@
-//nolint:revive
-package common
+package httpmeta
 
 // ctxKey is a unexported type to prevent key collisions
 type ctxKey string

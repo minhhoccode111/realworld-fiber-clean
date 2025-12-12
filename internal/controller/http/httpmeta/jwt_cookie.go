@@ -1,15 +1,14 @@
-package v1
+package httpmeta
 
 import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/common"
 )
 
-func NewJWTCookie(token string, duration time.Duration) *fiber.Cookie {
+func NewJWTInCookie(token string, duration time.Duration) *fiber.Cookie {
 	return &fiber.Cookie{
-		Name:     common.CookieJWTName,
+		Name:     CookieJWTName,
 		Value:    token,
 		Expires:  time.Now().Add(duration),
 		HTTPOnly: true,

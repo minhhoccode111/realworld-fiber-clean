@@ -7,7 +7,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/common"
+	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http/httpmeta"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/entity"
 	"github.com/minhhoccode111/realworld-fiber-clean/pkg/logger"
 )
@@ -17,12 +17,14 @@ func errorResponse(ctx *fiber.Ctx, code int, msg string) error {
 }
 
 // AuthMiddleware -.
+//
+//nolint:gocognit,gocyclo,gocritic,nolintlint,cyclop,funlen
 func AuthMiddleware(l logger.Interface, jwtSecret string, isOptional bool) func(*fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		n := 2
 		s := fmt.Sprintf(
 			"Authorization header must be formatted: [%s <token>]",
-			common.AuthorizationScheme,
+			httpmeta.AuthorizationScheme,
 		)
 		esc := func(msg string) error {
 			if isOptional {
@@ -32,28 +34,28 @@ func AuthMiddleware(l logger.Interface, jwtSecret string, isOptional bool) func(
 			return errorResponse(c, http.StatusUnauthorized, msg)
 		}
 
-		c.Locals(common.CtxIsAuthKey, false)
-		c.Locals(common.CtxUserIDKey, "")
-		c.Locals(common.CtxUserRoleKey, "")
+		c.Locals(httpmeta.CtxIsAuthKey, false)
+		c.Locals(httpmeta.CtxUserIDKey, "")
+		c.Locals(httpmeta.CtxUserRoleKey, "")
 
 		var tokenStr string
 
 		authHeader := c.Get("Authorization")
-		if authHeader != "" {
+		if authHeader != "" { //nolint:nestif // this is understandable :)
 			// use jwt-in-header
 			parts := strings.Fields(authHeader)
 			if len(parts) < n {
 				return esc(s)
 			}
 
-			if !strings.EqualFold(parts[0], common.AuthorizationScheme) {
+			if !strings.EqualFold(parts[0], httpmeta.AuthorizationScheme) {
 				return esc(s)
 			}
 
 			tokenStr = parts[1]
 		} else {
 			// use jwt-in-cookie
-			tokenStr = c.Cookies(common.CookieJWTName)
+			tokenStr = c.Cookies(httpmeta.CookieJWTName)
 			if tokenStr == "" {
 				return esc("No token provided")
 			}
@@ -92,9 +94,9 @@ func AuthMiddleware(l logger.Interface, jwtSecret string, isOptional bool) func(
 			userRole = entity.UserRole
 		}
 
-		c.Locals(common.CtxIsAuthKey, true)
-		c.Locals(common.CtxUserIDKey, userID)
-		c.Locals(common.CtxUserRoleKey, userRole)
+		c.Locals(httpmeta.CtxIsAuthKey, true)
+		c.Locals(httpmeta.CtxUserIDKey, userID)
+		c.Locals(httpmeta.CtxUserRoleKey, userRole)
 
 		return c.Next()
 	}

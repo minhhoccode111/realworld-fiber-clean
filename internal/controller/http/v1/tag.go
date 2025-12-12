@@ -20,7 +20,7 @@ import (
 // @Failure     500 {object} response.Error
 // @Router      /tags [get]
 func (r *V1) getTags(ctx *fiber.Ctx) error {
-	_, _, _, limit, offset := utilities.SearchQueries(ctx)
+	limit, offset := utilities.PaginationQueries(ctx)
 
 	tags, total, err := r.tag.List(ctx.UserContext(), limit, offset)
 	if err != nil {

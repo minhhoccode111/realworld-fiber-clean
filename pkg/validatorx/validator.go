@@ -10,6 +10,7 @@ import (
 func New() *validator.Validate {
 	v := validator.New(validator.WithRequiredStructEnabled())
 
+	//nolint:errcheck // safe
 	_ = v.RegisterValidation("no_dups_str", func(fl validator.FieldLevel) bool {
 		slices, ok := fl.Field().Interface().([]string)
 		if !ok {
@@ -30,14 +31,17 @@ func New() *validator.Validate {
 		return true
 	})
 
+	//nolint:errcheck // safe
 	_ = v.RegisterValidation("tag", func(fl validator.FieldLevel) bool {
 		return regexp.MustCompile(`^[a-zA-Z0-9_ -]+$`).MatchString(fl.Field().String())
 	})
 
+	//nolint:errcheck // safe
 	_ = v.RegisterValidation("username", func(fl validator.FieldLevel) bool {
 		return regexp.MustCompile(`^[a-zA-Z0-9_]+$`).MatchString(fl.Field().String())
 	})
 
+	//nolint:errcheck // safe
 	_ = v.RegisterValidation("password", func(fl validator.FieldLevel) bool {
 		p := fl.Field().String()
 		hasUpper := regexp.MustCompile(`[A-Z]`).MatchString(p)

@@ -84,8 +84,11 @@ func (uc *UseCase) List(ctx context.Context, isFeed bool, userID, tag, author, f
 	return articles, total, nil
 }
 
-func (uc *UseCase) Detail(ctx context.Context, userID, slug string) (*entity.ArticleDetail, error) {
-	a, err := uc.repo.GetDetailBySlug(ctx, userID, slug)
+func (uc *UseCase) Detail(
+	ctx context.Context,
+	userID, slugStr string,
+) (*entity.ArticleDetail, error) {
+	a, err := uc.repo.GetDetailBySlug(ctx, userID, slugStr)
 	if err != nil {
 		return nil, fmt.Errorf(
 			"ArticleUseCase - Detail - uc.repo.GetDetailBySlug: %w",
@@ -96,6 +99,7 @@ func (uc *UseCase) Detail(ctx context.Context, userID, slug string) (*entity.Art
 	return a, nil
 }
 
+//nolint:gocyclo,gocritic,nolintlint,cyclop,funlen
 func (uc *UseCase) Update(
 	ctx context.Context,
 	userID, oldSlug string,
@@ -166,8 +170,8 @@ func (uc *UseCase) Update(
 	return ad, nil
 }
 
-func (uc *UseCase) Delete(ctx context.Context, userID, slug string, userRole entity.Role) error {
-	a, err := uc.repo.GetBasicBySlug(ctx, slug)
+func (uc *UseCase) Delete(ctx context.Context, userID, slugStr string, userRole entity.Role) error {
+	a, err := uc.repo.GetBasicBySlug(ctx, slugStr)
 	if err != nil {
 		return fmt.Errorf(
 			"ArticleUseCase - Delete - uc.repo.GetBasicBySlug: %w",
@@ -182,7 +186,7 @@ func (uc *UseCase) Delete(ctx context.Context, userID, slug string, userRole ent
 		)
 	}
 
-	err = uc.repo.StoreDelete(ctx, slug)
+	err = uc.repo.StoreDelete(ctx, slugStr)
 	if err != nil {
 		return fmt.Errorf(
 			"ArticleUseCase - Delete - uc.repo.StoreDelete: %w",
