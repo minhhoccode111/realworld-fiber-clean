@@ -43,6 +43,7 @@ func (r *V1) postComment(ctx *fiber.Ctx) error {
 		r.l.Error(err, "http - v1 - postCreateComment - r.v.Struct")
 
 		errs := validatorx.ExtractErrors(err)
+
 		return errorResponse(ctx, http.StatusBadRequest, strings.Join(errs, "; "))
 	}
 

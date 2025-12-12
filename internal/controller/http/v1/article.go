@@ -240,6 +240,7 @@ func (r *V1) putArticle(ctx *fiber.Ctx) error {
 		r.l.Error(err, "http - v1 - putArticle - r.v.Struct")
 
 		errs := validatorx.ExtractErrors(err)
+
 		return errorResponse(ctx, http.StatusBadRequest, strings.Join(errs, "; "))
 	}
 

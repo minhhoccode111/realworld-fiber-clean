@@ -40,8 +40,9 @@ func (r *V1) postRegisterUser(ctx *fiber.Ctx) error {
 
 	if err := r.v.Struct(body.User); err != nil {
 		r.l.Error(err, "http - v1 - postRegisterUser - r.v.Struct")
+		
+				errs := validatorx.ExtractErrors(err)
 
-		errs := validatorx.ExtractErrors(err)
 		return errorResponse(ctx, http.StatusBadRequest, strings.Join(errs, "; "))
 	}
 
@@ -109,6 +110,7 @@ func (r *V1) postLoginUser(ctx *fiber.Ctx) error {
 		r.l.Error(err, "http - v1 - postLoginUser - r.v.Struct")
 
 		errs := validatorx.ExtractErrors(err)
+
 		return errorResponse(ctx, http.StatusBadRequest, strings.Join(errs, "; "))
 	}
 

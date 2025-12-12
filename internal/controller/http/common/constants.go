@@ -1,3 +1,4 @@
+//nolint:revive
 package common
 
 // ctxKey is a unexported type to prevent key collisions

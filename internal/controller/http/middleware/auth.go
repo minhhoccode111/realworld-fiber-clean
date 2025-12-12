@@ -83,6 +83,9 @@ func AuthMiddleware(l logger.Interface, jwtSecret string, isOptional bool) func(
 		}
 
 		roleStr, ok := claims["role"].(string)
+		if !ok {
+			roleStr = ""
+		}
 
 		userRole := entity.Role(roleStr)
 		if !userRole.IsValid() {

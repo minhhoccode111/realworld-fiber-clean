@@ -8,6 +8,8 @@ import (
 )
 
 // TODO: tag can be a slice of strings.
+//
+//nolint:godox // will do it later
 func SearchQueries(ctx *fiber.Ctx) (tag, author, favorited string, limit, offset uint64) {
 	var err error
 
