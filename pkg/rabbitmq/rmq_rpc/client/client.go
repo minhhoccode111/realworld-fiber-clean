@@ -15,6 +15,7 @@ import (
 )
 
 // ErrConnectionClosed -.
+// ErrConnectionClosed is returned when the RabbitMQ connection is closed.
 var ErrConnectionClosed = errors.New("rmq_rpc client - Client - RemoteCall - Connection closed")
 
 const (
@@ -24,6 +25,7 @@ const (
 )
 
 // Message -.
+// Message represents a message exchanged over RabbitMQ RPC.
 type Message struct {
 	Queue         string
 	Priority      uint8
@@ -40,6 +42,7 @@ type pendingCall struct {
 }
 
 // Client -.
+// Client for RabbitMQ RPC.
 type Client struct {
 	ctx context.Context
 	eg  *errgroup.Group
@@ -56,6 +59,7 @@ type Client struct {
 }
 
 // New -.
+// New creates a new RabbitMQ RPC client.
 func New(url, serverExchange, clientExchange string, opts ...Option) (*Client, error) {
 	group, ctx := errgroup.WithContext(context.Background())
 	group.SetLimit(1) // Run only one goroutine
@@ -93,6 +97,7 @@ func New(url, serverExchange, clientExchange string, opts ...Option) (*Client, e
 }
 
 // Shutdown -.
+// Shutdown gracefully stops the RabbitMQ RPC client.
 func (c *Client) Shutdown() error {
 	var shutdownErrors []error
 
@@ -115,6 +120,7 @@ func (c *Client) Shutdown() error {
 }
 
 // RemoteCall -.
+// RemoteCall sends a request to a RabbitMQ RPC server and waits for a response.
 func (c *Client) RemoteCall(handler string, request, response any) error {
 	err := c.preRemoteCallWait()
 	if err != nil {

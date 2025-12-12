@@ -7,6 +7,8 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
+// ExtractErrors extracts human-readable error messages from validator.ValidationErrors.
+//
 //nolint:gocyclo,cyclop,gocritic,nolintlint
 func ExtractErrors(err error) []string {
 	var verrs validator.ValidationErrors

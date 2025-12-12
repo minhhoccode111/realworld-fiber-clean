@@ -18,6 +18,7 @@ const (
 )
 
 // Postgres -.
+// Postgres is a wrapper around pgxpool.Pool for PostgreSQL database operations.
 type Postgres struct {
 	maxPoolSize  int
 	connAttempts int
@@ -28,6 +29,7 @@ type Postgres struct {
 }
 
 // New -.
+// New creates a new Postgres connection pool.
 func New(url string, opts ...Option) (*Postgres, error) {
 	pg := &Postgres{
 		maxPoolSize:  _defaultMaxPoolSize,
@@ -70,6 +72,7 @@ func New(url string, opts ...Option) (*Postgres, error) {
 }
 
 // Close -.
+// Close closes the PostgreSQL connection pool.
 func (p *Postgres) Close() {
 	if p.Pool != nil {
 		p.Pool.Close()

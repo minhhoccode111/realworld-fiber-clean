@@ -18,6 +18,7 @@ const (
 )
 
 // Client -.
+// Client for NATS RPC.
 type Client struct {
 	subject    string
 	connection *nats.Conn
@@ -26,6 +27,7 @@ type Client struct {
 }
 
 // New -.
+// New creates a new NATS RPC client.
 func New(
 	url string,
 	serverSubject string,
@@ -58,6 +60,7 @@ func New(
 }
 
 // Shutdown -.
+// Shutdown closes the NATS connection.
 func (c *Client) Shutdown() error {
 	c.connection.Close()
 
@@ -65,6 +68,7 @@ func (c *Client) Shutdown() error {
 }
 
 // RemoteCall -.
+// RemoteCall sends a request to a NATS RPC server and waits for a response.
 func (c *Client) RemoteCall(handler string, request, response any) error {
 	var (
 		requestBody []byte

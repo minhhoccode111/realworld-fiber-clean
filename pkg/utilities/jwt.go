@@ -7,6 +7,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+// GenerateJWT generates a new JWT token.
 func GenerateJWT(
 	userID, userRole, secret, issuer string,
 	expiration time.Duration,

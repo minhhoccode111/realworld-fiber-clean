@@ -7,6 +7,7 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
+// New creates a new validator instance with custom validations.
 func New() *validator.Validate {
 	v := validator.New(validator.WithRequiredStructEnabled())
 

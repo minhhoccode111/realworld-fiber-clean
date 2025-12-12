@@ -21,9 +21,11 @@ const (
 )
 
 // CallHandler -.
+// CallHandler is a function type that handles incoming NATS messages.
 type CallHandler func(*nats.Msg) (any, error)
 
 // Server -.
+// Server implements a NATS RPC server.
 type Server struct {
 	ctx context.Context
 	eg  *errgroup.Group
@@ -41,6 +43,7 @@ type Server struct {
 }
 
 // New -.
+// New creates a new NATS RPC server.
 func New(
 	url,
 	serverSubject string,
@@ -82,6 +85,7 @@ func New(
 }
 
 // Start -.
+// Start runs the NATS RPC server.
 func (s *Server) Start() {
 	s.eg.Go(func() error {
 		err := s.subscribe()
@@ -103,11 +107,13 @@ func (s *Server) Start() {
 }
 
 // Notify -.
+// Notify returns a channel that receives errors from the server.
 func (s *Server) Notify() <-chan error {
 	return s.notify
 }
 
 // Shutdown -.
+// Shutdown gracefully stops the NATS RPC server.
 func (s *Server) Shutdown() error {
 	var shutdownErrors []error
 

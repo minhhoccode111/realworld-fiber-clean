@@ -9,6 +9,7 @@ import (
 )
 
 // Config -.
+// Config holds configuration parameters for a RabbitMQ connection.
 type Config struct {
 	URL      string
 	WaitTime time.Duration
@@ -16,6 +17,7 @@ type Config struct {
 }
 
 // Connection -.
+// Connection manages a RabbitMQ connection and channel.
 type Connection struct {
 	ConsumerExchange string
 	Config
@@ -25,6 +27,7 @@ type Connection struct {
 }
 
 // New -.
+// New creates a new Connection instance.
 func New(consumerExchange string, cfg Config) *Connection {
 	conn := &Connection{
 		ConsumerExchange: consumerExchange,
@@ -35,6 +38,7 @@ func New(consumerExchange string, cfg Config) *Connection {
 }
 
 // AttemptConnect -.
+// AttemptConnect tries to establish a connection to RabbitMQ multiple times.
 func (c *Connection) AttemptConnect() error {
 	var err error
 	for i := c.Attempts; i > 0; i-- {

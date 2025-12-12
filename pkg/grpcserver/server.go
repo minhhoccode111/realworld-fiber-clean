@@ -16,6 +16,7 @@ const (
 )
 
 // Server -.
+// Server implements a gRPC server.
 type Server struct {
 	ctx context.Context
 	eg  *errgroup.Group
@@ -28,6 +29,7 @@ type Server struct {
 }
 
 // New -.
+// New creates a new gRPC server.
 func New(l logger.Interface, opts ...Option) *Server {
 	group, ctx := errgroup.WithContext(context.Background())
 	group.SetLimit(1) // Run only one goroutine
@@ -50,6 +52,7 @@ func New(l logger.Interface, opts ...Option) *Server {
 }
 
 // Start -.
+// Start runs the gRPC server.
 func (s *Server) Start() {
 	s.eg.Go(func() error {
 		var lc net.ListenConfig
@@ -79,11 +82,13 @@ func (s *Server) Start() {
 }
 
 // Notify -.
+// Notify returns a channel that receives errors from the server.
 func (s *Server) Notify() <-chan error {
 	return s.notify
 }
 
 // Shutdown -.
+// Shutdown gracefully stops the gRPC server.
 func (s *Server) Shutdown() error {
 	var shutdownErrors []error
 

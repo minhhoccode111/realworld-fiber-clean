@@ -7,9 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-// TODO: tag can be a slice of strings.
-//
-//nolint:godox // will do it later
+// SearchQueries extracts search parameters (tag, author, favorited, limit, offset) from fiber.Ctx queries.
 func SearchQueries(ctx *fiber.Ctx) (tag, author, favorited string, limit, offset uint64) {
 	var err error
 

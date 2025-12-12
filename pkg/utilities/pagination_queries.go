@@ -6,6 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+// PaginationQueries extracts limit and offset from fiber.Ctx queries for pagination.
 func PaginationQueries(ctx *fiber.Ctx) (limit, offset uint64) {
 	var err error
 

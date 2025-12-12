@@ -9,6 +9,7 @@ import (
 )
 
 // Interface -.
+// Interface is an interface for logging.
 type Interface interface {
 	Debug(message any, args ...any)
 	Info(message string, args ...any)
@@ -18,6 +19,7 @@ type Interface interface {
 }
 
 // Logger -.
+// Logger implements the Interface for logging.
 type Logger struct {
 	logger *zerolog.Logger
 }
@@ -25,6 +27,7 @@ type Logger struct {
 var _ Interface = (*Logger)(nil)
 
 // New -.
+// New creates a new logger with the specified level.
 func New(level string) *Logger {
 	var l zerolog.Level
 
@@ -56,21 +59,25 @@ func New(level string) *Logger {
 }
 
 // Debug -.
+// Debug logs a debug message.
 func (l *Logger) Debug(message any, args ...any) {
 	l.msg("debug", message, args...)
 }
 
 // Info -.
+// Info logs an info message.
 func (l *Logger) Info(message string, args ...any) {
 	l.log(message, args...)
 }
 
 // Warn -.
+// Warn logs a warning message.
 func (l *Logger) Warn(message string, args ...any) {
 	l.log(message, args...)
 }
 
 // Error -.
+// Error logs an error message.
 func (l *Logger) Error(message any, args ...any) {
 	if l.logger.GetLevel() == zerolog.DebugLevel {
 		l.Debug(message, args...)
@@ -80,6 +87,7 @@ func (l *Logger) Error(message any, args ...any) {
 }
 
 // Fatal -.
+// Fatal logs a fatal message and exits.
 func (l *Logger) Fatal(message any, args ...any) {
 	l.msg("fatal", message, args...)
 
