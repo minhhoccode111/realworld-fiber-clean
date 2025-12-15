@@ -35,7 +35,7 @@ require (
 	golang.org/x/crypto v0.43.0
 	golang.org/x/sync v0.17.0
 	google.golang.org/grpc v1.76.0
-	google.golang.org/protobuf v1.36.10
+	google.golang.org/protobuf v1.36.11
 )
 
 require github.com/gosimple/unidecode v1.0.1 // indirect
