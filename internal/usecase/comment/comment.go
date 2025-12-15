@@ -8,17 +8,17 @@ import (
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/repo"
 )
 
-// UseCase -.
+// UseCase manages comment-related business rules.
 type UseCase struct {
 	repo repo.CommentRepo
 }
 
-// New -.
+// New constructs a comment use case with the provided repository.
 func New(r repo.CommentRepo) *UseCase {
 	return &UseCase{repo: r}
 }
 
-// Create -.
+// Create persists a comment on the given article slug and returns its detail.
 func (uc *UseCase) Create(
 	ctx context.Context,
 	slug string,
@@ -43,6 +43,7 @@ func (uc *UseCase) Create(
 	return c, nil
 }
 
+// List returns a paginated list of comments for the specified article.
 func (uc *UseCase) List(
 	ctx context.Context,
 	userID, slug string,
@@ -59,6 +60,7 @@ func (uc *UseCase) List(
 	return comments, total, nil
 }
 
+// Delete removes a comment if the caller owns it or has admin privileges.
 func (uc *UseCase) Delete(
 	ctx context.Context,
 	userID, slug, commentID string,
