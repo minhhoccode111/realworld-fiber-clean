@@ -12,14 +12,18 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
+// ArticleRepo implements article-related persistence against Postgres.
 type ArticleRepo struct {
 	*postgres.Postgres
 }
 
+// NewArticleRepo constructs a new ArticleRepo.
 func NewArticleRepo(pg *postgres.Postgres) *ArticleRepo {
 	return &ArticleRepo{pg}
 }
 
+// StoreCreate inserts an article and its tags within a transaction.
+//
 //nolint:funlen,nolintlint,gocritic
 func (r *ArticleRepo) StoreCreate(ctx context.Context, dto *entity.Article, tags []string) error {
 	tx, err := r.Pool.Begin(ctx)
@@ -95,6 +99,7 @@ func (r *ArticleRepo) StoreCreate(ctx context.Context, dto *entity.Article, tags
 	return nil
 }
 
+// GetDetailBySlug returns article details and author info for the given slug.
 func (r *ArticleRepo) GetDetailBySlug(ctx context.Context, userID, slug string,
 ) (*entity.ArticleDetail, error) {
 	// NOTE: can't use squirrel because compldex queries should look complex :)
@@ -162,6 +167,7 @@ func (r *ArticleRepo) GetDetailBySlug(ctx context.Context, userID, slug string,
 	return &a, nil
 }
 
+// StoreTagsList inserts or updates tags and returns their IDs.
 func (r *ArticleRepo) StoreTagsList(ctx context.Context, tags []string,
 ) (ids []string, err error) {
 	if len(tags) == 0 {
@@ -204,6 +210,7 @@ func (r *ArticleRepo) StoreTagsList(ctx context.Context, tags []string,
 	return ids, nil
 }
 
+// StoreArticleTagsList associates article and tag IDs in the join table.
 func (r *ArticleRepo) StoreArticleTagsList(ctx context.Context, articleID string, tagIDs []string,
 ) error {
 	if len(tagIDs) == 0 {
@@ -233,6 +240,7 @@ func (r *ArticleRepo) StoreArticleTagsList(ctx context.Context, articleID string
 	return nil
 }
 
+// CanSlugBeUsed checks whether a slug is available for the given article.
 func (r *ArticleRepo) CanSlugBeUsed(ctx context.Context, articleID, slug string) (bool, error) {
 	// query to check if slug is already existed
 	query, _, err := r.Builder.
@@ -252,6 +260,8 @@ func (r *ArticleRepo) CanSlugBeUsed(ctx context.Context, articleID, slug string)
 	return !existed, nil
 }
 
+// GetList returns article previews along with their total count.
+//
 //nolint:funlen,nolintlint,gocritic
 func (r *ArticleRepo) GetList(
 	ctx context.Context,
@@ -379,6 +389,7 @@ func (r *ArticleRepo) GetList(
 	return articles, total, nil
 }
 
+// GetBasicBySlug returns minimal article data for updates or deletes.
 func (r *ArticleRepo) GetBasicBySlug(ctx context.Context, slug string) (*entity.Article, error) {
 	sql, args, err := r.Builder.
 		Select("id, author_id, slug, title, body, description, created_at, updated_at").
@@ -418,6 +429,7 @@ func (r *ArticleRepo) GetBasicBySlug(ctx context.Context, slug string) (*entity.
 	return &a, nil
 }
 
+// StoreUpdate updates mutable article fields.
 func (r *ArticleRepo) StoreUpdate(ctx context.Context, dto *entity.Article) error {
 	sql, args, err := r.Builder.
 		Update("articles").
@@ -441,6 +453,7 @@ func (r *ArticleRepo) StoreUpdate(ctx context.Context, dto *entity.Article) erro
 	return nil
 }
 
+// StoreDelete soft-deletes an article by setting its deleted_at timestamp.
 func (r *ArticleRepo) StoreDelete(ctx context.Context, slug string) error {
 	sql, args, err := r.Builder.
 		Update("articles").

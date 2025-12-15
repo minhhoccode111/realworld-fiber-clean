@@ -12,14 +12,17 @@ import (
 	"github.com/minhhoccode111/realworld-fiber-clean/pkg/postgres"
 )
 
+// UserRepo implements user persistence against Postgres.
 type UserRepo struct {
 	*postgres.Postgres
 }
 
+// NewUserRepo constructs a new UserRepo.
 func NewUserRepo(pg *postgres.Postgres) *UserRepo {
 	return &UserRepo{pg}
 }
 
+// StoreRegister inserts a new user and populates its generated fields.
 func (r *UserRepo) StoreRegister(ctx context.Context, user *entity.User) error {
 	sql, args, err := r.Builder.
 		Insert("users").
@@ -48,6 +51,7 @@ func (r *UserRepo) StoreRegister(ctx context.Context, user *entity.User) error {
 	return nil
 }
 
+// GetUserByEmail looks up a user record by email.
 func (r *UserRepo) GetUserByEmail(ctx context.Context, email string) (*entity.User, error) {
 	sql, args, err := r.Builder.
 		Select("id, email, username, password, bio, image, role").
@@ -82,6 +86,7 @@ func (r *UserRepo) GetUserByEmail(ctx context.Context, email string) (*entity.Us
 	return &user, nil
 }
 
+// GetUserByID looks up a user record by identifier.
 func (r *UserRepo) GetUserByID(ctx context.Context, userID string) (*entity.User, error) {
 	sql, args, err := r.Builder.
 		Select("id, email, username, password, bio, image, role").
@@ -112,6 +117,7 @@ func (r *UserRepo) GetUserByID(ctx context.Context, userID string) (*entity.User
 	return &user, nil
 }
 
+// StoreUpdate persists changes to an existing user.
 func (r *UserRepo) StoreUpdate(ctx context.Context, user *entity.User) error {
 	sql, args, err := r.Builder.
 		Update("users").
