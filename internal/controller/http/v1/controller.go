@@ -7,7 +7,7 @@ import (
 	"github.com/minhhoccode111/realworld-fiber-clean/pkg/logger"
 )
 
-// V1 -.
+// V1 bundles dependencies and handlers for the v1 HTTP API.
 type V1 struct {
 	l   logger.Interface
 	v   *validator.Validate

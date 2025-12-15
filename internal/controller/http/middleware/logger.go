@@ -24,6 +24,7 @@ func buildRequestMessage(ctx *fiber.Ctx) string {
 	return result.String()
 }
 
+// Logger logs HTTP requests after they are processed by Fiber.
 func Logger(l logger.Interface) func(c *fiber.Ctx) error {
 	return func(ctx *fiber.Ctx) error {
 		err := ctx.Next()

@@ -6,6 +6,7 @@ type CommentCreate struct {
 	Body string `json:"body" validate:"required,max=10000" example:"this is a comment"`
 }
 
+// Trim normalizes whitespace in the comment body.
 func (c *CommentCreate) Trim() {
 	c.Body = strings.TrimSpace(c.Body)
 }

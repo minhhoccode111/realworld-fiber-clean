@@ -6,7 +6,7 @@ import (
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/entity"
 )
 
-// UserRegister -.
+// UserRegister describes the payload for user registration.
 type UserRegister struct {
 	Email    string `json:"email"    validate:"required,email"                 example:"minhhoccode111@gmail.com"`
 	Username string `json:"username" validate:"required,min=2,max=50,username" example:"minhhoccode111"`
@@ -22,7 +22,7 @@ type UserRegisterRequest struct {
 	User UserRegister `json:"user"`
 }
 
-// UserLogin -.
+// UserLogin describes the payload for user login.
 type UserLogin struct {
 	Email    string `json:"email"    validate:"required" example:"minhhoccode111@gmail.com"`
 	Password string `json:"password" validate:"required" example:"P@ssw0rd"`
@@ -36,7 +36,7 @@ type UserLoginRequest struct {
 	User UserLogin `json:"user"`
 }
 
-// UserUpdate -.
+// UserUpdate holds optional fields for updating a user.
 type UserUpdate struct {
 	Email    string `json:"email"    validate:"omitempty,min=5,max=320,email"   example:"minhhoccode111@gmail.com"`
 	Username string `json:"username" validate:"omitempty,min=2,max=50,username" example:"minhhoccode111"`
@@ -45,7 +45,7 @@ type UserUpdate struct {
 	Image    string `json:"image"    validate:"max=2048"                        example:"https://www.w3schools.com/howto/img_avatar.png"`
 }
 
-// NewUser -.
+// NewUser converts an update payload into a full user entity.
 func (uu *UserUpdate) NewUser(userID string) *entity.User {
 	return &entity.User{
 		ID:       userID,

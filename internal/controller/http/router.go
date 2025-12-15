@@ -1,4 +1,4 @@
-// Package v1 implements routing paths. Each services in own file.
+// Package http wires HTTP routing, middleware, and sub-routers.
 package http
 
 import (
@@ -15,7 +15,7 @@ import (
 	"github.com/minhhoccode111/realworld-fiber-clean/pkg/logger"
 )
 
-// NewRouter -.
+// NewRouter configures middleware, metrics, swagger, health checks and v1 routes.
 // Swagger spec:
 // @title       Realworld Fiber Clean API
 // @description Realworld API using Golang + Fiber + Clean Architecture
