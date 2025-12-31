@@ -13,7 +13,7 @@ x-backend-app-environment: &x-backend-app-environment
   LOG_LEVEL: "debug"
   # PG
   PG_POOL_MAX: "2"
-  PG_URL: "postgresql://mhc:P%40ssw0rd@localhost:5432/realworld"
+  PG_URL: "postgresql://mhc:Bruh0!0!@localhost:5432/realworld"
   # Metrics
   METRICS_ENABLED: "true"
   # Swagger
