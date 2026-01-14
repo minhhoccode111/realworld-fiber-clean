@@ -1,5 +1,6 @@
 package request
 
+// TranslateClone is an example translation payload used in docs.
 type TranslateClone struct {
 	Source      string `json:"source"      validate:"required" example:"auto"`
 	Destination string `json:"destination" validate:"required" example:"en"`

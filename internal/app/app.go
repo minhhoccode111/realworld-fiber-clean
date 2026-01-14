@@ -8,10 +8,7 @@ import (
 	"syscall"
 
 	"github.com/minhhoccode111/realworld-fiber-clean/config"
-	amqprpc "github.com/minhhoccode111/realworld-fiber-clean/internal/controller/amqp_rpc"
-	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/grpc"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/controller/http"
-	natsrpc "github.com/minhhoccode111/realworld-fiber-clean/internal/controller/nats_rpc"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/repo/persistent"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/repo/webapi"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/usecase/article"
@@ -21,12 +18,9 @@ import (
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/usecase/tag"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/usecase/translation"
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/usecase/user"
-	"github.com/minhhoccode111/realworld-fiber-clean/pkg/grpcserver"
 	"github.com/minhhoccode111/realworld-fiber-clean/pkg/httpserver"
 	"github.com/minhhoccode111/realworld-fiber-clean/pkg/logger"
-	natsRPCServer "github.com/minhhoccode111/realworld-fiber-clean/pkg/nats/nats_rpc/server"
 	"github.com/minhhoccode111/realworld-fiber-clean/pkg/postgres"
-	rmqRPCServer "github.com/minhhoccode111/realworld-fiber-clean/pkg/rabbitmq/rmq_rpc/server"
 )
 
 // Run creates objects via constructors.
@@ -49,26 +43,6 @@ func Run(cfg *config.Config) { //nolint: gocyclo,cyclop,funlen,gocritic,nolintli
 	profileUseCase := profile.New(persistent.NewProfileRepo(pg))
 	tagUseCase := tag.New(persistent.NewTagRepo(pg))
 
-	// RabbitMQ RPC Server
-	rmqRouter := amqprpc.NewRouter(translationUseCase, l)
-
-	rmqServer, err := rmqRPCServer.New(cfg.RMQ.URL, cfg.RMQ.ServerExchange, rmqRouter, l)
-	if err != nil {
-		l.Fatal(fmt.Errorf("app - Run - rmqServer - server.New: %w", err))
-	}
-
-	// NATS RPC Server
-	natsRouter := natsrpc.NewRouter(translationUseCase, l)
-
-	natsServer, err := natsRPCServer.New(cfg.NATS.URL, cfg.NATS.ServerExchange, natsRouter, l)
-	if err != nil {
-		l.Fatal(fmt.Errorf("app - Run - natsServer - server.New: %w", err))
-	}
-
-	// gRPC Server
-	grpcServer := grpcserver.New(l, grpcserver.Port(cfg.GRPC.Port))
-	grpc.NewRouter(grpcServer.App, translationUseCase, l)
-
 	// HTTP Server
 	httpServer := httpserver.New(
 		l,
@@ -90,9 +64,6 @@ func Run(cfg *config.Config) { //nolint: gocyclo,cyclop,funlen,gocritic,nolintli
 	)
 
 	// Start servers
-	rmqServer.Start()
-	natsServer.Start()
-	grpcServer.Start()
 	httpServer.Start()
 
 	// Waiting signal
@@ -104,32 +75,11 @@ func Run(cfg *config.Config) { //nolint: gocyclo,cyclop,funlen,gocritic,nolintli
 		l.Info("app - Run - signal: %s", s.String())
 	case err = <-httpServer.Notify():
 		l.Error(fmt.Errorf("app - Run - httpServer.Notify: %w", err))
-	case err = <-grpcServer.Notify():
-		l.Error(fmt.Errorf("app - Run - grpcServer.Notify: %w", err))
-	case err = <-rmqServer.Notify():
-		l.Error(fmt.Errorf("app - Run - rmqServer.Notify: %w", err))
-	case err = <-natsServer.Notify():
-		l.Error(fmt.Errorf("app - Run - natsServer.Notify: %w", err))
 	}
 
 	// Shutdown
 	err = httpServer.Shutdown()
 	if err != nil {
 		l.Error(fmt.Errorf("app - Run - httpServer.Shutdown: %w", err))
-	}
-
-	err = grpcServer.Shutdown()
-	if err != nil {
-		l.Error(fmt.Errorf("app - Run - grpcServer.Shutdown: %w", err))
-	}
-
-	err = rmqServer.Shutdown()
-	if err != nil {
-		l.Error(fmt.Errorf("app - Run - rmqServer.Shutdown: %w", err))
-	}
-
-	err = natsServer.Shutdown()
-	if err != nil {
-		l.Error(fmt.Errorf("app - Run - natsServer.Shutdown: %w", err))
 	}
 }

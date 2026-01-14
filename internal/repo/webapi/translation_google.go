@@ -7,12 +7,12 @@ import (
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/entity"
 )
 
-// TranslationWebAPI -.
+// TranslationWebAPI calls Google Translate for performing translations.
 type TranslationWebAPI struct {
 	conf translator.Config
 }
 
-// New -.
+// New constructs a TranslationWebAPI with default configuration.
 func New() *TranslationWebAPI {
 	conf := translator.Config{
 		UserAgent:   []string{"Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:15.0) Gecko/20100101 Firefox/15.0.1"},
@@ -24,7 +24,7 @@ func New() *TranslationWebAPI {
 	}
 }
 
-// Translate -.
+// Translate performs a translation request using the configured client.
 func (t *TranslationWebAPI) Translate(translation entity.Translation) (entity.Translation, error) {
 	trans := translator.New(t.conf)
 

@@ -12,11 +12,6 @@ import (
 	"time"
 
 	"github.com/goccy/go-json"
-	protov1 "github.com/minhhoccode111/realworld-fiber-clean/docs/proto/v1"
-	natsClient "github.com/minhhoccode111/realworld-fiber-clean/pkg/nats/nats_rpc/client"
-	rmqClient "github.com/minhhoccode111/realworld-fiber-clean/pkg/rabbitmq/rmq_rpc/client"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 )
 
 const (
@@ -31,20 +26,6 @@ const (
 
 	// HTTP REST
 	basePathV1 = httpURL + "/v1"
-
-	// gRPC
-	grpcURL = host + ":8081"
-
-	// RPC configs
-	rpcServerExchange = "rpc_server"
-	rpcClientExchange = "rpc_client"
-	requests          = 10
-
-	// RabbitMQ RPC
-	rmqURL = "amqp://guest:guest@rabbitmq:5672/"
-
-	// RabbitMQ RPC
-	natsURL = "nats://guest:guest@nats:4222/"
 
 	// Test data
 	expectedOriginal = "текст для перевода"
@@ -213,138 +194,5 @@ func TestHTTPHistoryV1(t *testing.T) {
 
 	if len(body.History) == 0 {
 		t.Error("Expected non-empty history")
-	}
-}
-
-// gRPC Client V1: GetHistory.
-func TestClientGRPCV1(t *testing.T) {
-	grpcConn, err := grpc.NewClient(
-		grpcURL,
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-	)
-	if err != nil {
-		t.Fatal("gRPC Client - init error - grpc.NewClient", err)
-	}
-
-	defer func() {
-		err = grpcConn.Close()
-		if err != nil {
-			t.Fatal("gRPC Client - shutdown error - grpcClientV1.GetHistory", err)
-		}
-	}()
-
-	grpcClientV1 := protov1.NewTranslationClient(grpcConn)
-
-	for i := 0; i < requests; i++ {
-		history, err := grpcClientV1.GetHistory(t.Context(), &protov1.GetHistoryRequest{})
-		if err != nil {
-			t.Fatal("gRPC Client - remote call error - grpcClientV1.GetHistory", err)
-		}
-
-		if len(history.History) == 0 {
-			t.Fatal("History slice is empty, expected at least one entry")
-		}
-
-		if history.History[0].Original != expectedOriginal {
-			t.Fatalf(
-				"Original mismatch: expected %q, got %q",
-				expectedOriginal,
-				history.History[0].Original,
-			)
-		}
-	}
-}
-
-// RabbitMQ RPC Client V1: getHistory.
-func TestClientRMQRPCV1(t *testing.T) { //nolint: dupl,gocritic,nolintlint
-	client, err := rmqClient.New(rmqURL, rpcServerExchange, rpcClientExchange)
-	if err != nil {
-		t.Fatal("RabbitMQ RPC Client - init error - rmqClient.New", err)
-	}
-
-	defer func() {
-		err = client.Shutdown()
-		if err != nil {
-			t.Fatal("RabbitMQ RPC Client - shutdown error - client.RemoteCall", err)
-		}
-	}()
-
-	type Translation struct {
-		Source      string `json:"source"`
-		Destination string `json:"destination"`
-		Original    string `json:"original"`
-		Translation string `json:"translation"`
-	}
-
-	type historyResponse struct {
-		History []Translation `json:"history"`
-	}
-
-	for i := 0; i < requests; i++ {
-		var history historyResponse
-
-		err = client.RemoteCall("v1.getHistory", nil, &history)
-		if err != nil {
-			t.Fatal("RabbitMQ RPC Client - remote call error - client.RemoteCall", err)
-		}
-
-		if len(history.History) == 0 {
-			t.Fatal("History slice is empty, expected at least one entry")
-		}
-
-		if history.History[0].Original != expectedOriginal {
-			t.Fatalf(
-				"Original mismatch: expected %q, got %q",
-				expectedOriginal,
-				history.History[0].Original,
-			)
-		}
-	}
-}
-
-// NATS RPC Client V1: getHistory.
-func TestClientNATSRPCV1(t *testing.T) { //nolint: dupl,gocritic,nolintlint
-	client, err := natsClient.New(natsURL, rpcServerExchange)
-	if err != nil {
-		t.Fatal("NATS RPC Client - init error - natsClient.New", err)
-	}
-
-	defer func() {
-		err = client.Shutdown()
-		if err != nil {
-			t.Fatal("NATS RPC Client - shutdown error - rmqClient.RemoteCall", err)
-		}
-	}()
-
-	type Translation struct {
-		Source      string `json:"source"`
-		Destination string `json:"destination"`
-		Original    string `json:"original"`
-		Translation string `json:"translation"`
-	}
-
-	type historyResponse struct {
-		History []Translation `json:"history"`
-	}
-
-	for i := 0; i < requests; i++ {
-		var history historyResponse
-
-		err = client.RemoteCall("v1.getHistory", nil, &history)
-		if err != nil {
-			t.Fatal("NATS RPC Client - remote call error - rmqClient.RemoteCall", err)
-		}
-
-		if len(history.History) == 0 {
-			t.Fatal("History slice is empty, expected at least one entry")
-		}
-
-		if history.History[0].Original != expectedOriginal {
-			t.Fatalf(
-				"Original mismatch: expected %q, got %q",
-				expectedOriginal,
-				history.History[0].Original,
-			)
-		}
 	}
 }

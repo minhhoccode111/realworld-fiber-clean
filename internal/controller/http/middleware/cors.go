@@ -6,7 +6,7 @@ import (
 	"github.com/minhhoccode111/realworld-fiber-clean/config"
 )
 
-// CORS -.
+// CORS configures CORS middleware from application config.
 func CORS(cfg *config.Config) func(*fiber.Ctx) error {
 	return cors.New(cors.Config{
 		AllowOrigins:     cfg.CORS.AllowOrigins,

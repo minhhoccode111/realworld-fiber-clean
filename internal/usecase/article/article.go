@@ -10,17 +10,17 @@ import (
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/repo"
 )
 
-// UseCase -.
+// UseCase orchestrates article-related business operations.
 type UseCase struct {
 	repo repo.ArticleRepo
 }
 
-// New -.
+// New constructs a new article use case with the provided repository.
 func New(r repo.ArticleRepo) *UseCase {
 	return &UseCase{repo: r}
 }
 
-// Create -.
+// Create persists a new article, ensuring slug uniqueness, and returns its detail.
 func (uc *UseCase) Create(ctx context.Context, dto *entity.Article, tags []string,
 ) (*entity.ArticleDetail, error) {
 	baseSlug := slug.Make(dto.Title)
@@ -61,6 +61,7 @@ func (uc *UseCase) Create(ctx context.Context, dto *entity.Article, tags []strin
 	return a, nil
 }
 
+// List returns article previews along with total count based on filters.
 func (uc *UseCase) List(ctx context.Context, isFeed bool, userID, tag, author, favorited string,
 	limit, offset uint64,
 ) ([]entity.ArticlePreview, uint64, error) {
@@ -84,6 +85,7 @@ func (uc *UseCase) List(ctx context.Context, isFeed bool, userID, tag, author, f
 	return articles, total, nil
 }
 
+// Detail returns an article detail by slug for the given viewer.
 func (uc *UseCase) Detail(
 	ctx context.Context,
 	userID, slugStr string,
@@ -99,6 +101,8 @@ func (uc *UseCase) Detail(
 	return a, nil
 }
 
+// Update modifies an article while validating ownership and slug uniqueness.
+//
 //nolint:gocyclo,gocritic,nolintlint,cyclop,funlen
 func (uc *UseCase) Update(
 	ctx context.Context,
@@ -170,6 +174,7 @@ func (uc *UseCase) Update(
 	return ad, nil
 }
 
+// Delete removes an article if the user is an admin or the author.
 func (uc *UseCase) Delete(ctx context.Context, userID, slugStr string, userRole entity.Role) error {
 	a, err := uc.repo.GetBasicBySlug(ctx, slugStr)
 	if err != nil {

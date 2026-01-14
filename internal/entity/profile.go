@@ -1,5 +1,6 @@
 package entity
 
+// ProfilePreview captures public-facing user profile details.
 type ProfilePreview struct {
 	Username       string `json:"username"`
 	Bio            string `json:"bio"`

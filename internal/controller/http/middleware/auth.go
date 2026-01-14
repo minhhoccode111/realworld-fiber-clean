@@ -16,7 +16,7 @@ func errorResponse(ctx *fiber.Ctx, code int, msg string) error {
 	return ctx.Status(code).JSON(fiber.Map{"error": msg})
 }
 
-// AuthMiddleware -.
+// AuthMiddleware validates an incoming JWT from header or cookie and sets context locals.
 //
 //nolint:gocognit,gocyclo,gocritic,nolintlint,cyclop,funlen
 func AuthMiddleware(l logger.Interface, jwtSecret string, isOptional bool) func(*fiber.Ctx) error {

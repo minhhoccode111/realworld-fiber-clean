@@ -8,16 +8,17 @@ import (
 	"github.com/minhhoccode111/realworld-fiber-clean/pkg/postgres"
 )
 
-// TranslationRepo -.
+// TagRepo implements tag list persistence against Postgres.
 type TagRepo struct {
 	*postgres.Postgres
 }
 
-// NewTagRepo -.
+// NewTagRepo constructs a new TagRepo.
 func NewTagRepo(pg *postgres.Postgres) *TagRepo {
 	return &TagRepo{pg}
 }
 
+// GetList returns distinct tag names and their total count.
 func (r *TagRepo) GetList(ctx context.Context, limit, offset uint64,
 ) ([]entity.TagName, uint64, error) {
 	sql, _, err := r.Builder.

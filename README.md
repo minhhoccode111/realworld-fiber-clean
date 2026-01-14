@@ -32,7 +32,7 @@ Simple start all services
 make compose-up-all
 ```
 
-Or start `db`, `rabbitmq`, `nats` services separately to develop
+Or start `db` service separately to develop
 
 ```bash
 make compose-up
@@ -188,7 +188,7 @@ Expected output
 - [ ] Add mocks, unit tests, and integration tests
 - [ ] Add Redis caching
 - [ ] Add real-time notifications (for when followed authors post articles or someone comments on our articles)
-- [ ] Add GraphQL, gRPC, NATS_RPC, and AMQP_RPC
+- [ ] Add GraphQL
 
 ## Resources
 

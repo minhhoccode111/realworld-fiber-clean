@@ -11,14 +11,17 @@ import (
 	"github.com/minhhoccode111/realworld-fiber-clean/pkg/postgres"
 )
 
+// CommentRepo implements comment persistence against Postgres.
 type CommentRepo struct {
 	*postgres.Postgres
 }
 
+// NewCommentRepo constructs a new CommentRepo.
 func NewCommentRepo(pg *postgres.Postgres) *CommentRepo {
 	return &CommentRepo{pg}
 }
 
+// StoreCreate inserts a comment for the given article slug and returns its ID.
 func (r *CommentRepo) StoreCreate(
 	ctx context.Context,
 	slug string,
@@ -50,6 +53,7 @@ func (r *CommentRepo) StoreCreate(
 	return id, nil
 }
 
+// GetDetailByID returns detailed information for a specific comment.
 func (r *CommentRepo) GetDetailByID(
 	ctx context.Context,
 	userID, commentID string,
@@ -103,6 +107,7 @@ func (r *CommentRepo) GetDetailByID(
 	return &c, nil
 }
 
+// GetList returns a paginated list of comments and their total count.
 func (r *CommentRepo) GetList(
 	ctx context.Context,
 	userID, slug string,
@@ -169,6 +174,7 @@ func (r *CommentRepo) GetList(
 	return comments, total, nil
 }
 
+// GetBasicByID returns basic comment data for authorization or deletes.
 func (r *CommentRepo) GetBasicByID(ctx context.Context, commentID string) (*entity.Comment, error) {
 	sql, args, err := r.Builder.
 		Select("id, author_id, article_id, body, created_at, updated_at").
@@ -200,6 +206,7 @@ func (r *CommentRepo) GetBasicByID(ctx context.Context, commentID string) (*enti
 	return &c, nil
 }
 
+// StoreDelete soft-deletes a comment bound to an article slug.
 func (r *CommentRepo) StoreDelete(ctx context.Context, slug, commentID string) (err error) {
 	sql, args, err := r.Builder.
 		Update("comments").

@@ -1,6 +1,6 @@
 package entity
 
-// Article -. Database Shape.
+// Article represents the stored database shape for an article.
 type Article struct {
 	ID          string
 	AuthorID    string
@@ -12,6 +12,7 @@ type Article struct {
 	Timestamps
 }
 
+// ArticlePreview contains article information for list responses.
 type ArticlePreview struct {
 	Slug           string         `json:"slug"`
 	Title          string         `json:"title"`
@@ -24,6 +25,7 @@ type ArticlePreview struct {
 	Timestamps
 }
 
+// ArticleDetail extends the preview with the full body content.
 type ArticleDetail struct {
 	Body string `json:"body"`
 

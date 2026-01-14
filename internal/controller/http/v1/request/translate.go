@@ -1,5 +1,6 @@
 package request
 
+// Translate represents a translation request payload.
 type Translate struct {
 	Source      string `json:"source"       validate:"required"  example:"auto"`
 	Destination string `json:"destination"  validate:"required"  example:"en"`

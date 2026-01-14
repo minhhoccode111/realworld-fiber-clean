@@ -11,14 +11,17 @@ import (
 	"github.com/minhhoccode111/realworld-fiber-clean/pkg/postgres"
 )
 
+// ProfileRepo implements profile and follow persistence with Postgres.
 type ProfileRepo struct {
 	*postgres.Postgres
 }
 
+// NewProfileRepo constructs a new ProfileRepo.
 func NewProfileRepo(pg *postgres.Postgres) *ProfileRepo {
 	return &ProfileRepo{pg}
 }
 
+// IsExisted reports whether a user with the given username exists.
 func (r *ProfileRepo) IsExisted(ctx context.Context, username string) error {
 	sql, args, err := r.Builder.
 		Select().
@@ -43,6 +46,7 @@ func (r *ProfileRepo) IsExisted(ctx context.Context, username string) error {
 	return nil
 }
 
+// GetDetail returns profile preview information for a username.
 func (r *ProfileRepo) GetDetail(
 	ctx context.Context,
 	userID, username string,
@@ -89,6 +93,7 @@ func (r *ProfileRepo) GetDetail(
 	return &e, nil
 }
 
+// StoreCreate creates a follow relation.
 func (r *ProfileRepo) StoreCreate(ctx context.Context, userID, username string) error {
 	sql, args, err := r.Builder.
 		Insert("follows").
@@ -115,6 +120,7 @@ func (r *ProfileRepo) StoreCreate(ctx context.Context, userID, username string) 
 	return nil
 }
 
+// StoreDelete removes a follow relation.
 func (r *ProfileRepo) StoreDelete(ctx context.Context, userID, username string) error {
 	sql, args, err := r.Builder.
 		Delete("follows").

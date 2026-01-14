@@ -8,17 +8,17 @@ import (
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/repo"
 )
 
-// UseCase -.
+// UseCase manages tag retrieval operations.
 type UseCase struct {
 	repo repo.TagRepo
 }
 
-// New -.
+// New constructs a tag use case with the provided repository.
 func New(r repo.TagRepo) *UseCase {
 	return &UseCase{repo: r}
 }
 
-// GetTags - get all tags of all articles.
+// List returns tags with pagination across all articles.
 func (uc *UseCase) List(ctx context.Context, limit, offset uint64,
 ) ([]entity.TagName, uint64, error) {
 	tags, total, err := uc.repo.GetList(ctx, limit, offset)

@@ -10,17 +10,17 @@ import (
 
 const _defaultEntityCap = 64
 
-// TranslationRepo -.
+// TranslationRepo implements translation history persistence using Postgres.
 type TranslationRepo struct {
 	*postgres.Postgres
 }
 
-// New -.
+// New constructs a new TranslationRepo.
 func New(pg *postgres.Postgres) *TranslationRepo {
 	return &TranslationRepo{pg}
 }
 
-// GetHistory -.
+// GetHistory returns stored translation history.
 func (r *TranslationRepo) GetHistory(ctx context.Context) ([]entity.Translation, error) {
 	sql, _, err := r.Builder.
 		Select("source, destination, original, translation").
@@ -52,7 +52,7 @@ func (r *TranslationRepo) GetHistory(ctx context.Context) ([]entity.Translation,
 	return entities, nil
 }
 
-// Store -.
+// Store inserts a new translation record into the history table.
 func (r *TranslationRepo) Store(ctx context.Context, t entity.Translation) error {
 	sql, args, err := r.Builder.
 		Insert("history").

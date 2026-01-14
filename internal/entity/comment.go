@@ -1,6 +1,6 @@
 package entity
 
-// Comment -. Database Shape.
+// Comment represents the stored database shape for a comment.
 type Comment struct {
 	ID        string
 	ArticleID string
@@ -10,6 +10,7 @@ type Comment struct {
 	Timestamps
 }
 
+// CommentDetail contains comment information returned to clients.
 type CommentDetail struct {
 	ID     string         `json:"id"`
 	Body   string         `json:"body"`

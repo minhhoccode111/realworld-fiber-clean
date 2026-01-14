@@ -11,14 +11,17 @@ import (
 	"github.com/minhhoccode111/realworld-fiber-clean/pkg/postgres"
 )
 
+// FavoriteRepo implements favorite persistence backed by Postgres.
 type FavoriteRepo struct {
 	*postgres.Postgres
 }
 
+// NewFavoriteRepo constructs a new FavoriteRepo.
 func NewFavoriteRepo(pg *postgres.Postgres) *FavoriteRepo {
 	return &FavoriteRepo{pg}
 }
 
+// StoreCreate inserts a favorite link between a user and article.
 func (r *FavoriteRepo) StoreCreate(ctx context.Context, userID, slug string) error {
 	sql, args, err := r.Builder.
 		Insert("favorites").
@@ -53,6 +56,7 @@ func (r *FavoriteRepo) StoreCreate(ctx context.Context, userID, slug string) err
 	return nil
 }
 
+// StoreDelete removes a favorite link between a user and article.
 func (r *FavoriteRepo) StoreDelete(ctx context.Context, userID, slug string) error {
 	sql, args, err := r.Builder.
 		Delete("favorites").

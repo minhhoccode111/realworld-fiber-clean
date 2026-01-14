@@ -9,17 +9,17 @@ import (
 	"github.com/minhhoccode111/realworld-fiber-clean/pkg/utilities"
 )
 
-// UseCase -.
+// UseCase handles business logic for user accounts.
 type UseCase struct {
 	repo repo.UserRepo
 }
 
-// New -.
+// New constructs a user use case with the provided repository.
 func New(r repo.UserRepo) *UseCase {
 	return &UseCase{repo: r}
 }
 
-// Register -.
+// Register hashes the password and stores a new user.
 func (uc *UseCase) Register(ctx context.Context, u *entity.User) error {
 	hashedPassword, err := utilities.HashPassword(u.Password)
 	if err != nil {
@@ -42,7 +42,7 @@ func (uc *UseCase) Register(ctx context.Context, u *entity.User) error {
 	return nil
 }
 
-// Login -.
+// Login authenticates a user by verifying the supplied credentials.
 func (uc *UseCase) Login(ctx context.Context, dto *entity.User) (*entity.User, error) {
 	u, err := uc.repo.GetUserByEmail(ctx, dto.Email)
 	if err != nil {
@@ -62,7 +62,7 @@ func (uc *UseCase) Login(ctx context.Context, dto *entity.User) (*entity.User, e
 	return u, nil
 }
 
-// Current -.
+// Current returns user details by ID.
 func (uc *UseCase) Current(ctx context.Context, userID string) (*entity.User, error) {
 	u, err := uc.repo.GetUserByID(ctx, userID)
 	if err != nil {
@@ -72,7 +72,7 @@ func (uc *UseCase) Current(ctx context.Context, userID string) (*entity.User, er
 	return u, nil
 }
 
-// Update -.
+// Update applies provided changes to a user and persists them.
 func (uc *UseCase) Update(ctx context.Context, dto *entity.User) (*entity.User, error) {
 	u, err := uc.repo.GetUserByID(ctx, dto.ID)
 	if err != nil {

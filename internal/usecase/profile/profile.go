@@ -8,16 +8,17 @@ import (
 	"github.com/minhhoccode111/realworld-fiber-clean/internal/repo"
 )
 
-// UseCase -.
+// UseCase handles profile retrieval and follow/unfollow actions.
 type UseCase struct {
 	repo repo.ProfileRepo
 }
 
-// New -.
+// New constructs a profile use case with the provided repository.
 func New(r repo.ProfileRepo) *UseCase {
 	return &UseCase{repo: r}
 }
 
+// Detail returns profile information with follow status for the viewer.
 func (uc *UseCase) Detail(
 	ctx context.Context,
 	userID, username string,
@@ -33,6 +34,7 @@ func (uc *UseCase) Detail(
 	return p, nil
 }
 
+// Follow creates a follower relationship for the given user and target.
 func (uc *UseCase) Follow(ctx context.Context, userID, username string) error {
 	// NOTE: don't add concurrency because it's random between NoRows and NoEffect
 	err := uc.repo.IsExisted(ctx, username)
@@ -48,6 +50,7 @@ func (uc *UseCase) Follow(ctx context.Context, userID, username string) error {
 	return nil
 }
 
+// Unfollow removes a follower relationship for the given user and target.
 func (uc *UseCase) Unfollow(ctx context.Context, userID, username string) error {
 	// NOTE: don't add concurrency because it's random between NoRows and NoEffect
 	err := uc.repo.IsExisted(ctx, username)

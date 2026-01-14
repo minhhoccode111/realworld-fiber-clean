@@ -13,6 +13,7 @@ import (
 
 var errInternalServErr = errors.New("internal server error")
 
+// test represents a single table-driven test case.
 type test struct {
 	name string
 	mock func()
@@ -20,6 +21,7 @@ type test struct {
 	err  error
 }
 
+// translationUseCase builds a translation use case alongside its mocks.
 func translationUseCase(
 	t *testing.T,
 ) (*translation.UseCase, *MockTranslationRepo, *MockTranslationWebAPI) {
@@ -36,6 +38,7 @@ func translationUseCase(
 	return useCase, repo, webAPI
 }
 
+// TestHistory covers retrieving translation history through the use case.
 func TestHistory(t *testing.T) { //nolint:tparallel // data races here
 	t.Parallel()
 
@@ -74,6 +77,7 @@ func TestHistory(t *testing.T) { //nolint:tparallel // data races here
 	}
 }
 
+// TestTranslate covers successful and error scenarios for translating text.
 func TestTranslate(t *testing.T) { //nolint:tparallel // data races here
 	t.Parallel()
 

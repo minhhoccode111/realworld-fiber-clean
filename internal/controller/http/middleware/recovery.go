@@ -24,12 +24,14 @@ func buildPanicMessage(ctx *fiber.Ctx, err any) string {
 	return result.String()
 }
 
+// logPanic returns a handler that logs panic details using the provided logger.
 func logPanic(l logger.Interface) func(c *fiber.Ctx, err any) {
 	return func(ctx *fiber.Ctx, err any) {
 		l.Error(buildPanicMessage(ctx, err))
 	}
 }
 
+// Recovery installs a panic recovery middleware that logs stack traces.
 func Recovery(l logger.Interface) func(c *fiber.Ctx) error {
 	return fiberRecover.New(fiberRecover.Config{
 		EnableStackTrace:  true,

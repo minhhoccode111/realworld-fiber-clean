@@ -12,7 +12,7 @@
 @username1 = minhdh
 @username2 = asd0
 
-@token0 = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzMwMjY3OTEsImlhdCI6MTc2NDM4Njc5MSwiaXNzIjoicmVhbHdvcmxkZmliZXJjbGVhbiIsInJvbGUiOiJhZG1pbiIsInN1YiI6IjM2Mzc5NzljLWYwNDUtNDhmZS04NTliLTE1YzQyMTM3ZTZiMiJ9.p6EHlTea1hk0lMC2IZJHN2en4Rae2yIWwupr6uPGSwE
+@token0 = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzU4MjY2OTYsImlhdCI6MTc2NzE4NjY5NiwiaXNzIjoicmVhbHdvcmxkZmliZXJjbGVhbiIsInJvbGUiOiJ1c2VyIiwic3ViIjoiODE5NTI3NzQtYzY4Yi00OGY4LWIwNDItNTI3ZTRiMDhiOTMxIn0.vceq9BvIioCpWst_ZDPYEsxvDBY4C9BGzmh3h31q7yA
 @token1 = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzMwMjQ4NjgsImlhdCI6MTc2NDM4NDg2OCwiaXNzIjoicmVhbHdvcmxkZmliZXJjbGVhbiIsInJvbGUiOiJ1c2VyIiwic3ViIjoiODQzZTE2NWItMjMwOS00OWYzLWI2ZTAtODI1MzVmNTNmODg1In0.Aa9hrRcSYebdAqzqnUubq1Szn-uUAIwyPDWpuyHHStk
 @token2 = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzMwMjY3NTQsImlhdCI6MTc2NDM4Njc1NCwiaXNzIjoicmVhbHdvcmxkZmliZXJjbGVhbiIsInJvbGUiOiJ1c2VyIiwic3ViIjoiOGEwNGI1NTgtODIyMC00NjQ4LWEyMTEtMTdjYTVjNzZkNDBmIn0.qnE2_28lb0JB-4VJ3SfOoJzEgha_PR9pMoSML-tBOw4
 
@@ -50,7 +50,7 @@ GET {{api}}/user
 
 ### Current User with cookie
 GET {{api}}/user
-Cookie: realworld-jwt={{token1}}
+Cookie: realworld-jwt={{token0}}
 
 ### Update User
 PUT {{api}}/user
