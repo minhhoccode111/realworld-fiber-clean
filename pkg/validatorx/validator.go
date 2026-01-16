@@ -34,12 +34,12 @@ func New() *validator.Validate {
 
 	//nolint:errcheck // safe
 	_ = v.RegisterValidation("tag", func(fl validator.FieldLevel) bool {
-		return regexp.MustCompile(`^[a-zA-Z0-9_ -]+$`).MatchString(fl.Field().String())
+		return regexp.MustCompile(`^[\p{L}0-9_ -]+$`).MatchString(fl.Field().String())
 	})
 
 	//nolint:errcheck // safe
 	_ = v.RegisterValidation("username", func(fl validator.FieldLevel) bool {
-		return regexp.MustCompile(`^[a-zA-Z0-9_]+$`).MatchString(fl.Field().String())
+		return regexp.MustCompile(`^[\p{L}0-9_]+$`).MatchString(fl.Field().String())
 	})
 
 	//nolint:errcheck // safe
