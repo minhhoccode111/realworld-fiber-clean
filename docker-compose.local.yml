@@ -30,6 +30,7 @@ x-backend-app-environment: &x-backend-app-environment
   JWT_ISSUER: "realworldfiberclean"
   JWT_SECRET: "c993332e-1a4e-4de5-ac74-98074ff41ff0"
   JWT_EXPIRATION: "240h"
+  JWT_COOKIE_SECURE: "false"
   # CORS
   CORS_ALLOW_ORIGINS: "http://fe.lvh.me"
   CORS_ALLOW_CREDENTIALS: "true"
@@ -80,8 +81,6 @@ services:
   nginx:
     container_name: nginx
     image: nginx:1.29.4-alpine
-    # run as 'root' to avoid permissions issues with mounted host files
-    user: root
     volumes:
       - ./nginx/nginx.local.conf:/etc/nginx/nginx.conf
       - ./frontend/dist:/var/www/realworld-react

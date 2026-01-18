@@ -59,6 +59,7 @@ type (
 	JWT struct {
 		Issuer     string        `env:"JWT_ISSUER,required"`
 		Secret     string        `env:"JWT_SECRET,required"`
+		Secure     bool          `env:"JWT_COOKIE_SECURE,required"`
 		Expiration time.Duration `env:"JWT_EXPIRATION,required"`
 	}
 

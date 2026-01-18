@@ -16,6 +16,8 @@
 - DB Migration with `migrate`
 - `squirrel` for query builder
 - `lvh.me` domain
+- `Secure: true` cookie flag works with `localhost` but not something like
+  `http://fe.lvh.me` because we need `https` at that point
 - Go debugger with `.vscode/launch.json`
 - In `repo` layer, we don't return `pgx.ErrNoRows` to outer layer to handle
   because it will make the router layer depend on postgresql implementation,
@@ -23,6 +25,8 @@
 - Generate TypeScript API types
 - A response struct with pointer fields, shouldn't use `omitempty` because
   handling `profile?: ProfilePreview | null;` is harder than `profile: ProfilePreview | null;` in TypeScript
+- Postgres 18 needs `db_data:/var/lib/postgresql` and not `db_data:/var/lib/postgresql/data`
+- To allow `nginx` service to read mounted host files, we need to run `chmod -R 755 ./frontend/dist`
 
 ## Getting started
 
@@ -35,7 +39,7 @@ make compose-up-all
 Or start `db` service separately to develop
 
 ```bash
-make compose-up
+make compose-up-db
 ```
 
 Then start the app with swagger
