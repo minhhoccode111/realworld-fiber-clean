@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/caarlos0/env/v11"
@@ -75,7 +76,8 @@ func NewConfig() (*Config, error) {
 	// load .env file to make 'air' work for hot reload, without this the app
 	// still run normally with 'make run' etc. but not 'air'
 	if err := godotenv.Load(); err != nil {
-		return nil, fmt.Errorf("config error: %w", err)
+		// Log warning but don't fail, can ignore in prod, since we don't need air there
+		log.Printf("Warning: could not load .env file: %v", err)
 	}
 
 	cfg := &Config{}
