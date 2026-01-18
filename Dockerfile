@@ -21,7 +21,6 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
 # Step 3: Final
 FROM scratch
 
-USER 65532:65532
 ENV TZ=Asia/Ho_Chi_Minh
 
 COPY --from=builder /app/config /config

@@ -8,6 +8,7 @@ export
 endif
 
 BASE_STACK = docker compose -f docker-compose.yml
+LOCAL_STACK = docker compose -f docker-compose.local.yml
 
 # HELP =========================================================================
 # This will output the help for each task
@@ -17,17 +18,34 @@ BASE_STACK = docker compose -f docker-compose.yml
 help: ## Display this help screen
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 
-compose-up: ### Run docker compose (without backend and reverse proxy)
-	$(BASE_STACK) up --build -d db && docker compose logs -f
-.PHONY: compose-up
+compose-up-db: ### Run docker compose postgres db
+	$(LOCAL_STACK) up --build -d db && docker compose logs -f
+.PHONY: compose-up-db
 
-compose-up-all: ### Run docker compose (with backend and reverse proxy)
-	$(BASE_STACK) up --build -d
+compose-down-db: ### Down docker compose postgres db
+	$(LOCAL_STACK) down --remove-orphans db
+.PHONY: compose-down
+
+docker-rm-volume: ### remove docker volume
+	docker volume rm realworld-fiber-clean_db_data
+.PHONY: docker-rm-volume
+
+compose-up-all: ### Run docker compose (with frontend + backend +database + nginx)
+	docker build \
+		--build-arg VITE_APP_API_URL=http://app.lvh.me/api/v1 \
+		--build-arg VITE_APP_APP_URL=http://fe.lvh.me \
+		-f frontend/Dockerfile \
+		-o ./frontend/dist \
+		./frontend
+	chmod -R 755 ./frontend/dist
+	# Use -f to point to your local compose file
+	$(LOCAL_STACK) up --build -d
+	$(LOCAL_STACK) logs -f
 .PHONY: compose-up-all
 
-compose-down: ### Down docker compose
-	$(BASE_STACK) down --remove-orphans
-.PHONY: compose-down
+compose-down-all: ### Down docker compose
+	$(LOCAL_STACK) down --remove-orphans
+.PHONY: compose-down-all
 
 swag-v1: ## swag init
 	swag init -g internal/controller/http/router.go
@@ -60,10 +78,6 @@ build: deps swag-v1 ### build the application
 	go mod download && \
 	CGO_ENABLED=0 go build -o ./main ./cmd/app
 .PHONY: build
-
-docker-rm-volume: ### remove docker volume
-	docker volume rm fiber-clean-realworld_db_data
-.PHONY: docker-rm-volume
 
 linter-golangci: ### check by golangci linter
 	golangci-lint run
