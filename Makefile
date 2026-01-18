@@ -7,7 +7,6 @@ include .env.example
 export
 endif
 
-BASE_STACK = docker compose -f docker-compose.yml
 LOCAL_STACK = docker compose -f docker-compose.local.yml
 
 # HELP =========================================================================
@@ -31,8 +30,10 @@ docker-rm-volume: ### remove docker volume
 .PHONY: docker-rm-volume
 
 compose-up-all: ### Run docker compose (with frontend + backend +database + nginx)
+	# Use http://fe.lvh.me/api/v1 so nginx proxy it to backend, instead of
+	# directly accessing http://app.lvh.me/api/v1, which fails jwt-in-cookie usage
 	docker build \
-		--build-arg VITE_APP_API_URL=http://app.lvh.me/api/v1 \
+		--build-arg VITE_APP_API_URL=http://fe.lvh.me/api/v1 \
 		--build-arg VITE_APP_APP_URL=http://fe.lvh.me \
 		-f frontend/Dockerfile \
 		-o ./frontend/dist \
