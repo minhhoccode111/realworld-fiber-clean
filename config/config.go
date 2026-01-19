@@ -60,6 +60,7 @@ type (
 		Issuer     string        `env:"JWT_ISSUER,required"`
 		Secret     string        `env:"JWT_SECRET,required"`
 		Secure     bool          `env:"JWT_COOKIE_SECURE,required"`
+		SameSite   string        `env:"JWT_COOKIE_SAME_SITE,required"`
 		Expiration time.Duration `env:"JWT_EXPIRATION,required"`
 	}
 

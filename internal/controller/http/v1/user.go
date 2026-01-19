@@ -76,7 +76,14 @@ func (r *V1) postRegisterUser(ctx *fiber.Ctx) error {
 		return errorResponse(ctx, http.StatusInternalServerError, "generate jwt error")
 	}
 
-	ctx.Cookie(httpmeta.NewJWTInCookie(token, r.cfg.JWT.Expiration, r.cfg.JWT.Secure))
+	ctx.Cookie(
+		httpmeta.NewJWTInCookie(
+			token,
+			r.cfg.JWT.SameSite,
+			r.cfg.JWT.Secure,
+			r.cfg.JWT.Expiration,
+		),
+	)
 
 	return ctx.Status(http.StatusCreated).JSON(response.UserAuthResponse{
 		User: response.NewUserAuth(u, token),
@@ -145,7 +152,14 @@ func (r *V1) postLoginUser(ctx *fiber.Ctx) error {
 		return errorResponse(ctx, http.StatusInternalServerError, "jwt problems")
 	}
 
-	ctx.Cookie(httpmeta.NewJWTInCookie(token, r.cfg.JWT.Expiration, r.cfg.JWT.Secure))
+	ctx.Cookie(
+		httpmeta.NewJWTInCookie(
+			token,
+			r.cfg.JWT.SameSite,
+			r.cfg.JWT.Secure,
+			r.cfg.JWT.Expiration,
+		),
+	)
 
 	return ctx.Status(http.StatusOK).JSON(response.UserAuthResponse{
 		User: response.NewUserAuth(u, token),
@@ -159,7 +173,7 @@ func (r *V1) postLoginUser(ctx *fiber.Ctx) error {
 // @Success     204
 // @Router      /users/logout [post]
 func (r *V1) postLogoutUser(ctx *fiber.Ctx) error {
-	ctx.Cookie(httpmeta.NewJWTInCookie("", -time.Hour, r.cfg.JWT.Secure))
+	ctx.Cookie(httpmeta.NewJWTInCookie("", r.cfg.JWT.SameSite, r.cfg.JWT.Secure, -time.Hour))
 
 	return ctx.SendStatus(http.StatusNoContent)
 }
@@ -203,7 +217,14 @@ func (r *V1) getCurrentUser(ctx *fiber.Ctx) error {
 		return errorResponse(ctx, http.StatusInternalServerError, "jwt problems")
 	}
 
-	ctx.Cookie(httpmeta.NewJWTInCookie(token, r.cfg.JWT.Expiration, r.cfg.JWT.Secure))
+	ctx.Cookie(
+		httpmeta.NewJWTInCookie(
+			token,
+			r.cfg.JWT.SameSite,
+			r.cfg.JWT.Secure,
+			r.cfg.JWT.Expiration,
+		),
+	)
 
 	return ctx.Status(http.StatusOK).JSON(response.UserAuthResponse{
 		User: response.NewUserAuth(u, token),
@@ -274,7 +295,14 @@ func (r *V1) putUpdateUser(ctx *fiber.Ctx) error {
 		return errorResponse(ctx, http.StatusInternalServerError, "generate jwt error")
 	}
 
-	ctx.Cookie(httpmeta.NewJWTInCookie(token, r.cfg.JWT.Expiration, r.cfg.JWT.Secure))
+	ctx.Cookie(
+		httpmeta.NewJWTInCookie(
+			token,
+			r.cfg.JWT.SameSite,
+			r.cfg.JWT.Secure,
+			r.cfg.JWT.Expiration,
+		),
+	)
 
 	return ctx.Status(http.StatusOK).JSON(response.UserAuthResponse{
 		User: response.NewUserAuth(u, token),

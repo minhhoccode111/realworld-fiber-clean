@@ -7,14 +7,14 @@ import (
 )
 
 // NewJWTInCookie constructs a JWT-bearing cookie with the provided TTL.
-func NewJWTInCookie(token string, duration time.Duration, secure bool) *fiber.Cookie {
+func NewJWTInCookie(token, sameSite string, secure bool, duration time.Duration) *fiber.Cookie {
 	return &fiber.Cookie{
 		Name:     CookieJWTName,
 		Value:    token,
 		Expires:  time.Now().Add(duration),
 		HTTPOnly: true,
 		Secure:   secure,
-		SameSite: "Lax",
+		SameSite: sameSite,
 		Path:     "/",
 	}
 }

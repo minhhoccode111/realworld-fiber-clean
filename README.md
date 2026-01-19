@@ -24,9 +24,14 @@
   instead we return our custom not found error `entity.ErrNoRows`
 - Generate TypeScript API types
 - A response struct with pointer fields, shouldn't use `omitempty` because
-  handling `profile?: ProfilePreview | null;` is harder than `profile: ProfilePreview | null;` in TypeScript
+  handling `profile?: ProfilePreview | null;` is harder than `profile: ProfilePreview | null;`
+  in TypeScript
 - Postgres 18 needs `db_data:/var/lib/postgresql` and not `db_data:/var/lib/postgresql/data`
 - To allow `nginx` service to read mounted host files, we need to run `chmod -R 755 ./frontend/dist`
+- `jwt-in-cookie` is more secure than `jwt-in-header` but is restricted by browser
+  cookie rules. It works for same-site or explicitly allowed cross-site setups
+  (SameSite=None + HTTPS), and only for domains you control. It cannot support
+  arbitrary frontend domains
 
 ## Getting started
 

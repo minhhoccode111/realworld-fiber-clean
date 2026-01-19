@@ -30,8 +30,9 @@ x-backend-app-environment: &x-backend-app-environment
   JWT_SECRET: "c993332e-1a4e-4de5-ac74-98074ff41ff0"
   JWT_EXPIRATION: "240h"
   JWT_COOKIE_SECURE: "false"
+  JWT_COOKIE_SAME_SITE: "Lax"
   # CORS
-  CORS_ALLOW_ORIGINS: "http://fe.lvh.me"
+  CORS_ALLOW_ORIGINS: "http://fe.lvh.me,http://localhost:3000"
   CORS_ALLOW_CREDENTIALS: "true"
   CORS_ALLOW_HEADERS: "Origin,Content-Type,Accept,Authorization"
   CORS_ALLOW_METHODS: "GET,POST,HEAD,PUT,DELETE,PATCH"
