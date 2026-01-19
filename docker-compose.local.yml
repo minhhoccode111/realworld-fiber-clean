@@ -1,6 +1,5 @@
 version: "3.9"
 
-
 x-db-environment: &x-db-environment
   POSTGRES_SSL_MODE: "disable"
   POSTGRES_HOST: "db"
@@ -37,7 +36,6 @@ x-backend-app-environment: &x-backend-app-environment
   CORS_ALLOW_HEADERS: "Origin,Content-Type,Accept,Authorization"
   CORS_ALLOW_METHODS: "GET,POST,HEAD,PUT,DELETE,PATCH"
 
-
 services:
   db:
     container_name: db
@@ -68,11 +66,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1.00'
-          memory: '2Gb'
+          cpus: "1.00"
+          memory: "2Gb"
         reservations:
-          cpus: '0.60'
-          memory: '1Gb'
+          cpus: "0.60"
+          memory: "1Gb"
     networks:
       app_network:
         aliases:
@@ -83,7 +81,7 @@ services:
     image: nginx:1.29.4-alpine
     volumes:
       - ./nginx/nginx.local.conf:/etc/nginx/nginx.conf
-      - ./frontend/dist:/var/www/realworld-react
+      - ./frontend/dist:/var/www/realworld-react/dist
     ports:
       - "80:80"
     depends_on:
@@ -95,11 +93,9 @@ services:
           - app.lvh.me
           - nginx.lvh.me
 
-
 networks:
   app_network:
     external: false
-
 
 volumes:
   db_data:

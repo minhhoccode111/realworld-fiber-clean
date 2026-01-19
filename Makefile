@@ -22,8 +22,8 @@ compose-up-db: ### Run docker compose postgres db
 .PHONY: compose-up-db
 
 compose-down-db: ### Down docker compose postgres db
-	$(LOCAL_STACK) down --remove-orphans db
-.PHONY: compose-down
+	$(LOCAL_STACK) down db
+.PHONY: compose-down-db
 
 docker-rm-volume: ### remove docker volume
 	docker volume rm realworld-fiber-clean_db_data
