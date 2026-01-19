@@ -7,7 +7,7 @@ include .env.example
 export
 endif
 
-LOCAL_STACK = docker compose -f docker-compose.local.yml
+LOCAL_STACK = docker compose
 
 # HELP =========================================================================
 # This will output the help for each task

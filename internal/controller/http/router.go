@@ -53,7 +53,7 @@ func NewRouter(
 
 	// Swagger
 	if cfg.Swagger.Enabled {
-		app.Get("/swagger/*", swagger.HandlerDefault)
+		app.Get("/api/swagger/*", swagger.HandlerDefault)
 	}
 
 	// K8s probe
