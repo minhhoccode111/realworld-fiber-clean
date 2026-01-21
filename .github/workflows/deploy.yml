@@ -33,15 +33,19 @@ jobs:
           docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.APP_NAME }}:latest .
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.APP_NAME }}:latest
 
+      - name: Add VPS to known hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -p ${{ secrets.SSH_PORT }} -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Setup SSH key
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+
       - name: Copy nginx config to VPS
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: deploy
-          port: ${{ secrets.SSH_PORT }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "nginx/nginx.conf"
-          target: "/tmp/nginx-${{ secrets.APP_NAME }}.conf"
+        run: |
+          scp -i ~/.ssh/deploy_key -P ${{ secrets.SSH_PORT }} nginx/nginx.conf deploy@${{ secrets.VPS_HOST }}:/tmp/nginx-${{ secrets.APP_NAME }}.conf
 
       - name: Deploy to VPS
         env:
