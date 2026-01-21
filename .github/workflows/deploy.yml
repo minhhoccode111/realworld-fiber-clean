@@ -33,6 +33,11 @@ jobs:
           docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.APP_NAME }}:latest .
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.APP_NAME }}:latest
 
+      - name: Add VPS to known hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -p ${{ secrets.SSH_PORT }} -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+
       - name: Copy nginx config to VPS
         uses: appleboy/scp-action@v0.1.7
         with:
