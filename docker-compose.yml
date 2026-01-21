@@ -81,7 +81,7 @@ services:
     container_name: nginx
     image: nginx:1.29.4-alpine
     volumes:
-      - ./nginx/nginx.local.conf:/etc/nginx/nginx.conf
+      - ./nginx/nginx.compose.conf:/etc/nginx/nginx.conf
       - ./frontend/dist:/var/www/realworld-react/dist
     ports:
       - "80:80"
