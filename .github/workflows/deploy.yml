@@ -39,8 +39,14 @@ jobs:
           ssh-keyscan -p ${{ secrets.SSH_PORT }} -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
 
       - name: Copy nginx config to VPS
-        run: |
-          scp -i ~/.ssh/deploy_key -P ${{ secrets.SSH_PORT }} nginx/nginx.conf deploy@${{ secrets.VPS_HOST }}:/tmp/nginx-${{ secrets.APP_NAME }}.conf
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: deploy
+          port: ${{ secrets.SSH_PORT }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "nginx/nginx.conf"
+          target: "/tmp/nginx-${{ secrets.APP_NAME }}.conf"
 
       - name: Deploy to VPS
         env:
