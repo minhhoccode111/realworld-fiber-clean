@@ -38,15 +38,15 @@ jobs:
           mkdir -p ~/.ssh
           ssh-keyscan -p ${{ secrets.SSH_PORT }} -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Copy nginx config to VPS
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: deploy
-          port: ${{ secrets.SSH_PORT }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "nginx/nginx.conf"
-          target: "/tmp/nginx-${{ secrets.APP_NAME }}.conf"
+      # - name: Copy nginx config to VPS
+      #   uses: appleboy/scp-action@v0.1.7
+      #   with:
+      #     host: ${{ secrets.VPS_HOST }}
+      #     username: deploy
+      #     port: ${{ secrets.SSH_PORT }}
+      #     key: ${{ secrets.SSH_PRIVATE_KEY }}
+      #     source: "nginx/nginx.conf"
+      #     target: "/tmp/nginx-${{ secrets.APP_NAME }}.conf"
 
       - name: Deploy to VPS
         env:
@@ -77,6 +77,8 @@ jobs:
           mkdir -p ~/.ssh
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
+
+          scp -P $SSH_PORT -i ~/.ssh/deploy_key nginx/nginx.conf deploy@$VPS_HOST:/tmp/nginx-$APP_NAME.conf
 
           ssh -p $SSH_PORT -i ~/.ssh/deploy_key deploy@$VPS_HOST << EOF
             set -e
