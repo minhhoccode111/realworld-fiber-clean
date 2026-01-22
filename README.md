@@ -35,6 +35,12 @@
 
 ## Getting started
 
+Clone the repo with frontend submodules
+
+```bash
+git clone --recurse-submodules git@github.com:minhhoccode111/fiber-clean-realworld.git
+```
+
 Simple start all services
 
 ```bash
