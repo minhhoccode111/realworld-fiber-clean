@@ -38,16 +38,6 @@ jobs:
           mkdir -p ~/.ssh
           ssh-keyscan -p ${{ secrets.SSH_PORT }} -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
 
-      # - name: Copy nginx config to VPS
-      #   uses: appleboy/scp-action@v0.1.7
-      #   with:
-      #     host: ${{ secrets.VPS_HOST }}
-      #     username: deploy
-      #     port: ${{ secrets.SSH_PORT }}
-      #     key: ${{ secrets.SSH_PRIVATE_KEY }}
-      #     source: "nginx/nginx.conf"
-      #     target: "/tmp/nginx-${{ secrets.APP_NAME }}.conf"
-
       - name: Deploy to VPS
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
@@ -102,6 +92,8 @@ jobs:
             echo "JWT_EXPIRATION=$JWT_EXPIRATION" >> $APP_NAME.env
             echo "JWT_ISSUER=$JWT_ISSUER" >> $APP_NAME.env
             echo "JWT_SECRET=$JWT_SECRET" >> $APP_NAME.env
+            echo "JWT_COOKIE_SECURE=$JWT_COOKIE_SECURE" >> $APP_NAME.env
+            echo "JWT_COOKIE_SAME_SITE=$JWT_COOKIE_SAME_SITE" >> $APP_NAME.env
             echo "LOG_LEVEL=$LOG_LEVEL" >> $APP_NAME.env
             echo "METRICS_ENABLED=$METRICS_ENABLED" >> $APP_NAME.env
             echo "PG_POOL_MAX=$PG_POOL_MAX" >> $APP_NAME.env
