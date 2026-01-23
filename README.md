@@ -32,6 +32,7 @@
   cookie rules. It works for same-site or explicitly allowed cross-site setups
   (SameSite=None + HTTPS), and only for domains you control. It cannot support
   arbitrary frontend domains
+- [Fix the Docker and UFW security flaw without disabling iptables](https://github.com/chaifeng/ufw-docker)
 
 ## Getting started
 
