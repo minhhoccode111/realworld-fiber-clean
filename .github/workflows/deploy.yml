@@ -109,7 +109,7 @@ jobs:
               --name $APP_NAME \
               --network backend \
               --env-file $APP_NAME.env \
-              -p 127.0.0.1:$HTTP_PORT:$HTTP_PORT $DOCKERHUB_USERNAME/$APP_NAME:latest
+              -p 172.18.0.1:$HTTP_PORT:$HTTP_PORT $DOCKERHUB_USERNAME/$APP_NAME:latest
 
             # Cleanup
             rm $APP_NAME.env
