@@ -103,13 +103,16 @@ jobs:
             echo "PG_URL=$PG_URL" >> $APP_NAME.env
             echo "SWAGGER_ENABLED=$SWAGGER_ENABLED" >> $APP_NAME.env
 
-            # Run the new container
+            # Get the Gatwway IP of the 'backend' network
+            GATEWAY_IP=$(docker network inspect backend -f '{{ (index .IPAM.Config 0).Gateway }}')
+
+            # Run the new container, with Gateway IP because we use 'backend' network for DBs
             docker run -d \
               --restart unless-stopped \
               --name $APP_NAME \
               --network backend \
               --env-file $APP_NAME.env \
-              -p 172.18.0.1:$HTTP_PORT:$HTTP_PORT $DOCKERHUB_USERNAME/$APP_NAME:latest
+              -p $GATEWAY_IP:$HTTP_PORT:$HTTP_PORT $DOCKERHUB_USERNAME/$APP_NAME:latest
 
             # Cleanup
             rm $APP_NAME.env

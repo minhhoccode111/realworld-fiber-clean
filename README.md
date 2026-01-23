@@ -33,6 +33,10 @@
   (SameSite=None + HTTPS), and only for domains you control. It cannot support
   arbitrary frontend domains
 - [Fix the Docker and UFW security flaw without disabling iptables](https://github.com/chaifeng/ufw-docker)
+  - in fact, my debian 13 VPS already has this set up by default
+  - Docker/UFW Loopback Routing: Bind Docker ports to the bridge gateway IP
+    (e.g., `172.17.0.1`) instead of `127.0.0.1` to ensure the host Nginx can
+    route traffic through UFW’s forward chain to containers on custom networks
 
 ## Getting started
 
