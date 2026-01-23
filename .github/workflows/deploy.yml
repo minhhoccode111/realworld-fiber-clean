@@ -103,13 +103,12 @@ jobs:
             echo "PG_URL=$PG_URL" >> $APP_NAME.env
             echo "SWAGGER_ENABLED=$SWAGGER_ENABLED" >> $APP_NAME.env
 
-            # Run the new container, make sure firewall block exposed ports
-            # because 0.0.0.0 mean docker exposed to all networks interface
+            # Run the new container
             docker run -d \
               --name $APP_NAME \
               --network backend \
               --env-file $APP_NAME.env \
-              -p 0.0.0.0:$HTTP_PORT:$HTTP_PORT $DOCKERHUB_USERNAME/$APP_NAME:latest
+              -p 127.0.0.1:$HTTP_PORT:$HTTP_PORT $DOCKERHUB_USERNAME/$APP_NAME:latest
 
             # Cleanup
             rm $APP_NAME.env
