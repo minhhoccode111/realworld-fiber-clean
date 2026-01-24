@@ -126,3 +126,5 @@ jobs:
               sudo nginx -t && sudo nginx -s reload
             fi
           EOF
+
+          rm -f ~/.ssh/deploy_key

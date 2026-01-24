@@ -37,6 +37,13 @@
   - Docker/UFW Loopback Routing: Bind Docker ports to the bridge gateway IP
     (e.g., `172.17.0.1`) instead of `127.0.0.1` to ensure the host Nginx can
     route traffic through UFW’s forward chain to containers on custom networks
+- Debug Cloudflare + Nginx + browser first-request failures:
+  - `net::ERR_QUIC_PROTOCOL_ERROR.QUIC_NETWORK_IDLE_TIMEOUT` on first load was caused by
+    browsers probing **HTTP/3 (QUIC over UDP/443)** against an origin that does not support it
+  - Error only appears on first visit (incognito) because the browser falls back to HTTP/2 after QUIC fails
+  - Cloudflare proxy previously masked the issue by terminating HTTP/3 at the edge
+  - Fixed by disabling **Cloudflare → Speed → Protocol Optimization → HTTP/3 (with QUIC)**
+  - Confirmed via Nginx logs showing `SSL_read() failed` / `bad record mac` from protocol mismatch
 
 ## Getting started
 
@@ -46,19 +53,23 @@ Clone the repo with frontend submodules
 git clone --recurse-submodules git@github.com:minhhoccode111/fiber-clean-realworld.git
 ```
 
-Simple start all services
+### Run everything
+
+Simple start all services (Nginx, FE, BE, DB)
 
 ```bash
 make compose-up-all
 ```
 
-Or start `db` service separately to develop
+### Development
+
+Start DB-only to develop
 
 ```bash
 make compose-up-db
 ```
 
-Then start the app with swagger
+Then start the app (with Swagger)
 
 ```bash
 make run-swag
@@ -205,10 +216,9 @@ Expected output
 - [x] Fix all `make linter-...` errors
 - [ ] Add updating of an article's tags list
 - [ ] Add filtering of articles using multiple tags
-- [ ] Add mocks, unit tests, and integration tests
-- [ ] Add Redis caching
-- [ ] Add real-time notifications (for when followed authors post articles or someone comments on our articles)
-- [ ] Add GraphQL
+- [ ] Add mocks, unit tests
+- [ ] Add caching
+- [ ] Try GraphQL
 
 ## Resources
 
