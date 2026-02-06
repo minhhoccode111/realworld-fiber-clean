@@ -31,8 +31,6 @@ services:
   app:
     container_name: realworld-fiber-clean
     image: minhhoccode111/realworld-fiber-clean:latest
-    env_file:
-      - .env.prod
     ports:
       - "127.0.0.1:8080:8080"
     depends_on:

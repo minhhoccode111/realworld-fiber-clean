@@ -74,13 +74,16 @@ jobs:
             cd ~/$APP_NAME
 
             # In case db is not up first run
-            docker compose -f docker-compose.prod.yml up db -d
+            docker compose --env-file .env.prod -f docker-compose.prod.yml up db -d
 
             # Pull latest images
-            docker compose -f docker-compose.prod.yml pull app
+            docker compose --env-file .env.prod -f docker-compose.prod.yml pull app
 
             # Stop and start services with docker-compose
-            docker compose -f docker-compose.prod.yml up app -d --force-recreate
+            docker compose --env-file .env.prod -f docker-compose.prod.yml up app -d --force-recreate
+
+            # Delete .env.prod for security
+            rm -f .env.prod
 
             # Cleanup
             docker system prune -f
