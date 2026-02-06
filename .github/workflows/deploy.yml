@@ -47,27 +47,8 @@ jobs:
           SSH_PORT: ${{ secrets.SSH_PORT }}
           VPS_HOST: ${{ secrets.VPS_HOST }}
           NGINX_SITE_NAME: ${{ secrets.NGINX_SITE_NAME }}
-          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           APP_NAME: ${{ secrets.APP_NAME }}
-          APP_VERSION: ${{ secrets.APP_VERSION }}
-          CORS_ALLOW_CREDENTIALS: true
-          CORS_ALLOW_HEADERS: Origin,Content-Type,Accept,Authorization
-          CORS_ALLOW_METHODS: GET,POST,HEAD,PUT,DELETE,PATCH
-          CORS_ALLOW_ORIGINS: ${{ secrets.CORS_ALLOW_ORIGINS }}
-          HTTP_PORT: ${{ secrets.HTTP_PORT }}
-          HTTP_USE_PREFORK_MODE: ${{ secrets.HTTP_USE_PREFORK_MODE }}
-          JWT_EXPIRATION: ${{ secrets.JWT_EXPIRATION }}
-          JWT_ISSUER: ${{ secrets.JWT_ISSUER }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          JWT_COOKIE_SECURE: ${{ secrets.JWT_COOKIE_SECURE }}
-          JWT_COOKIE_SAME_SITE: ${{ secrets.JWT_COOKIE_SAME_SITE }}
-          LOG_LEVEL: ${{ secrets.LOG_LEVEL }}
-          METRICS_ENABLED: ${{ secrets.METRICS_ENABLED }}
-          PG_POOL_MAX: ${{ secrets.PG_POOL_MAX }}
-          PG_URL: ${{ secrets.PG_URL }}
-          SWAGGER_ENABLED: ${{ secrets.SWAGGER_ENABLED }}
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          PROD_ENV_FILE: ${{ secrets.PROD_ENV_FILE }}
         run: |
           mkdir -p ~/.ssh
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
@@ -84,28 +65,9 @@ jobs:
             mkdir -p ~/$APP_NAME
             mv ~/docker-compose.prod.yml.tmp ~/$APP_NAME/docker-compose.prod.yml
 
-            # Create .env.prod file
-            cat > ~/$APP_NAME/.env.prod <<ENVEOF
-            APP_NAME=$APP_NAME
-            APP_VERSION=$APP_VERSION
-            CORS_ALLOW_CREDENTIALS=$CORS_ALLOW_CREDENTIALS
-            CORS_ALLOW_HEADERS=$CORS_ALLOW_HEADERS
-            CORS_ALLOW_METHODS=$CORS_ALLOW_METHODS
-            CORS_ALLOW_ORIGINS=$CORS_ALLOW_ORIGINS
-            HTTP_PORT=$HTTP_PORT
-            HTTP_USE_PREFORK_MODE=$HTTP_USE_PREFORK_MODE
-            JWT_EXPIRATION=$JWT_EXPIRATION
-            JWT_ISSUER=$JWT_ISSUER
-            JWT_SECRET=$JWT_SECRET
-            JWT_COOKIE_SECURE=$JWT_COOKIE_SECURE
-            JWT_COOKIE_SAME_SITE=$JWT_COOKIE_SAME_SITE
-            LOG_LEVEL=$LOG_LEVEL
-            METRICS_ENABLED=$METRICS_ENABLED
-            PG_POOL_MAX=$PG_POOL_MAX
-            PG_URL=$PG_URL
-            SWAGGER_ENABLED=$SWAGGER_ENABLED
-            POSTGRES_USER=$POSTGRES_USER
-            POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+            # Create .env.prod file from secret
+            cat > ~/$APP_NAME/.env.prod << 'ENVEOF'
+            $PROD_ENV_FILE
             ENVEOF
 
             # Change to app directory
