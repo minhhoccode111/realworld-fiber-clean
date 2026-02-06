@@ -29,17 +29,7 @@ docker-rm-volume: ### remove docker volume
 	docker volume rm realworld-fiber-clean_db_data
 .PHONY: docker-rm-volume
 
-compose-up-all: ### Run docker compose (with frontend + backend +database + nginx)
-	# Use http://fe.lvh.me/api/v1 so nginx proxy it to backend, instead of
-	# directly accessing http://app.lvh.me/api/v1, which fails jwt-in-cookie usage
-	docker build \
-		--build-arg VITE_APP_API_URL=http://fe.lvh.me/api/v1 \
-		--build-arg VITE_APP_APP_URL=http://fe.lvh.me \
-		-f frontend/Dockerfile \
-		-o ./frontend/dist \
-		./frontend
-	chmod -R 755 ./frontend/dist
-	# Use -f to point to your local compose file
+compose-up-all: ### Run docker compose (with frontend + backend + database + nginx)
 	$(LOCAL_STACK) up --build -d
 	$(LOCAL_STACK) logs -f
 .PHONY: compose-up-all

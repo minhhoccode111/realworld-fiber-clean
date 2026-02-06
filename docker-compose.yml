@@ -77,22 +77,34 @@ services:
         aliases:
           - app.lvh.me
 
+  frontend:
+    container_name: frontend
+    platform: linux/amd64
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_APP_API_URL: "http://app.lvh.me/api/v1"
+        VITE_APP_APP_URL: "http://fe.lvh.me"
+    ports:
+      - "3000:80"
+    networks:
+      app_network:
+        aliases:
+          - frontend.lvh.me
+
   nginx:
     container_name: nginx
     image: nginx:1.29.4-alpine
     volumes:
       - ./nginx/nginx.compose.conf:/etc/nginx/nginx.conf
-      - ./frontend/dist:/var/www/realworld-react/dist
     ports:
       - "80:80"
     depends_on:
       - app
+      - frontend
     networks:
       app_network:
-        aliases:
-          - fe.lvh.me
-          - app.lvh.me
-          - nginx.lvh.me
 
 networks:
   app_network:
