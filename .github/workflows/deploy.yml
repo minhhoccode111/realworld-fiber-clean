@@ -67,20 +67,20 @@ jobs:
 
             # Create app directory and move compose file
             mkdir -p ~/$APP_NAME
-            mv /tmp/docker-compose-$APP_NAME.prod.yml ~/$APP_NAME/docker-compose.prod.yml
+            mv /tmp/docker-compose-$APP_NAME.prod.yml ~/$APP_NAME/docker-compose.yml
             mv /tmp/.env.$APP_NAME.prod ~/$APP_NAME/.env.prod
 
             # Change to app directory
             cd ~/$APP_NAME
 
             # In case db is not up first run
-            docker compose -f docker-compose.prod.yml up db -d
+            docker compose up db -d
 
             # Pull latest images
-            docker compose -f docker-compose.prod.yml pull app
+            docker compose pull app
 
             # Stop and start services with docker-compose
-            docker compose -f docker-compose.prod.yml up app -d --force-recreate
+            docker compose up app -d --force-recreate
 
             # Cleanup
             rm -f .env.prod
