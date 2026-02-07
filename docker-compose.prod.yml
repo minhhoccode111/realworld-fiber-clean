@@ -1,21 +1,25 @@
-x-db-environment: &x-db-environment
-  POSTGRES_SSL_MODE: "disable"
-  POSTGRES_HOST: "db"
-  POSTGRES_PORT: "5432"
-
 services:
-  # docker compose -f docker-compose.prod.yml exec db psql -U mhc -d realworld
   db:
-    container_name: realworld-db
-    image: postgres:18.1-alpine
-    env_file: .env.prod
+    image: postgres:17.7
+    restart: unless-stopped
     environment:
-      <<: *x-db-environment
+      POSTGRES_USER: ${POSTGRES_USER:-mhc}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_DB: ${POSTGRES_DB:-realworld}
+      POSTGRES_SSL_MODE: ${POSTGRES_SSL_MODE:-disable}
+      POSTGRES_HOST: ${POSTGRES_HOST:-db}
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+      PGDATA: /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-mhc}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
     volumes:
       - realworld_data:/var/lib/postgresql/data
     networks:
       - realworld
-    restart: unless-stopped
     deploy:
       resources:
         limits:
@@ -28,22 +32,40 @@ services:
   app:
     container_name: realworld-fiber-clean
     image: minhhoccode111/realworld-fiber-clean:latest
-    env_file: .env.prod
+    restart: unless-stopped
+    environment:
+      APP_NAME: ${APP_NAME:-realworld-fiber-clean}
+      APP_VERSION: ${APP_VERSION:-1.0.0}
+      CORS_ALLOW_CREDENTIALS: ${CORS_ALLOW_CREDENTIALS:-true}
+      CORS_ALLOW_HEADERS: ${CORS_ALLOW_HEADERS:-Origin,Content-Type,Accept,Authorization}
+      CORS_ALLOW_METHODS: ${CORS_ALLOW_METHODS:-GET,POST,HEAD,PUT,DELETE,PATCH}
+      CORS_ALLOW_ORIGINS: ${CORS_ALLOW_ORIGINS:-https://realworld.minhhoccode111.com}
+      HTTP_PORT: ${HTTP_PORT:-8080}
+      HTTP_USE_PREFORK_MODE: ${HTTP_USE_PREFORK_MODE:-false}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-240h}
+      JWT_ISSUER: ${JWT_ISSUER:-realworldfiberclean}
+      JWT_SECRET: ${JWT_SECRET:-44ee8ac4-fa5f-4c58-b595-e7079de74527}
+      JWT_COOKIE_SECURE: ${JWT_COOKIE_SECURE:-true}
+      JWT_COOKIE_SAME_SITE: ${JWT_COOKIE_SAME_SITE:-Strict}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      METRICS_ENABLED: ${METRICS_ENABLED:-true}
+      PG_POOL_MAX: ${PG_POOL_MAX:-10}
+      PG_URL: postgresql://${POSTGRES_USER:-mhc}:${POSTGRES_PASSWORD:-password}@${POSTGRES_HOST:-db}:${POSTGRES_PORT:-5432}/${POSTGRES_DB:-realworld}
+      SWAGGER_ENABLED: ${SWAGGER_ENABLED:-false}
     ports:
-      - "127.0.0.1:8080:8080"
+      - "127.0.0.1:${HTTP_PORT:-8080}:${HTTP_PORT:-8080}"
     depends_on:
       - db
     networks:
       - realworld
-    restart: unless-stopped
     deploy:
       resources:
         limits:
           cpus: "1.0"
-          memory: "1gb"
+          memory: "1024M"
         reservations:
           cpus: "0.5"
-          memory: "0.5gb"
+          memory: "512M"
 
 networks:
   # docker network create realworld

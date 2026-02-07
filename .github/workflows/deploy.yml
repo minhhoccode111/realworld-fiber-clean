@@ -29,9 +29,13 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push Docker image
-        run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.APP_NAME }}:latest .
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.APP_NAME }}:latest
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.APP_NAME }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Add VPS to known hosts (with retry)
         run: |
@@ -74,21 +78,20 @@ jobs:
             cd ~/$APP_NAME
 
             # In case db is not up first run
-            docker compose up db -d
+            docker compose --env-file .env.prod up db -d
 
             # Pull latest images
-            docker compose pull app
+            docker compose --env-file .env.prod pull app
 
             # Stop and start services with docker-compose
-            docker compose up app -d --force-recreate
+            docker compose --env-file .env.prod up app -d --force-recreate
 
             # Cleanup
-            rm -f .env.prod
             docker system prune -f
 
             # Check if nginx config has changed and update if needed
-            if ! cmp -s /tmp/nginx-$APP_NAME.conf /etc/nginx/sites-available/$NGINX_SITE_NAME.conf; then
-              sudo cp /tmp/nginx-$APP_NAME.conf /etc/nginx/sites-available/$NGINX_SITE_NAME.conf
+            if ! cmp -s /tmp/nginx-host-$APP_NAME.conf /etc/nginx/sites-available/$NGINX_SITE_NAME.conf; then
+              sudo cp /tmp/nginx-host-$APP_NAME.conf /etc/nginx/sites-available/$NGINX_SITE_NAME.conf
               sudo ln -sf /etc/nginx/sites-available/$NGINX_SITE_NAME.conf /etc/nginx/sites-enabled/$NGINX_SITE_NAME.conf
               # Reload nginx
               sudo nginx -t && sudo nginx -s reload
