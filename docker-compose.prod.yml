@@ -1,17 +1,14 @@
-version: "3.9"
-
 x-db-environment: &x-db-environment
   POSTGRES_SSL_MODE: "prefer"
   POSTGRES_HOST: "db"
   POSTGRES_PORT: "5432"
-  POSTGRES_DB: "realworld"
-  POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
-  POSTGRES_USER: "${POSTGRES_USER}"
 
 services:
+  # docker compose -f docker-compose.prod.yml exec db psql -U mhc -d realworld
   db:
     container_name: realworld-db
     image: postgres:18.1-alpine
+    env_file: .env.prod
     environment:
       <<: *x-db-environment
     volumes:
@@ -31,6 +28,7 @@ services:
   app:
     container_name: realworld-fiber-clean
     image: minhhoccode111/realworld-fiber-clean:latest
+    env_file: .env.prod
     ports:
       - "127.0.0.1:8080:8080"
     depends_on:
@@ -41,11 +39,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "1.00"
-          memory: "1Gb"
+          cpus: "1.0"
+          memory: "1gb"
         reservations:
-          cpus: "0.50"
-          memory: "0.5Gb"
+          cpus: "0.5"
+          memory: "0.5gb"
 
 networks:
   # docker network create realworld
