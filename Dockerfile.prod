@@ -1,0 +1,5 @@
+FROM scratch
+ENV TZ=Asia/Ho_Chi_Minh
+COPY realworld-fiber-clean /app
+COPY migrations /migrations
+CMD ["/app"]

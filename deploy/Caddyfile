@@ -1,0 +1,15 @@
+# RealWorld API
+@realworldapi host realworldapi.minhhoccode111.com
+handle @realworldapi {
+    request_body {
+        max_size 10MB
+    }
+
+    reverse_proxy 127.0.0.1:8080 {
+        transport http {
+            keepalive 32s
+            read_timeout 60s
+            write_timeout 60s
+        }
+    }
+}

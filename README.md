@@ -44,6 +44,10 @@
   - Cloudflare proxy previously masked the issue by terminating HTTP/3 at the edge
   - Fixed by disabling **Cloudflare → Speed → Protocol Optimization → HTTP/3 (with QUIC)**
   - Confirmed via Nginx logs showing `SSL_read() failed` / `bad record mac` from protocol mismatch
+- Simplify deployment by replacing CI/CD pipeline setup (last commit 020f7cc16039) with a simple `deploy.sh` script
+  - **Prefork crash**: `HTTP_USE_PREFORK_MODE=true` makes Fiber re-exec the binary via `os.StartProcess`, which is unreliable in `FROM scratch` containers (no `/proc`). Works fine with prefork disabled.
+  - Script uses `cmp -s` instead of `diff` to diff before replacing.
+  - Script use `scp` instead of `rsync` because the destination is `/tmp` so rsync doesn't bring much value
 
 ## Getting started
 
