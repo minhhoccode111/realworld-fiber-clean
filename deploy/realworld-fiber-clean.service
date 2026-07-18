@@ -1,0 +1,15 @@
+[Unit]
+Description=RealWorld Fiber Clean API
+After=network.target
+
+[Service]
+Type=simple
+User=mhc
+WorkingDirectory=/opt/realworld-fiber-clean
+EnvironmentFile=/opt/realworld-fiber-clean/.env
+ExecStart=/opt/realworld-fiber-clean/realworld-fiber-clean
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
